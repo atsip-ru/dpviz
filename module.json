@@ -2,13 +2,13 @@
     "rawname": "dpviz",
     "repo": "unsupported",
     "name": "Dial Plan Vizualizer",
-    "version": "1.0.23",
+    "version": "1.0.24",
     "publisher": "AdamV",
     "license": "GPLv3+",
     "licenselink": "http://www.gnu.org/licenses/gpl-3.0.txt",
-    "changelog": "Language translations, Options to combine Queue and Ring Group members, FreePBX 13 support, improved Virtual Queues",
+    "changelog": "Added Save View. Added Sanitize Labels. Added Agent Queue Penalties. Corrected French translations.",
     "category": "Reports",
     "description": "Graphical display of the dial plan for any Inbound Route",
-    "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.23.tar.gz"
+    "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.24.tar.gz"
 }
 
