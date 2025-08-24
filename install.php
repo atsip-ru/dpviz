@@ -87,3 +87,40 @@ if(DB::IsError($check)) {
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
+
+// Version 0.24 adds queue_penalty
+$sql = "SELECT queue_penalty FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD queue_penalty TINYINT(1) NOT NULL DEFAULT 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET queue_penalty = 1 WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+// Check if table exists first
+$sql = "SHOW TABLES LIKE 'dpviz_views'";
+$exists = $db->getOne($sql);
+$table_created = false;
+
+if (empty($exists)) {
+    // Table doesn't exist, so create it
+    $sql = "CREATE TABLE dpviz_views (
+        id INTEGER NOT NULL PRIMARY KEY $autoincrement,
+        description VARCHAR(50) NULL,
+        ext VARCHAR(50) NULL,
+        jump VARCHAR(50) NULL,
+        skip VARCHAR(255)
+    )";
+    $check = $db->query($sql);
+    if (DB::IsError($check)) {
+        die_freepbx("Can not create dpviz_views table");
+    }
+
+    $table_created = true;
+}

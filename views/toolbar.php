@@ -45,7 +45,7 @@ function dpp_load_tables() {
 	global $db;
 	$dproute=array();
 
-	$tables = array('announcement','daynight','dynroute','languages','ivr_details','kvstore_FreePBX_modules_Customappsreg','miscapps','queues_config','ringgroups','timeconditions','virtual_queue_config');
+	$tables = array('announcement','daynight','dynroute','languages','ivr_details','kvstore_FreePBX_modules_Customappsreg','miscapps','queues_config','ringgroups','timeconditions','virtual_queue_config','dpviz_views');
 	
 	foreach ($tables as $table) {
     // Check if the table exists
@@ -54,8 +54,9 @@ function dpp_load_tables() {
     if (!$tableExists) {
         continue;
     }
-		
-		$query = "SELECT * FROM $table";
+
+		$order = ($table === 'dpviz_views') ? 'ORDER BY description' : '';
+		$query = "SELECT * FROM `$table` $order";
     $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
     
     if (DB::IsError($results)) {
@@ -123,6 +124,11 @@ function dpp_load_tables() {
 					$id = $vqueues['id'];
 					$dproute['vqueues'][$id] = $vqueues;
 				}
+		}elseif ($table == 'dpviz_views') {
+        foreach($results as $dpvizViews) {
+					$id = $dpvizViews['id'];
+					$dproute['dpvizViews'][$id] = $dpvizViews;
+				}
 		}
 		
 	}
@@ -138,6 +144,23 @@ echo '</pre>';
 
 //build dropdowns
 $dropOptions="";
+
+
+//Saved Views
+if (isset($otherroutes['dpvizViews']) && count($otherroutes['dpvizViews']) > 0){
+	$dropOptions.='<optgroup label="' . _('Saved Views') . '">';
+	foreach ($otherroutes['dpvizViews'] as $i=>$ii){
+		$skipArray = explode(';', $ii['skip']);
+		$skipJson = htmlspecialchars(json_encode($skipArray), ENT_QUOTES, 'UTF-8');
+		$description = htmlspecialchars($ii['description'], ENT_QUOTES, 'UTF-8');
+
+		$dropOptions .= '<option 
+			value="' . $ii['ext'] . '|' . $ii['jump'] . '" 
+			data-id="' . $ii['id'] .'" data-skips="' . $skipJson . '">' . $description . '</option>';
+		}
+		$dropOptions.='</optgroup>';
+}
+
 //Inbound Routes
 if (isset($inroutes) && count($inroutes) > 0){
 	$dropOptions .= '<optgroup label="' . _('Inbound Routes [destination]') . '">';
@@ -252,19 +275,38 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
   <div class="row">
     
     <!-- Left Side: Reload & Highlight -->
-    <div class="col-sm-3">
+    <div class="col-sm-2">
       <div style="display: inline-flex; gap: 5px;">
-        <button type="button" class="btn btn-default" id="reloadButton" disabled>
+      
+				<div style="position: relative; display: inline-block;">
+					<!-- Hamburger button -->
+					<button type="button" id="hamburgerBtn" class="btn btn-default" disabled>
+						<i class="fa fa-bars"></i>
+					</button>
+
+					<!-- Dropdown menu -->
+					<div class="dropdownMenu" id="dropdownMenu" style="display:none; position:absolute; top:35px; left:0; background:#f9f9f9; border:1px solid #ccc; border-radius:5px; min-width:150px; box-shadow:0 2px 5px rgba(0,0,0,0.2); padding:10px;">
+						<button type="button" id="focus" class="btn btn-default" disabled>
+							<i class="fa fa-magic"></i> <?php echo _('Highlight Paths'); ?>
+						</button>
+						<button type="button" id="sanitizeBtn" class="btn btn-default" disabled>
+							<i class="fa fa-eye-slash"></i> <?php echo _('Sanitize Labels'); ?>
+						</button>
+						<button type="button" style="display:none;" id="saveModalBtn" class="btn btn-default">
+							<i class="fa fa-save"></i> <?php echo _('Save View'); ?>
+						</button>
+					</div>
+				</div>
+				
+				<button type="button" class="btn btn-default" id="reloadButton" disabled>
           <i class="fa fa-refresh"></i> <?php echo _('Reload'); ?>
         </button>
-        <button type="button" id="focus" class="btn btn-default" disabled>
-          <i class="fa fa-magic"></i> <?php echo _('Highlight Paths'); ?>
-        </button>
+
       </div>
     </div>
 
     <!-- Middle: Dialplan -->
-    <div class="col-sm-6">
+    <div class="col-sm-7">
       <div class="input-group" style="width: 90%; display: table;">
         <span class="input-group-addon" style="white-space: nowrap; width: 150px; padding-left:0px; padding-right:0px; display: table-cell; vertical-align: middle;">
 					<i class="fa fa-sitemap" aria-hidden="true"></i>
@@ -299,34 +341,60 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
 $(document).ready(function() {
 	
 	$('#dialPlan').select2({
-		placeholder: "<?php echo _('Choose Dial Plan'); ?>",
-		dropdownAutoWidth: true,
-		width: '100%',
-		maximumSelectionLength: 20,
-		dropdownCssClass: "custom-dropdown",
-		dropdownParent: $("body"),
-		
-	});
-	
-	let lastSearchTerm = '';
+    placeholder: "<?php echo _('Choose Dial Plan'); ?>",
+    dropdownAutoWidth: true,
+    width: '100%',
+    maximumSelectionLength: 20,
+    dropdownCssClass: "custom-dropdown",
+    dropdownParent: $("body"),
+});
 
-	// Store search term right before selection
-	$('#dialPlan').on('select2:selecting', function () {
-		const searchInput = $('.select2-search__field');
-		if (searchInput.length) {
-			lastSearchTerm = searchInput.val();
-		}
-	});
+let lastSearchTerm = '';
 
-	// Restore the search term when dropdown opens again
-	$('#dialPlan').on('select2:open', function () {
-		setTimeout(() => {
-			const searchInput = $('.select2-search__field');
-			if (searchInput.length && lastSearchTerm) {
-				searchInput.val(lastSearchTerm).trigger('input');
-			}
-		}, 0);
-	});
+// Store search term right before selection
+$('#dialPlan').on('select2:selecting', function () {
+    const $searchInput = $('.select2-search__field');
+    if ($searchInput.length) {
+        lastSearchTerm = $searchInput.val();
+    }
+});
+
+// Restore last search term and focus when dropdown opens
+$('#dialPlan').on('select2:open', function () {
+    function restoreAndFocus() {
+        const $searchField = $('.select2-container--open .select2-search__field');
+        if (!$searchField.length) {
+            requestAnimationFrame(restoreAndFocus);
+            return;
+        }
+
+        // Restore last search term once
+        if (lastSearchTerm && $searchField.val() !== lastSearchTerm) {
+            // Delay to ensure internal handlers are attached
+            setTimeout(() => {
+                $searchField.val(lastSearchTerm).trigger('input');
+            }, 0);
+        }
+
+        // Focus cursor after restoring
+        $searchField.focus();
+
+        // Add clear button if not already present
+        if ($searchField.parent().find('.select2-search__clear').length === 0) {
+            const $clearBtn = $('<span class="select2-search__clear">×</span>');
+
+            $clearBtn.on('click', function () {
+                $searchField.val('').trigger('input').focus();
+            });
+
+            $searchField.wrap('<div class="select2-search__field-wrapper" style="position: relative;"></div>');
+            $searchField.parent().append($clearBtn);
+        }
+    }
+
+    restoreAndFocus();
+});
+
 
 	// Your existing select logic
 	$('#dialPlan').on('select2:select', function (e) {
@@ -336,15 +404,20 @@ $(document).ready(function() {
 		let cleaned = selectedText.replace(/\s\[.*?\]/, '').replace(/(\w+)s\b/, '$1').trim();
 		cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
-		const optionElement = $('#dialPlan option[value="' + selectedId + '"]');
-		const optgroup = optionElement.parent('optgroup');
+		const optionElement = e.params.data.element;
+		const $option = $(optionElement);
+		const optgroup = $option.parent('optgroup');
 		const optgroupLabel = optgroup.length ? optgroup.attr('label') : null;
 
 		const dialplanLabel = document.getElementById('dialplanLabel');
 		const reloadButton = document.getElementById('reloadButton');
+		const hamburgerButton = document.getElementById('hamburgerBtn');
 		const focusButton = document.getElementById('focus');
+		const sanitizeButton = document.getElementById('sanitizeBtn');
 		const filenameInput = document.getElementById('filenameInput');
 		const downloadButton = document.getElementById('downloadButton');
+		const savedDescription = document.getElementById('savedDescription');
+		const viewId = document.getElementById('viewId');
 
 		if (optgroupLabel) {
 			const label = optgroupLabel.replace(/\s\[.*?\]/, '').replace(/(\w+)s\b/, '$1').trim();
@@ -357,12 +430,46 @@ $(document).ready(function() {
 		}
 
 		reloadButton.disabled = false;
+		hamburgerButton.disabled = false;
 		focusButton.disabled = false;
+		sanitizeButton.disabled = false;
 		filenameInput.disabled = false;
 		downloadButton.disabled = false;
-
 		resetFocusMode();
-		generateVisualization(selectedId, '', '',`<?php echo $panzoom; ?>`);
+		
+		let id= '', ext = '', jump = '', skips = [];
+
+	if ($option.length && $option.data('skips') !== undefined) {
+		document.getElementById('saveModalBtn').style.display = 'block';
+		let id = $option.data('id');
+		skips = [...$option.data('skips')];
+		
+
+		const parts = selectedId.split('|');
+		if (parts.length >= 2) {
+				ext = parts[0];
+				jump = parts[1];
+			} else {
+				ext = selectedId;
+			}
+		
+		viewId.value=id;
+		savedDescription.value=selectedText;
+		
+	} else {
+		// Fallback
+		if (selectedId.includes('|')) {
+			[ext, jump] = selectedId.split('|');
+		} else {
+			ext = selectedId;
+		}
+		skips = [];
+		savedDescription.value='';
+		viewId.value='';
+	}
+
+	generateVisualization(ext, jump, skips, `<?php echo $panzoom; ?>`);
+	
 	});
 
 });

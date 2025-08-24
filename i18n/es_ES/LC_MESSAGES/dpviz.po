@@ -710,3 +710,135 @@ msgstr "Etiqueta de Audio"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Mala Destinación: Lista Negra"
+
+msgid "Mon"
+msgstr "lun."
+
+msgid "Tue"
+msgstr "mar."
+
+msgid "Wed"
+msgstr "mié."
+
+msgid "Thu"
+msgstr "jue."
+
+msgid "Fri"
+msgstr "vie."
+
+msgid "Sat"
+msgstr "sáb."
+
+msgid "Sun"
+msgstr "dom."
+
+msgid "Jan"
+msgstr "ene."
+
+msgid "Feb"
+msgstr "feb."
+
+msgid "Mar"
+msgstr "mar."
+
+msgid "Apr"
+msgstr "abr."
+
+msgid "May"
+msgstr "may."
+
+msgid "Jun"
+msgstr "jun."
+
+msgid "Jul"
+msgstr "jun."
+
+msgid "Aug"
+msgstr "ago."
+
+msgid "Sep"
+msgstr "sept."
+
+msgid "Oct"
+msgstr "oct."
+
+msgid "Nov"
+msgstr "nov."
+
+msgid "Dec"
+msgstr "dic."
+
+msgid "Bad Dest"
+msgstr "Destino Malo"
+
+msgid "not found"
+msgstr "No encontrado"
+
+msgid "month inverted"
+msgstr "mes invertido"
+
+msgid "day-of-month inverted"
+msgstr "día-del-mes invertido"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Busy Message"
+msgstr "Mensaje ocupado"
+
+msgid "Instructions Only"
+msgstr "Solo instrucciones"
+
+msgid "No Message"
+msgstr "Ningún mensaje"
+
+msgid "Unavailable Message"
+msgstr "Mensaje de no disponible"
+
+msgid "Delete View"
+msgstr "Eliminar Vista"
+
+msgid "Save View"
+msgstr "Ahorrar visión"
+
+msgid "Saved Views"
+msgstr "Vistas guardadas"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Ahorre Vista: Guarde el diseño actual del plan de llamada. Este botón aparece "
+"después de modificar la vista haciendo clic en CTRL o Shift + haciendo clic "
+"en uno o más nodos."
+
+msgid "Sanitize Labels"
+msgstr "Ocultar etiquetas"
+
+msgid "View Saved Successfully"
+msgstr "Vista Guardada Exitosamente"
+
+msgid "View Deleted Successfully"
+msgstr "Vista eliminada con éxito"
+
+msgid "Restore Labels"
+msgstr "Restaurar Etiquetas"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Limpiar etiquetas: Haga clic en Limpiar etiquetas para ocultar las etiquetas "
+"de los nodos y el encabezado por privacidad. Luego haga clic en los nodos "
+"para mostrarlos individualmente, o en Restaurar para mostrar todas las "
+"etiquetas nuevamente."
+
+msgid "Penalty"
+msgstr "Penalty"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Mostrar Penas del Agente de Cola"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Muestra el valor de la penalización para los agentes de cola."

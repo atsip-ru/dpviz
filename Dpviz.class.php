@@ -25,7 +25,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         return $sth->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display) {
+    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty) {
         $sql = "UPDATE dpviz SET
             `panzoom` = :panzoom,
             `horizontal` = :horizontal,
@@ -36,7 +36,8 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             `fmfm` = :fmfm,
 						`minimal` = :minimal,
 						`queue_member_display` = :queue_member_display,
-						`ring_member_display` = :ring_member_display
+						`ring_member_display` = :ring_member_display,
+						`queue_penalty` = :queue_penalty
             WHERE `id` = 1";
 
         $insert = array(
@@ -49,7 +50,8 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             ':fmfm' => $fmfm,
 						':minimal' => $minimal,
 						':queue_member_display' => $queue_member_display,
-						':ring_member_display' => $ring_member_display
+						':ring_member_display' => $ring_member_display,
+						':queue_penalty' => $queue_penalty
         );
 
         $stmt = $this->db->prepare($sql);
@@ -69,11 +71,11 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 				$minimal = isset($request['minimal']) ? $request['minimal'] : '';
 				$queue_member_display = isset($request['queue_member_display']) ? $request['queue_member_display'] : '';
 				$ring_member_display = isset($request['ring_member_display']) ? $request['ring_member_display'] : '';
+				$queue_penalty = isset($request['queue_penalty']) ? $request['queue_penalty'] : '';
 
         switch ($action) {
             case 'edit':
-                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display);
-                load_view(dirname(__FILE__) . "/views/rnav.php");
+                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty);
                 break;
             default:
                 break;
@@ -87,6 +89,8 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             case 'make':
             case 'getrecording':
             case 'getfile':
+						case 'saveview':
+						case 'deleteview':
                 return true;
         }
         return false;
@@ -106,8 +110,9 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								$minimal= isset($_POST['minimal']) ? $_POST['minimal'] : '';
 								$queue_member_display= isset($_POST['queue_member_display']) ? $_POST['queue_member_display'] : '';
 								$ring_member_display= isset($_POST['ring_member_display']) ? $_POST['ring_member_display'] : '';
+								$queue_penalty= isset($_POST['queue_penalty']) ? $_POST['queue_penalty'] : '';
 
-                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display);
+                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty);
                 echo json_encode(array('success' => $success));
                 exit;
 
@@ -126,6 +131,16 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
                 exit;
 
             case 'make':
+								$fpbx = \FreePBX::create();
+
+								if (isset($fpbx->View) && method_exists($fpbx->View, 'setAdminLocales')) {
+										$fpbx->View->setAdminLocales();
+										\bindtextdomain("dpviz", __DIR__ . "/i18n");
+										\textdomain("dpviz");
+								} else {
+										// fallback or do nothing
+								}
+                
                 include 'process.php';
                 echo json_encode(array(
                     //'vizButtons' => $buttons,
@@ -150,6 +165,87 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             case 'getfile':
                 include 'views/audio.php';
                 exit;
+
+						case 'saveview':
+								try {
+										// Initialize and sanitize inputs
+										$description = isset($_POST['description']) ? trim($_POST['description']) : '';
+										$ext         = isset($_POST['ext']) ? trim($_POST['ext']) : '';
+										$jump        = isset($_POST['jump']) ? trim($_POST['jump']) : '';
+										$viewId      = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+										$skip        = '';
+
+										// Decode 'skip' JSON array if present and sanitize each value
+										if (!empty($_POST['skip'])) {
+												$decoded = json_decode($_POST['skip'], true);
+												if (is_array($decoded)) {
+														$skipArray = array_map(function($item) {
+																return trim($item); // remove whitespace
+														}, $decoded);
+														$skip = implode(';', $skipArray);
+												}
+										}
+
+										// Prepare bind array
+										$params = array(
+												':description' => $description,
+												':ext'         => $ext,
+												':jump'        => $jump,
+												':skip'        => $skip
+										);
+
+										// Determine if update or insert
+										if ($viewId > 0) {
+												$sql = "UPDATE dpviz_views 
+																SET description = :description, ext = :ext, jump = :jump, skip = :skip
+																WHERE id = :id";
+												$params[':id'] = $viewId;
+										} else {
+												$sql = "INSERT INTO dpviz_views (description, ext, jump, skip)
+																VALUES (:description, :ext, :jump, :skip)";
+										}
+
+										// Execute query
+										$stmt = $this->db->prepare($sql);
+										$stmt->execute($params);
+
+										echo json_encode(array(
+												'status' => 'success',
+												'message' => 'Saved successfully.'
+										));
+
+								} catch (PDOException $e) {
+										// Log detailed error on server (do NOT expose to users)
+										error_log($e->getMessage());
+
+										// Generic error message to client
+										echo json_encode(array(
+												'status' => 'error',
+												'message' => 'Database error.'
+										));
+								}
+
+
+                exit;
+								
+						case 'deleteview':
+								try {
+										if (isset($_POST['id']) && $_POST['id'] !== '') {
+												$viewId = $_POST['id'];
+
+												// Prepare and execute delete query
+												$stmt = $this->db->prepare("DELETE FROM dpviz_views WHERE id = :id");
+												$stmt->execute(array(':id' => $viewId));
+
+												echo json_encode(array('status' => 'success', 'message' => 'View deleted successfully.'));
+										} else {
+												echo json_encode(array('status' => 'error', 'message' => 'Missing or empty ID.'));
+										}
+								} catch (PDOException $e) {
+										echo json_encode(array('status' => 'error', 'message' => $e->getMessage()));
+								}
+
+									exit;
 
             default:
                 echo json_encode(array('status' => 'error', 'message' => 'Unknown command'));

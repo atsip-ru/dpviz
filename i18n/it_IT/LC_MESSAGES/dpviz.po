@@ -709,3 +709,135 @@ msgstr "Etichetta Audio"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Cattiva destinazione: Bianco elenco"
+
+msgid "Mon"
+msgstr "lun"
+
+msgid "Tue"
+msgstr "mar"
+
+msgid "Wed"
+msgstr "mer"
+
+msgid "Thu"
+msgstr "gio"
+
+msgid "Fri"
+msgstr "ven"
+
+msgid "Sat"
+msgstr "sab"
+
+msgid "Sun"
+msgstr "dom"
+
+msgid "Jan"
+msgstr "gen"
+
+msgid "Feb"
+msgstr "feb"
+
+msgid "Mar"
+msgstr "mar"
+
+msgid "Apr"
+msgstr "apr"
+
+msgid "May"
+msgstr "mag"
+
+msgid "Jun"
+msgstr "giu"
+
+msgid "Jul"
+msgstr "lug"
+
+msgid "Aug"
+msgstr "ago"
+
+msgid "Sep"
+msgstr "set"
+
+msgid "Oct"
+msgstr "ott"
+
+msgid "Nov"
+msgstr "nov"
+
+msgid "Dec"
+msgstr "dic"
+
+msgid "Bad Dest"
+msgstr "Destinazione non valida"
+
+msgid "not found"
+msgstr "non trovato"
+
+msgid "month inverted"
+msgstr "mese invertito"
+
+msgid "day-of-month inverted"
+msgstr "giorno-mese invertito"
+
+msgid "Loading..."
+msgstr "Caricamento..."
+
+msgid "Busy Message"
+msgstr "Messaggio Occupato"
+
+msgid "Instructions Only"
+msgstr "Solo istruzioni"
+
+msgid "No Message"
+msgstr "Nessun messaggio"
+
+msgid "Unavailable Message"
+msgstr "Messaggio non disponibile"
+
+msgid "Delete View"
+msgstr "Elimina Visualizzazione"
+
+msgid "Save View"
+msgstr "Salva Visualizzazione"
+
+msgid "Saved Views"
+msgstr "Viste Salvate"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Salva Visualizzazione: Salva lo schema corrente del piano di chiamata. Questo "
+"pulsante compare dopo aver modificato la visualizzazione premendo CTRL o "
+"Shift + clic su uno o più nodi."
+
+msgid "Sanitize Labels"
+msgstr "Sanitize Etichette"
+
+msgid "View Saved Successfully"
+msgstr "Visualizzazione salvata con successo"
+
+msgid "View Deleted Successfully"
+msgstr "Visualizzazione Eliminata con Successo"
+
+msgid "Restore Labels"
+msgstr "Ripristina Etichette"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Nascondi etichette: Clicca su Nascondi etichette per nascondere le etichette "
+"dei nodi e l'intestazione per motivi di privacy. Successivamente clicca sui "
+"nodi per mostrarli singolarmente, oppure su Ripristina per rendere nuovamente "
+"visibili tutte le etichette."
+
+msgid "Penalty"
+msgstr "Penalità"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Mostra Penalità dell'Agenzia in Coda"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Visualizza il valore della penalità per gli agenti in coda."

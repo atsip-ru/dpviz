@@ -658,7 +658,7 @@ msgid "Retries"
 msgstr "Tentativas"
 
 msgid "Retry Delay"
-msgstr "\"Atraso de Reconexão\""
+msgstr "Atraso de Reconexão"
 
 msgid "Ring Group"
 msgstr "Grupo de Ligados"
@@ -707,3 +707,134 @@ msgstr "Etiqueta de Áudio"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Má Destino: Negroria"
+
+msgid "Mon"
+msgstr "Seg"
+
+msgid "Tue"
+msgstr "Ter"
+
+msgid "Wed"
+msgstr "Qua"
+
+msgid "Thu"
+msgstr "Qui"
+
+msgid "Fri"
+msgstr "Sex"
+
+msgid "Sat"
+msgstr "Sáb"
+
+msgid "Sun"
+msgstr "Dom"
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Fev"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Abr"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Ago"
+
+msgid "Sep"
+msgstr "Set"
+
+msgid "Oct"
+msgstr "Out"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Dez"
+
+msgid "Bad Dest"
+msgstr "Ponto de destino inválido"
+
+msgid "not found"
+msgstr "não encontrado"
+
+msgid "month inverted"
+msgstr "mês invertido"
+
+msgid "day-of-month inverted"
+msgstr "dia do mês invertido"
+
+msgid "Loading..."
+msgstr "Carregando..."
+
+msgid "Busy Message"
+msgstr "Mensagem de ocupado"
+
+msgid "Instructions Only"
+msgstr "Apenas instruções"
+
+msgid "No Message"
+msgstr "Nenhuma mensagem"
+
+msgid "Unavailable Message"
+msgstr "Mensagem Indisponível"
+
+msgid "Delete View"
+msgstr "Deletar Visualização"
+
+msgid "Save View"
+msgstr "Salvar Visualização"
+
+msgid "Saved Views"
+msgstr "Visões Salvas"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Salvar Visualização: Salve o layout atual do plano de ligação. Este botão "
+"aparece após modificar a visualização usando CTRL ou Shift + clique em um ou "
+"mais nós."
+
+msgid "Sanitize Labels"
+msgstr "Ocultar rótulos"
+
+msgid "View Saved Successfully"
+msgstr "Visualização salva com sucesso"
+
+msgid "View Deleted Successfully"
+msgstr "Visualização excluída com sucesso"
+
+msgid "Restore Labels"
+msgstr "Restaurar Etiquetas"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Ocultar labels: Clique em Ocultar labels para esconder os rótulos dos nós e o "
+"cabeçalho por motivos de privacidade. Clique nos nós depois para revelá-los "
+"individualmente, ou em Restaurar para mostrar todos os labels novamente."
+
+msgid "Penalty"
+msgstr "Pena"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Mostrar Penalidades do Agente da Fila"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Exibe o valor da penalidade para os agentes de fila."

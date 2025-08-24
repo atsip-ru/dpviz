@@ -13,7 +13,7 @@ msgid "Settings"
 msgstr "Paramètres"
 
 msgid "System Recording"
-msgstr "Enregistrement du système"
+msgstr "Enregistrement système"
 
 msgid "Dial Plan Not Selected"
 msgstr "Plan d'appel non sélectionné"
@@ -40,7 +40,7 @@ msgid "Continue"
 msgstr "Continuer"
 
 msgid "Music On Hold"
-msgstr "Musique en attente"
+msgstr "Musique d'attente"
 
 msgid "Play Ringtones"
 msgstr "Jouer les sons d'appel"
@@ -52,7 +52,7 @@ msgid "Busy"
 msgstr "Occupé"
 
 msgid "Hang Up"
-msgstr "Pendu"
+msgstr "Raccroché"
 
 msgid "Congestion"
 msgstr "Congestion"
@@ -64,10 +64,10 @@ msgid "Active"
 msgstr "Actif"
 
 msgid "Night Mode"
-msgstr "Mode Sombre"
+msgstr "Mode Nuit"
 
 msgid "Day Mode"
-msgstr "Jour Mod"
+msgstr "Mode Jour"
 
 msgid "Feature Code"
 msgstr "Code de fonctionnalité"
@@ -79,7 +79,7 @@ msgid "Delay Before Callback"
 msgstr "Délai avant rappel"
 
 msgid "Caller ID"
-msgstr "Numéro d'appel"
+msgstr "Numéro de l'appelant"
 
 msgid "Timeout"
 msgstr "Timeout"
@@ -119,10 +119,10 @@ msgid "Tech"
 msgstr "Tech"
 
 msgid "Voicemail: Enabled"
-msgstr "Courrier de voix : Activé"
+msgstr "Boîte Vocale : Activée"
 
 msgid "Voicemail: Disabled"
-msgstr "Voicemail: Désactivé"
+msgstr "Boîte Vocale : Désactivée"
 
 msgid "Initial Ring Time"
 msgstr "Durée initiale d'appel"
@@ -131,7 +131,7 @@ msgid "Ring Time"
 msgstr "Temps d'appel"
 
 msgid "Follow-Me List"
-msgstr "Liste Suivi-Moi"
+msgstr "Liste Suivez-Moi"
 
 msgid "Confirm Calls"
 msgstr "Confirmer les appels"
@@ -149,16 +149,16 @@ msgid "No Answer, Busy, Not Reachable"
 msgstr "Pas de réponse, Occupé, Injoignable"
 
 msgid "No Answer & Busy"
-msgstr "Sans réponse & Occupé"
+msgstr "Pas de réponse & Occupé"
 
 msgid "Not Reachable"
 msgstr "Indisponible"
 
 msgid "No Answer & Not Reachable"
-msgstr "Sans réponse & Indisponible"
+msgstr "Pas de réponse & Indisponible"
 
 msgid "Busy & Not Reachable"
-msgstr "Occupé & Inaccessible"
+msgstr "Occupé & Indisponible"
 
 msgid "Block Unknown/Blocked Caller ID"
 msgstr ""
@@ -241,13 +241,13 @@ msgid "Skip Busy Agents"
 msgstr "Passer les agents occupés"
 
 msgid "Music On Hold Class"
-msgstr "Classe d'accueil audio"
+msgstr "Musique d'attente"
 
 msgid "Call Recording"
 msgstr "Enregistrement d'appel"
 
 msgid "Mark calls answered elsewhere"
-msgstr "Marc appelle répondu ailleurs"
+msgstr "Marquer les appels répondu ailleurs"
 
 msgid "Timing & Agent Options"
 msgstr "Temps et Options de l'Agent"
@@ -271,16 +271,16 @@ msgid "Max Callers"
 msgstr "Nombre maximal de participants"
 
 msgid "Join Empty"
-msgstr "Rejoignez Empty"
+msgstr "Rejoindre si vide"
 
 msgid "Leave Empty"
-msgstr "Laisser vide"
+msgstr "Quitter si vide"
 
 msgid "No Answer (%s)"
 msgstr "Pas de réponse (%s)"
 
 msgid "Static"
-msgstr "Static"
+msgstr "Statique"
 
 msgid "Dynamic"
 msgstr "Dynamique"
@@ -319,7 +319,7 @@ msgid "Match"
 msgstr "Match"
 
 msgid "No Match"
-msgstr "Aucun correspondance"
+msgstr "No Match"
 
 msgid "Target"
 msgstr "Cible"
@@ -462,7 +462,7 @@ msgid "Time Conditions"
 msgstr "Conditions Temporelles"
 
 msgid "Call Flows"
-msgstr "Flux d'appels"
+msgstr "Jour / Nuit"
 
 msgid "Virtual Queues"
 msgstr "Files d'attente virtuelles"
@@ -477,7 +477,7 @@ msgid "Dynamic Routes"
 msgstr "Routes dynamiques"
 
 msgid "Announcements"
-msgstr "Publicités"
+msgstr "Annonces"
 
 msgid "Languages"
 msgstr "Langues"
@@ -486,7 +486,7 @@ msgid "Misc Applications"
 msgstr "Applications diverses"
 
 msgid "Reload"
-msgstr "Réinitialiser"
+msgstr "Recharger"
 
 msgid "Highlight Paths"
 msgstr "Souligner les chemins"
@@ -570,7 +570,7 @@ msgid "Virtual or non-extension node (no border)"
 msgstr "Nœud virtuel ou non-extension (sans bordure)"
 
 msgid "Remove Highlights"
-msgstr "Supprimer lesFlash"
+msgstr "Supprimer les chemins"
 
 msgid "Checking..."
 msgstr "Vérification..."
@@ -608,7 +608,7 @@ msgid "Email"
 msgstr "Email"
 
 msgid "Enabled"
-msgstr "Activer"
+msgstr "Activé"
 
 msgid "Caller ID Number"
 msgstr "Numéro d'identification de l'appelant"
@@ -662,7 +662,7 @@ msgid "Queue"
 msgstr "File d'attente"
 
 msgid "Agents"
-msgstr "le représentant"
+msgstr "Agents"
 
 msgid "Ext"
 msgstr "Ext"
@@ -719,4 +719,136 @@ msgid "Audio Label"
 msgstr "Étiquette Audio"
 
 msgid "Bad Dest: Blacklist"
-msgstr "Mauvais Dest: Liste noire"
+msgstr "Mauvaise Dest: Liste noire"
+
+msgid "Mon"
+msgstr "lun."
+
+msgid "Tue"
+msgstr "mar."
+
+msgid "Wed"
+msgstr "mer."
+
+msgid "Thu"
+msgstr "jeu."
+
+msgid "Fri"
+msgstr "ven."
+
+msgid "Sat"
+msgstr "sam."
+
+msgid "Sun"
+msgstr "dim."
+
+msgid "Jan"
+msgstr "janv."
+
+msgid "Feb"
+msgstr "févr."
+
+msgid "Mar"
+msgstr "mars"
+
+msgid "Apr"
+msgstr "avr."
+
+msgid "May"
+msgstr "mai"
+
+msgid "Jun"
+msgstr "juin"
+
+msgid "Jul"
+msgstr "juil."
+
+msgid "Aug"
+msgstr "août"
+
+msgid "Sep"
+msgstr "sept."
+
+msgid "Oct"
+msgstr "oct."
+
+msgid "Nov"
+msgstr "nov."
+
+msgid "Dec"
+msgstr "déc."
+
+msgid "Bad Dest"
+msgstr "Mauvais Destin"
+
+msgid "not found"
+msgstr "Non trouvé"
+
+msgid "month inverted"
+msgstr "mois inversé"
+
+msgid "day-of-month inverted"
+msgstr "jour-du-mois inversé"
+
+msgid "Loading..."
+msgstr "Chargement..."
+
+msgid "Busy Message"
+msgstr "Message d'occupation"
+
+msgid "Instructions Only"
+msgstr "Instructions uniquement"
+
+msgid "No Message"
+msgstr "pas de message"
+
+msgid "Unavailable Message"
+msgstr "Message indisponible"
+
+msgid "Delete View"
+msgstr "Supprimer Vue"
+
+msgid "Save View"
+msgstr "Enregistrer Vue"
+
+msgid "Saved Views"
+msgstr "Vues Sauvegardées"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Enregistrer l'affichage : Enregistrez le plan de numération actuel. Ce bouton "
+"apparait après avoir modifié l'affichage en utilisant CTRL ou Shift + clic "
+"sur un ou plusieurs nœuds."
+
+msgid "Sanitize Labels"
+msgstr "Masquer les étiquettes"
+
+msgid "View Saved Successfully"
+msgstr "Afficher enregistré avec succès"
+
+msgid "View Deleted Successfully"
+msgstr "Voir avec succès supprimé"
+
+msgid "Restore Labels"
+msgstr "Restaure les étiquettes"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Nettoyer les étiquettes: Cliquez sur Nettoyer les étiquettes pour masquer les "
+"étiquettes des nœuds et l’en-tête pour des raisons de confidentialité. "
+"Cliquez ensuite sur les nœuds pour les révéler individuellement ou sur "
+"Restaurer pour afficher toutes les étiquettes à nouveau."
+
+msgid "Penalty"
+msgstr "Pénalité"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Afficher les pénalités des agents de file d'attente"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Affiche la valeur de pénalité pour les agents de file d'attente."

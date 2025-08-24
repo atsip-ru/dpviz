@@ -708,3 +708,134 @@ msgstr "Rótulo de Áudio"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Destino Errado: Lista Negra"
+
+msgid "Mon"
+msgstr "seg."
+
+msgid "Tue"
+msgstr "ter."
+
+msgid "Wed"
+msgstr "qua."
+
+msgid "Thu"
+msgstr "qui."
+
+msgid "Fri"
+msgstr "sex."
+
+msgid "Sat"
+msgstr "sáb."
+
+msgid "Sun"
+msgstr "dom."
+
+msgid "Jan"
+msgstr "jan."
+
+msgid "Feb"
+msgstr "fev."
+
+msgid "Mar"
+msgstr "mar."
+
+msgid "Apr"
+msgstr "abr."
+
+msgid "May"
+msgstr "mai."
+
+msgid "Jun"
+msgstr "jun."
+
+msgid "Jul"
+msgstr "jul."
+
+msgid "Aug"
+msgstr "ago."
+
+msgid "Sep"
+msgstr "set."
+
+msgid "Oct"
+msgstr "out."
+
+msgid "Nov"
+msgstr "nov."
+
+msgid "Dec"
+msgstr "dez."
+
+msgid "Bad Dest"
+msgstr "Mau Destino"
+
+msgid "not found"
+msgstr "Não encontrado"
+
+msgid "month inverted"
+msgstr "\"mês invertido\""
+
+msgid "day-of-month inverted"
+msgstr "dia do mês invertido"
+
+msgid "Loading..."
+msgstr "Carregando..."
+
+msgid "Busy Message"
+msgstr "Mensagem de ocupado"
+
+msgid "Instructions Only"
+msgstr "Apenas instruções"
+
+msgid "No Message"
+msgstr "Nenhuma mensagem"
+
+msgid "Unavailable Message"
+msgstr "Mensagem indisponível"
+
+msgid "Delete View"
+msgstr "Apagar Visualização"
+
+msgid "Save View"
+msgstr "Salvar Visualização"
+
+msgid "Saved Views"
+msgstr "Visões Salvas"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Salvar Visualização: Salve o layout atual do plano de chamada. Este botão "
+"aparece após modificar a visualização usando CTRL ou Shift + clique em um ou "
+"mais nós."
+
+msgid "Sanitize Labels"
+msgstr "Ocultar rótulos"
+
+msgid "View Saved Successfully"
+msgstr "Visualização Salva com Sucesso"
+
+msgid "View Deleted Successfully"
+msgstr "Visualização eliminada com sucesso"
+
+msgid "Restore Labels"
+msgstr "Restaurar Etiquetas"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Ocultar labels: Clique em Ocultar labels para esconder os rótulos dos nós e o "
+"cabeçalho por razões de privacidade. Clique nos nós depois para os revelar "
+"individualmente, ou em Restaurar para mostrar todos os labels novamente."
+
+msgid "Penalty"
+msgstr "Penalidade"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Mostrar Penalidades do Agente da Fila"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Exibe o valor da penalidade para os agentes de fila."

@@ -3,20 +3,6 @@ if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
 header('Content-Type: application/json; charset=utf-8');
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (!empty($_SESSION['lang'])){
-	$locale=$_SESSION['lang'];
-	$baseLocale = preg_replace('/\..*$/', '', $locale);
-
-	putenv("LC_ALL=$locale");
-	putenv("LANGUAGE=$baseLocale");
-	setlocale(LC_ALL, $locale);
-
-	// Set up gettext
-	bindtextdomain("dpviz", "/var/www/html/admin/modules/dpviz/i18n");
-	bind_textdomain_codeset("dpviz", "UTF-8");
-	textdomain("dpviz");
-}
-
 // Basic check
 
 if (!is_array($input)) {
@@ -101,7 +87,7 @@ function dpp_find_route($routes, $num) {
 
 $inroutes=dpp_load_incoming_routes();
 $dproute['extension']= $ext;
-
+//print_r($options);
 	if (empty($dproute)) {
 		$header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."</h2></div>";
 	}else{
@@ -129,7 +115,7 @@ $dproute['extension']= $ext;
 				'tooltip' => _('Reset'),
 				'shape' => 'larrow',
 				'URL' => '#',
-				'fontcolor' => '#555555',
+				'fontcolor' => '#000',
 				'fontsize' => '18pt',
 				'fillcolor' => '#F0F0F0',
 				'style' => 'filled'
@@ -138,11 +124,19 @@ $dproute['extension']= $ext;
 		
 		$gtext = $dproute['dpgraph']->render();
 		$gtext=json_encode($gtext);
+		$version= \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND").' '.get_framework_version();
+		$modinfo = \FreePBX::Modules()->getInfo('dpviz');
+    $dpvizVersion = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['rawname'] .' '. $modinfo['dpviz']['version'] : '0.0.0';
 
-
-		$header='<h2><span id="headerSelected"></span></h2>';
+		$header = '
+			<h2 style="display: flex; justify-content: space-between; align-items: center; margin: 0;">
+					<span id="headerSelected"></span>
+					<span id="version" style="color: #DCDCDC; font-weight: normal; font-size: 0.5em; display: none; flex-direction: column; align-items: flex-end;">
+							<span>'.$version.'</span>
+							<span style="text-align: right; width: 100%;">'.$dpvizVersion.'</span>
+					</span>
+			</h2>';
 		if ($datetime==1){$header.= "<h6>".date('Y-m-d H:i:s')."</h6>";}
-
 		$header .= '
 				<input type="hidden" id="processed" value="yes">
 				<input type="hidden" id="ext" value="' . htmlspecialchars($ext, ENT_QUOTES) . '">
@@ -315,7 +309,7 @@ if ($minimal){
 			'tooltip' => _('Reset'),
 			'shape' => 'larrow',
 			'URL' => '#',
-			'fontcolor' => '#555555',
+			'fontcolor' => '#000',
 			'fontsize' => '18pt',
 			'fillcolor' => '#F0F0F0',
 			'style' => 'filled'
@@ -653,7 +647,7 @@ if ($minimal){
 		$meetmeother = $matches[2];
 		if (isset($route['meetme'][$meetmenum])){
 			$meetme = $route['meetme'][$meetmenum];
-			$label = $meetme['exten'].' '.sanitizeLabels($meetme['description']);
+			$label = $meetme['exten']."\n".sanitizeLabels($meetme['description']);
 			$tooltip='';
 			makeNode($module,$meetmenum,$label,$tooltip,$node);
 		}else{
@@ -815,7 +809,7 @@ if ($minimal){
 			
 			if (isset($extension['mailbox'])){
 				$extemail= $extension['mailbox']['email'];
-				$extemail= str_replace(",",",\n",$extemail);
+				if (!empty($extemail)){$extemail= str_replace(",",",\n",$extemail)."\n";}else{$extemail='';}
 				
 				$mailboxLabel="\n\n"._('Voicemail: Enabled');
 				$mailboxLabel.="\n"._('Email').": ".$extemail;
@@ -838,7 +832,7 @@ if ($minimal){
 			}else{
 				$fmfmLabel='';
 			}
-
+			
 			$node->attribute('label', _('Extension').": ".$extnum." ".sanitizeLabels($extname)."\n".sanitizeLabels($extemail));
 			$node->attribute('tooltip', _('Extension').": ".$extnum."\n"._('Name').": ".sanitizeLabels($extname).$regStatus.$mailboxLabel.$fmfmLabel);
 			$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$extnum));
@@ -1314,7 +1308,7 @@ if ($minimal){
 				$line="Page Group ".$pagenum." "._('members').":\n";
 				foreach ($paging['members'] as $member) {
 					if (isset($route['extensions'][$member])){
-						$line.="Ext ".$member." ".sanitizeLabels($route['extensions'][$member]['name'])."\l";
+						$line.= _('Ext')." ".$member." ".sanitizeLabels($route['extensions'][$member]['name'])."\l";
 					}
 				}
 				
@@ -1589,25 +1583,30 @@ if ($minimal){
 				$route['parent_node'] = $node;
 				dpp_follow_destinations($route, $failover.','.$qlang,'',$options);
 			
-			
 			if (!empty($q['members'])){
 				if ($options['queue_member_display']==1){ //--option "Single"
 					foreach ($q['members'] as $types=>$type) {
 						foreach ($type as $member){
+							$splitMember= explode(',', $member);
+							$member=$splitMember[0];
+							$pen=$splitMember[1];
+							
+							if ($options['queue_penalty']==1){
+								$penalty="\n"._('Penalty').": ".$pen;
+							}else{
+								$penalty='';
+							}
 							$route['parent_node'] = $node;
-							$route['parent_edge_label'] = " "._('Static');
 							if ($types=='static'){
-								$route['parent_edge_label'] = " "._('Static');
+								$route['parent_edge_label'] = " "._('Static').$penalty;
 								$route['parent_edge_code'] = 'static';
 							}else{
-								$route['parent_edge_label'] = " "._('Dynamic');
+								$route['parent_edge_label'] = " "._('Dynamic').$penalty;
 								$route['parent_edge_code'] = 'dynamic';
 							}
 							
 							switch ($combineQueueRing) {
 								case "2":
-									//$splitPen= explode(',', $member);
-									//$member=$splitPen[0];
 									$go="from-did-direct,$member,1,$qlang";
 									break;
 								default:
@@ -1654,11 +1653,20 @@ if ($minimal){
 						
 						
 						foreach ($type as $member){
+							$splitMember= explode(',', $member);
+							$member=$splitMember[0];
+							$pen=$splitMember[1];
+							
+							if ($options['queue_penalty']==1){
+								$penalty=",".$pen;
+							}else{
+								$penalty='';
+							}
 							
 							if (isset($route['extensions'][$member])){
-								$line.="Ext ".$member." ".sanitizeLabels($route['extensions'][$member]['name'])."\l";
+								$line.= _('Ext')." ".$member.$penalty." ".sanitizeLabels($route['extensions'][$member]['name'])."\l";
 							}else{
-								$line.=$member."\l";
+								$line.=$member.$penalty."\l";
 							}
 							
 						}
@@ -2169,7 +2177,7 @@ if ($minimal){
 		$vmnum = $matches[2];
 		$vmother = $matches[3];
 		
-		$vm_array=array('b'=>'(Busy Message)','i'=>'(Instructions Only)','s'=>'(No Message)','u'=>'(Unavailable Message)' );
+		$vm_array=array('b'=> _('Busy Message'),'i'=> _('Instructions Only'),'s'=> _('No Message'),'u'=> _('Unavailable Message') );
 		if (isset($route['extensions'][$vmnum]['mailbox'])){
 			$voicemail=$route['extensions'][$vmnum]['mailbox'];
 			$vmname= $voicemail['name'];
@@ -2181,7 +2189,7 @@ if ($minimal){
 				$tooltip.="\n".ucfirst($m).": ".ucfirst($mm);
 			}
 			
-			$label=$vmnum." ".sanitizeLabels($vmname)." ".$vm_array[$vmtype]."\n".sanitizeLabels($vmemail);
+			$label=$vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".sanitizeLabels($vmemail);
 
 			makeNode($module,$vmnum,$label,$tooltip,$node);
 		}else{
@@ -2577,7 +2585,7 @@ function dpp_load_tables(&$dproute,$options) {
 						if (preg_match("/Local\/(\d+).*?,(\d+)/", $member, $matches)) {
 							$enum = $matches[1];
 							$pen= $matches[2];
-							$dproute['queues'][$id]['members']['static'][]=$enum;
+							$dproute['queues'][$id]['members']['static'][]=$enum.','.$pen;
 	
 						}
 					}else{
@@ -2596,7 +2604,7 @@ function dpp_load_tables(&$dproute,$options) {
 							list($ext, $pen) = explode(':', $enum);
 							$ext=trim($ext);
 							$pen=trim($pen);
-							$dproute['queues'][$id]['members']['dynamic'][]=$ext;
+							$dproute['queues'][$id]['members']['dynamic'][]=$ext.','.$pen;
 							
 						}
 					}
@@ -2627,6 +2635,70 @@ function dpp_load_tables(&$dproute,$options) {
 					$dproute['timegroups'][$id] = $tg;
 				}
 		}elseif ($table == 'timegroups_details') {
+				$dowMap = array(
+						'mon' => _('Mon'),
+						'tue' => _('Tue'),
+						'wed' => _('Wed'),
+						'thu' => _('Thu'),
+						'fri' => _('Fri'),
+						'sat' => _('Sat'),
+						'sun' => _('Sun'),
+				);
+
+				$monthMap = array(
+						'jan' => _('Jan'),
+						'feb' => _('Feb'),
+						'mar' => _('Mar'),
+						'apr' => _('Apr'),
+						'may' => _('May'),
+						'jun' => _('Jun'),
+						'jul' => _('Jul'),
+						'aug' => _('Aug'),
+						'sep' => _('Sep'),
+						'oct' => _('Oct'),
+						'nov' => _('Nov'),
+						'dec' => _('Dec'),
+				);
+
+				// Mappings for sort order
+				$dowOrder = array('*' => 0, 'sun' => 0, 'mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6);
+				$monthOrder = array('*' => 0, 'jan'=>1,'feb'=>2,'mar'=>3,'apr'=>4,'may'=>5,'jun'=>6,'jul'=>7,'aug'=>8,'sep'=>9,'oct'=>10,'nov'=>11,'dec'=>12);
+
+				// Add sort keys to each row
+				foreach ($results as &$tgd) {
+						list($timeStr, $dowStr, $domStr, $monthStr) = explode('|', $tgd['time']);
+
+						// Start time as int (HHMM) or 0 for "*"
+						if ($timeStr === '*') {
+								$tgd['_time'] = 0;
+						} else {
+								$tStart = explode('-', $timeStr);
+								$tgd['_time'] = isset($tStart[0]) ? intval(str_replace(':', '', $tStart[0])) : 0;
+						}
+
+						// Day-of-week order
+						$dowParts  = explode('-', $dowStr);
+						$dowFirst  = strtolower($dowParts[0]);
+						$tgd['_dow'] = isset($dowOrder[$dowFirst]) ? $dowOrder[$dowFirst] : 0;
+
+						// Day-of-month order
+						$domParts = explode('-', $domStr);
+						$tgd['_dom'] = ($domStr === '*') ? 0 : intval($domParts[0]);
+
+						// Month order
+						$monthParts  = explode('-', $monthStr);
+						$monthFirst  = strtolower($monthParts[0]);
+						$tgd['_month'] = isset($monthOrder[$monthFirst]) ? $monthOrder[$monthFirst] : 0;
+				}
+				unset($tgd); // break reference
+
+				usort($results, function($a, $b) {
+						if ($a['_month'] !== $b['_month']) return $a['_month'] - $b['_month'];
+						if ($a['_dom']   !== $b['_dom'])   return $a['_dom']   - $b['_dom'];
+						if ($a['_dow']   !== $b['_dow'])   return $a['_dow']   - $b['_dow'];
+						return $a['_time'] - $b['_time'];
+				});
+
         foreach($results as $tgd) {
 					$id = $tgd['timegroupid'];
 					if (!isset($dproute['timegroups'][$id])) {
@@ -2636,10 +2708,10 @@ function dpp_load_tables(&$dproute,$options) {
 						$check=checkTimeGroupLogic($tgd['time']);
 						$exploded=explode("|",$tgd['time']);
 						
-						$time = ($exploded[0] !== "*") ? $exploded[0] : "";
-						$dow = ($exploded[1] !== "*") ? implode("-", array_map('ucfirst', explode("-", $exploded[1]))) : "";
-						$day  = ($exploded[2] !== "*") ? $exploded[2]  : "";
-						$month = ($exploded[3] !== "*") ? implode("-", array_map('ucfirst', explode("-", $exploded[3]))) : "";
+						$time  = ($exploded[0] !== "*") ? $exploded[0] : "";
+						$dow   = translateRange($exploded[1], $dowMap);
+						$day   = ($exploded[2] !== "*") ? $exploded[2] : "";
+						$month = translateRange($exploded[3], $monthMap);
 						
 						if ($month && ($dow!='' || $day!='' || $time!='')){$month.=" | ";}
 						if ($day && ($dow!='' || $time!='')){$day.=" | ";}
@@ -2956,7 +3028,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 					break;
 
 			case 'Voicemail':
-					$url='extensions&extdisplay='.$id;
+					$url='extensions&extdisplay='.$id.'#voicemail';
 					$shape='folder';
 					$color='#979291';
 					break;
@@ -3002,8 +3074,8 @@ function notFound($module,$destination,$node){
 			$output = $destination; // No comma found
 	}
 	
-	$node->attribute('label', "Bad Dest: {$module}: {$output}");
-	$node->attribute('tooltip', "Bad Dest: {$module}: {$output}");
+	$node->attribute('label', _('Bad Dest').": {$module}: {$output}");
+	$node->attribute('tooltip', _('Bad Dest').": {$module}: {$output}");
 	$node->attribute('shape', 'rect');
 	$node->attribute('fillcolor', 'red');
 	$node->attribute('style', 'filled');
@@ -3017,10 +3089,10 @@ function findRecording($route,$id){
 		if (isset($route['recordings'][$id])){
 			$name=$route['recordings'][$id]['displayname'];
 		}else{
-			$name="not found";
+			$name=_('not found');
 		}
 	}elseif ($id==''){
-		$name="None";
+		$name=_('None');
 	}else{
 		$name=$id;
 	}
@@ -3047,7 +3119,7 @@ function checkTimeGroupLogic($entry) {
 
                 if ($monthStart > $monthEnd) {
                     $monthInverted = true;
-                    $errors[] = 'month inverted ';
+                    $errors[] = _('month inverted');
                 }
             }
         }
@@ -3063,7 +3135,7 @@ function checkTimeGroupLogic($entry) {
 
         if ($dayStart > $dayEnd) {
             $dayInverted = true;
-            $errors[] = 'day-of-month inverted ';
+            $errors[] = _('day-of-month inverted');
         }
     }
 
@@ -3146,6 +3218,18 @@ function parsePjsipAors($data) {
     return $aors;
 }
 
+function translateRange($value, $map) {
+    if ($value === '*') return '';
+		
+    $parts = explode('-', $value);
+    $translated = array_map(function($part) use ($map) {
+        return isset($map[$part]) ? $map[$part] : $part;
+    }, $parts);
+		
+		
+		
+    return implode('-', $translated);
+}
 
 
 

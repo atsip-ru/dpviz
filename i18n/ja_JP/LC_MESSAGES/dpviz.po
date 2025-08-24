@@ -371,7 +371,7 @@ msgid "Queues and Ring Groups Only"
 msgstr "キューとリング・グループのみ"
 
 msgid "All Destinations"
-msgstr "すべての先行先"
+msgstr "すべての目的地"
 
 msgid ""
 "\"None\" displays individual extension nodes. \"Queues and Ring Groups Only\" "
@@ -707,3 +707,134 @@ msgstr "オーディオラベル"
 
 msgid "Bad Dest: Blacklist"
 msgstr "不正なデスト:ブラックリスト"
+
+msgid "Mon"
+msgstr "月"
+
+msgid "Tue"
+msgstr "火"
+
+msgid "Wed"
+msgstr "水"
+
+msgid "Thu"
+msgstr "木"
+
+msgid "Fri"
+msgstr "金"
+
+msgid "Sat"
+msgstr "土"
+
+msgid "Sun"
+msgstr "日"
+
+msgid "Jan"
+msgstr "1月"
+
+msgid "Feb"
+msgstr "2月"
+
+msgid "Mar"
+msgstr "3月"
+
+msgid "Apr"
+msgstr "4月"
+
+msgid "May"
+msgstr "5月"
+
+msgid "Jun"
+msgstr "6月"
+
+msgid "Jul"
+msgstr "7月"
+
+msgid "Aug"
+msgstr "8月"
+
+msgid "Sep"
+msgstr "9月"
+
+msgid "Oct"
+msgstr "10月"
+
+msgid "Nov"
+msgstr "11月"
+
+msgid "Dec"
+msgstr "12月"
+
+msgid "Bad Dest"
+msgstr "不良のデスティネーション"
+
+msgid "not found"
+msgstr "見つかりませんでした"
+
+msgid "month inverted"
+msgstr "月を逆にした"
+
+msgid "day-of-month inverted"
+msgstr "月曜日には、日付の日部分が反転しています。"
+
+msgid "Loading..."
+msgstr "読み込み中..."
+
+msgid "Busy Message"
+msgstr "忙しいメッセージ"
+
+msgid "Instructions Only"
+msgstr "説明書のみ"
+
+msgid "No Message"
+msgstr "メッセージなし"
+
+msgid "Unavailable Message"
+msgstr "利用不可メッセージ"
+
+msgid "Delete View"
+msgstr "削除する表示を削除します。"
+
+msgid "Save View"
+msgstr "保存されたビューを表示する"
+
+msgid "Saved Views"
+msgstr "保存された表示"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"保存表示: 現在のダイヤル計画レイアウトを保存します。このボタンは、CTRLまたはシ"
+"フトキーを使用して1つまたは複数のノードを選択してビューを変更した後に表示され"
+"ます。"
+
+msgid "Sanitize Labels"
+msgstr "ラベルを非表示"
+
+msgid "View Saved Successfully"
+msgstr "ビューが正常に保存されました"
+
+msgid "View Deleted Successfully"
+msgstr "ビューが正常に削除されました"
+
+msgid "Restore Labels"
+msgstr "ラベルを復元する"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"ラベルを非表示: ラベルを非表示をクリックすると、ノードのラベルとヘッダーをプラ"
+"イバシーのために隠せます。その後、ノードをクリックして個別に表示するか、復元を"
+"クリックしてすべてのラベルを再表示できます。"
+
+msgid "Penalty"
+msgstr "ペナルティ"
+
+msgid "Show Queue Agent Penalties"
+msgstr "キューエージェントのペナルティを表示する"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "キューエージェントのペナルティ値を表示します。"

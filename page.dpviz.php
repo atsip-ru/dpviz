@@ -4,14 +4,6 @@ if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
 //	Copyright 2013 Schmooze Com Inc.
 //  Copyright (C) 2011 Mikael Carlsson (mickecarlsson at gmail dot com)
 //
-
-$locale = getenv('LC_ALL');
-if ($locale=='en_US.utf8'){
-	$_SESSION['lang']=NULL;
-}else{
-	$_SESSION['lang']=$locale;
-}
-
 ?>
 <script src="modules/dpviz/assets/js/viz.min.js"></script>
 <script src="modules/dpviz/assets/js/full.render.js"></script>
@@ -39,7 +31,11 @@ const translations = {
 	recordingLabel: "<?php echo _('Recording'); ?>",
 	noFilesLang: "<?php echo _('No files found for language:'); ?>",
 	copyFilename: "<?php echo _('Copy filename'); ?>",
-	audioLabel: "<?php echo _('Audio'); ?>"
+	audioLabel: "<?php echo _('Audio'); ?>",
+	viewSaved: "<?php echo _('View Saved Successfully'); ?>",
+	viewDeleted: "<?php echo _('View Deleted Successfully'); ?>",
+	sanitizeLabels: "<?php echo _('Sanitize Labels'); ?>",
+	restoreLabels: "<?php echo _('Restore Labels'); ?>"
 };
 </script>
 <meta charset="UTF-8">
@@ -75,11 +71,12 @@ const translations = {
 						</div>
 						<div id="vizSpinner">
 							<div class="loader"></div>
-							<h3 class="spinner-text">Loading...</h3>
+							<h3 class="spinner-text"><?php echo _('Loading...'); ?></h3>
 						</div>
 						<div id="vizWrapper">
 							
 							<div id="overlay" onclick="closeModal()"></div>
+							<!-- Recording Modal container -->
 							<div id="recordingmodal">
 								<div id="recordingmodal-header">
 									<span id="recordingmodal-title">🔊 <?php echo _('System Recording'); ?></span>
@@ -89,6 +86,23 @@ const translations = {
 								<div id="audioList"></div>
 							</div>
 							
+							<!-- Saved View Modal container -->
+							<div id="saveModal" class="savemodal">
+								<div class="savemodal-content">
+									<span class="saveclose" onclick="closeSaveModal()">&times;</span>
+
+									<form id="saveViewForm">
+										<label for="description" style="font-weight: bold; display: block; margin-bottom: 5px;"><?php echo _('Description'); ?>:</label>
+										<input type="text" id="savedDescription" name="description" required><br><br>
+										<div class="button-group">
+											<button type="button" id="deleteViewBtn">🗑️ <?php echo _('Delete View'); ?></button>
+											<button type="submit" id="saveviewbtn">💾 <?php echo _('Save View'); ?></button>
+										</div>
+										
+										<input type="hidden" id="viewId" name="id">
+									</form>
+								</div>
+							</div>
 							
 							<div id="vizContainer" class="display full-border">
 								<div id="vizHeader"><p><strong><?php echo _('Dial Plan Not Selected'); ?></strong><br><?php echo _('Use the dropdown to select a dial plan.'); ?></p></div>

@@ -9,6 +9,12 @@
     <li>
         🎯 <?php echo _('Highlight Paths: Click Highlight Paths, then select a node or edge. Click Remove Highlights to clear.'); ?>
     </li>
+		<li>
+				🙈 <?php echo _('Sanitize Labels: Click Sanitize Labels to hide node labels and the header for privacy. Click nodes afterwards to reveal them individually, or click Restore to show all labels again.'); ?>
+		</li>
+		<li>
+        💾 <?php echo _('Save View: Save the current dial plan layout. This button appears after modifying the view using CTRL or Shift + click on one or more nodes.'); ?>
+    </li>
     <li>
         🖱️ <?php echo _('Hover: Move your cursor over a path to highlight it.'); ?>
     </li>

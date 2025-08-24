@@ -711,3 +711,134 @@ msgstr "Audio Etiket"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Slechte Bestemming: Blokkeerlijst"
+
+msgid "Mon"
+msgstr "Maandag"
+
+msgid "Tue"
+msgstr "Dinsdag"
+
+msgid "Wed"
+msgstr "Woensdag"
+
+msgid "Thu"
+msgstr "Donderdag"
+
+msgid "Fri"
+msgstr "Vrijdag"
+
+msgid "Sat"
+msgstr "Zaterdag"
+
+msgid "Sun"
+msgstr "Zondag"
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Mei"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Dec"
+
+msgid "Bad Dest"
+msgstr "Slechte Bestemming"
+
+msgid "not found"
+msgstr "niet gevonden"
+
+msgid "month inverted"
+msgstr "maand omgekeerd"
+
+msgid "day-of-month inverted"
+msgstr "dag-van-maand omgekeerd"
+
+msgid "Loading..."
+msgstr "Laden..."
+
+msgid "Busy Message"
+msgstr "Bezet bericht"
+
+msgid "Instructions Only"
+msgstr "Instructions Alleen"
+
+msgid "No Message"
+msgstr "Geen bericht"
+
+msgid "Unavailable Message"
+msgstr "Bericht niet beschikbaar"
+
+msgid "Delete View"
+msgstr "Verwijder Weergave"
+
+msgid "Save View"
+msgstr "Bewaar weergave"
+
+msgid "Saved Views"
+msgstr "Opgeslagen Weergaven"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Bekijk opstappen: Sla de huidige indienstname-opstelling op. Dit knopje "
+"verschijnt nadat u de weergave hebt aangepast met CTRL of Shift + klikken op "
+"een of meerdere knopen."
+
+msgid "Sanitize Labels"
+msgstr "Labels verbergen"
+
+msgid "View Saved Successfully"
+msgstr "Weergave opgeslagen met succes"
+
+msgid "View Deleted Successfully"
+msgstr "Weergave is succesvol verwijderd"
+
+msgid "Restore Labels"
+msgstr "Herstel Labels"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Labels verbergen: Klik op Labels verbergen om knooplabels en de header voor "
+"privacy te verbergen. Klik daarna op knopen om ze afzonderlijk te tonen, of "
+"op Herstellen om alle labels weer zichtbaar te maken."
+
+msgid "Penalty"
+msgstr "Boete"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Toon wachttijd-agent straf"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Toont de strafwaarde voor wachtrijagenten."

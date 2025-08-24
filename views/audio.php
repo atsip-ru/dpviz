@@ -18,7 +18,7 @@ if (isset($fpbxResults) && !empty($fpbxResults['playbacklist'])){
 //getfile
 if (isset($_POST['file'])){
 	$filename= $_POST['file'];
-	error_log($filename);
+	//error_log($filename);
 	
 	$path = "/var/lib/asterisk/sounds/$filename.wav";
 

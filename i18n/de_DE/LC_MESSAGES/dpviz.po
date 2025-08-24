@@ -716,3 +716,135 @@ msgstr "Audiodatei-Bezeichnung"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Schlechter Ziel: Schwarze Liste"
+
+msgid "Mon"
+msgstr "Mo"
+
+msgid "Tue"
+msgstr "Di"
+
+msgid "Wed"
+msgstr "Mi"
+
+msgid "Thu"
+msgstr "Do"
+
+msgid "Fri"
+msgstr "Fr"
+
+msgid "Sat"
+msgstr "Sa"
+
+msgid "Sun"
+msgstr "So"
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mär"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Dez"
+
+msgid "Bad Dest"
+msgstr "Schlechter Zielort"
+
+msgid "not found"
+msgstr "nicht gefunden"
+
+msgid "month inverted"
+msgstr "monat umgekehrt"
+
+msgid "day-of-month inverted"
+msgstr "monatstag umgekehrt"
+
+msgid "Loading..."
+msgstr "Lade..."
+
+msgid "Busy Message"
+msgstr "Busy-Nachricht"
+
+msgid "Instructions Only"
+msgstr "Anweisungen nur"
+
+msgid "No Message"
+msgstr "Keine Nachricht"
+
+msgid "Unavailable Message"
+msgstr "Nicht verfügbare Nachricht"
+
+msgid "Delete View"
+msgstr "Lösche Ansicht"
+
+msgid "Save View"
+msgstr "Sparen Sie Ansicht"
+
+msgid "Saved Views"
+msgstr "Gespeicherte Ansichten"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Speichern Sie Ansicht: Das aktuelle Layout des Rufplans speichern. Dieser "
+"Button erscheint nach der Änderung der Ansicht mit CTRL oder Umschalt + Klick "
+"auf einer oder mehreren Knoten."
+
+msgid "Sanitize Labels"
+msgstr "Beschriftungen ausblenden"
+
+msgid "View Saved Successfully"
+msgstr "Ansicht erfolgreich gespeichert"
+
+msgid "View Deleted Successfully"
+msgstr "Ansicht erfolgreich gelöscht"
+
+msgid "Restore Labels"
+msgstr "Rekonstruiere Etiketten"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Labels säubern: Klicken Sie auf Labels säubern, um Knotenbeschriftungen und "
+"den Header aus Datenschutzgründen zu verbergen. Klicken Sie anschließend auf "
+"Knoten, um diese einzeln anzuzeigen, oder auf Wiederherstellen, um alle "
+"Labels wieder sichtbar zu machen."
+
+msgid "Penalty"
+msgstr "Strafe"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Zeige Warteschlangen-Agent-Strafen an"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Zeigt den Strafwert für die Warteschlange-Agenten an."

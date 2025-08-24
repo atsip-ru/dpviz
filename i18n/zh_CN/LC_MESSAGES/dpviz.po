@@ -696,3 +696,132 @@ msgstr "音频标签"
 
 msgid "Bad Dest: Blacklist"
 msgstr "坏目标：黑名单"
+
+msgid "Mon"
+msgstr "周一"
+
+msgid "Tue"
+msgstr "周二"
+
+msgid "Wed"
+msgstr "周三"
+
+msgid "Thu"
+msgstr "周四"
+
+msgid "Fri"
+msgstr "周五"
+
+msgid "Sat"
+msgstr "周六"
+
+msgid "Sun"
+msgstr "周日"
+
+msgid "Jan"
+msgstr "1月"
+
+msgid "Feb"
+msgstr "2月"
+
+msgid "Mar"
+msgstr "3月"
+
+msgid "Apr"
+msgstr "4月"
+
+msgid "May"
+msgstr "5月"
+
+msgid "Jun"
+msgstr "6月"
+
+msgid "Jul"
+msgstr "7月"
+
+msgid "Aug"
+msgstr "8月"
+
+msgid "Sep"
+msgstr "9月"
+
+msgid "Oct"
+msgstr "10月"
+
+msgid "Nov"
+msgstr "11月"
+
+msgid "Dec"
+msgstr "12月"
+
+msgid "Bad Dest"
+msgstr "坏目的地"
+
+msgid "not found"
+msgstr "未找到"
+
+msgid "month inverted"
+msgstr "倒置的月份"
+
+msgid "day-of-month inverted"
+msgstr "月份倒置"
+
+msgid "Loading..."
+msgstr "正在加载..."
+
+msgid "Busy Message"
+msgstr "忙消息"
+
+msgid "Instructions Only"
+msgstr "仅说明"
+
+msgid "No Message"
+msgstr "没有留言"
+
+msgid "Unavailable Message"
+msgstr "不可用的消息"
+
+msgid "Delete View"
+msgstr "删除查看"
+
+msgid "Save View"
+msgstr "保存视图"
+
+msgid "Saved Views"
+msgstr "保存的视图"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"保存查看：保存当前拨号计划布局。在使用CTRL或Shift+单击一个或多个节点修改视图"
+"后，将显示此按钮。"
+
+msgid "Sanitize Labels"
+msgstr "隐藏标签"
+
+msgid "View Saved Successfully"
+msgstr "视图保存成功"
+
+msgid "View Deleted Successfully"
+msgstr "视图删除成功"
+
+msgid "Restore Labels"
+msgstr "还原标签"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"隐藏标签: 点击隐藏标签以出于隐私原因隐藏节点标签和标题。随后点击节点可单独显"
+"示，或点击恢复以再次显示所有标签。"
+
+msgid "Penalty"
+msgstr "罚金"
+
+msgid "Show Queue Agent Penalties"
+msgstr "显示队列代理人员罚款"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "显示队列代理的罚款值。"

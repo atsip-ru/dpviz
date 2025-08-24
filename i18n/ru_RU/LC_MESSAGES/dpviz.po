@@ -715,3 +715,135 @@ msgstr "Этикетка аудиозаписи"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Плохая Цель: Чёрный список"
+
+msgid "Mon"
+msgstr "Пн"
+
+msgid "Tue"
+msgstr "Вт"
+
+msgid "Wed"
+msgstr "Ср"
+
+msgid "Thu"
+msgstr "Чт"
+
+msgid "Fri"
+msgstr "Пт"
+
+msgid "Sat"
+msgstr "Сб"
+
+msgid "Sun"
+msgstr "Вс"
+
+msgid "Jan"
+msgstr "янв"
+
+msgid "Feb"
+msgstr "фев"
+
+msgid "Mar"
+msgstr "мар"
+
+msgid "Apr"
+msgstr "апр"
+
+msgid "May"
+msgstr "май"
+
+msgid "Jun"
+msgstr "июн"
+
+msgid "Jul"
+msgstr "июл"
+
+msgid "Aug"
+msgstr "авг"
+
+msgid "Sep"
+msgstr "сен"
+
+msgid "Oct"
+msgstr "окт"
+
+msgid "Nov"
+msgstr "ноя"
+
+msgid "Dec"
+msgstr "дек"
+
+msgid "Bad Dest"
+msgstr "Плохой назначение"
+
+msgid "not found"
+msgstr "не найдено"
+
+msgid "month inverted"
+msgstr "месяц перевернутый"
+
+msgid "day-of-month inverted"
+msgstr "день-месяца в обратном порядке"
+
+msgid "Loading..."
+msgstr "Загрузка..."
+
+msgid "Busy Message"
+msgstr "Сообщение занято"
+
+msgid "Instructions Only"
+msgstr "Только инструкции"
+
+msgid "No Message"
+msgstr "Нет сообщения"
+
+msgid "Unavailable Message"
+msgstr "Недоступное сообщение"
+
+msgid "Delete View"
+msgstr "Удалить Просмотр"
+
+msgid "Save View"
+msgstr "Сохранить Вью"
+
+msgid "Saved Views"
+msgstr "Сохраненные Взгляды"
+
+msgid ""
+"Save View: Save the current dial plan layout. This button appears after "
+"modifying the view using CTRL or Shift + click on one or more nodes."
+msgstr ""
+"Сохранить просмотр: сохраните текущую разметку плана диалинга. Эта кнопка "
+"появляется после модификации просмотра, используя CTRL или Shift + нажатие на "
+"одну или несколько узлов."
+
+msgid "Sanitize Labels"
+msgstr "Скрыть метки"
+
+msgid "View Saved Successfully"
+msgstr "Просмотр сохранен успешно"
+
+msgid "View Deleted Successfully"
+msgstr "Просмотр успешно удален"
+
+msgid "Restore Labels"
+msgstr "Восстановить Этикетки"
+
+msgid ""
+"Sanitize Labels: Click Sanitize Labels to hide node labels and the header for "
+"privacy. Click nodes afterwards to reveal them individually, or click Restore "
+"to show all labels again."
+msgstr ""
+"Скрыть подписи: Нажмите Скрыть подписи, чтобы скрыть подписи узлов и "
+"заголовок для сохранения конфиденциальности. Затем нажмите на узлы, чтобы "
+"показать их по отдельности, или на Восстановить, чтобы показать все подписи "
+"снова."
+
+msgid "Penalty"
+msgstr "Пенальти"
+
+msgid "Show Queue Agent Penalties"
+msgstr "Показать штрафы агента очереди"
+
+msgid "Displays the penalty value for queue agents."
+msgstr "Отображает значение штрафа для агентов очереди."

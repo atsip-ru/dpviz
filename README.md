@@ -58,21 +58,35 @@ You may adjust the schedule as needed.
 - Click **Highlight Paths**, then select a node or edge to highlight it (links are inactive).
 - To clear highlights, click **Remove Highlights**.
 
-### Navigation
+### Sanitize Labels
+- Click **Sanitize Labels** to hide all node labels with black bars. Links will be temporarily disabled.
+- You can click individual nodes or the header to reveal their labels while in sanitize mode.
+- Enter a filename and download the sanitized `.png` for safe sharing online.
+- To remove all black bars and restore the original labels, click **Restore Labels**.
+
+### Save View
+- Hold **CTRL** or **SHIFT** while clicking nodes to modify the view before saving.
+- Click **Save View** to provide a description for the current view.
+- If you are viewing a previously saved view, clicking **Save View** allows you to **rename** or **delete** it.
+
+
+## Navigation
 - **Ignore / hide from a Node:** Press Shift and left-click a node to make it the last node drawn. Helpful for focusing on important routes. (eg. Time condition flows into another time condition.) Multiple "shift + clicks" are supported.
 - **Redraw from a Node:** Press Ctrl (Cmd on macOS) and left-click a node to make it the new starting point in the diagram. To revert, Ctrl/Cmd + left-click the "Back" node.
 - **Pan** by holding down the left mouse button and dragging.
 - **Zoom** using the mouse wheel.
 
-### Additional Features
+## Additional Features
 - **Listen** to recordings assigned to Announcement, Dynamic Route, IVR, and Play Recording modules. (**Note**: Supports multi-part and multi-language recordings. Only .wav files are supported.)
-- **Hover** over a path to highlight the path between destinations.
+- **Hover** over a path to highlight the route between destinations. **Click** the path to keep it highlighted.
 - **Click** on a destination to open it in a new tab.
-- **Click** on a "Match: (timegroup)" or "NoMatch" to open it in a new tab.
-- **Export** the dial plan with standard or custom filename. Choose between high and standard quality.
+- **Click** on a "Match: (timegroup)" or "No Match" to open it in a new tab.
+- **Export** the dial plan with standard or custom filename. Choose between super, high, standard quality, or .SVG
 
 ## Dependencies
 - **PHP >= 5.3.0**
+- **Recordings**
+- **Sound Languages**
 
 ## Supported PBXs
 - **FreePBX 13 - 17**
