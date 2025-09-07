@@ -89,8 +89,10 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             case 'make':
             case 'getrecording':
             case 'getfile':
+						case 'getvoicemail':
 						case 'saveview':
 						case 'deleteview':
+						case 'feedback':
                 return true;
         }
         return false;
@@ -143,27 +145,182 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
                 
                 include 'process.php';
                 echo json_encode(array(
-                    //'vizButtons' => $buttons,
                     'vizHeader' => $header,
                     'gtext' => json_decode($gtext)
                 ));
                 exit;
 
             case 'getrecording':
-                $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-								$fpbxResults= \FreePBX::Recordings()->getRecordingById($id);
+								$mod = isset($_POST['app']) ? $_POST['app'] : '';
+                $id = isset($_POST['id']) ? $_POST['id'] : 0;
 								$lang=$_POST['lang'];
-								include 'views/audio.php';
+
+								if ($mod=='systemrecording'){
+										$desc = '';
+										$recId = $id;
+										
+								} elseif ($mod=='announcement'){
+									$annResults= \FreePBX::Announcement()->getAnnouncements();
+									foreach ($annResults as $a=>$aa){
+										if ($aa['announcement_id']==$id){
+											$desc = $aa['description'];
+											$recId = $aa['recording_id'];
+											break;											
+										}
+									}
+									
+								} elseif ($mod=='ivr'){
+									$ivrResults= \FreePBX::Ivr()->getDetails($id);
+									$desc = $ivrResults['name'];
+									$recId = $ivrResults['announcement'];
+									
+								} elseif ($mod=='ringgroup'){
+									$sql = "SELECT * FROM ringgroups WHERE grpnum = ?";
+									$sth = $this->db->prepare($sql);
+									$sth->execute(array($id));
+									$rgResults = $sth->fetch(\PDO::FETCH_ASSOC);
+									$desc = $rgResults['description'];
+									if (isset($rgResults['annmsg_id']) && $rgResults['annmsg_id'] !==''){
+										$recId = $rgResults['annmsg_id'];
+									}else{
+										$recId=0;
+									}
+									
+								} elseif ($mod=='vmblast'){
+									$sql = "SELECT * FROM vmblast WHERE grpnum = ?";
+									$sth = $this->db->prepare($sql);
+									$sth->execute(array($id));
+									$vmblastResults = $sth->fetch(\PDO::FETCH_ASSOC);
+									$desc = $vmblastResults['description'];
+									if (isset($vmblastResults['audio_label']) && $vmblastResults['audio_label'] !==''){
+										$recId = $vmblastResults['audio_label'];
+									}else{
+										$recId=0;
+									}
+									
+								} elseif ($mod=='pagegroups'){
+									$sql = "SELECT * FROM paging_config WHERE page_group = ?";
+									$sth = $this->db->prepare($sql);
+									$sth->execute(array($id));
+									$vmblastResults = $sth->fetch(\PDO::FETCH_ASSOC);
+									$desc = $vmblastResults['description'];
+									if (isset($vmblastResults['announcement']) && $vmblastResults['announcement'] !==''){
+										$recId = $vmblastResults['announcement'];
+									}else{
+										$recId=0;
+									}
+									
+								} elseif ($mod=='dynroute'){
+									$sql = "SELECT * FROM dynroute WHERE id = ?";
+									$sth = $this->db->prepare($sql);
+									$sth->execute(array($id));
+									$dynResults = $sth->fetch(\PDO::FETCH_ASSOC);
+									$desc = $dynResults['name'];
+									if (isset($dynResults['announcement_id']) && $dynResults['announcement_id'] !==''){
+										$recId = $dynResults['announcement_id'];
+									}else{
+										$recId=0;
+									}
+									
+								} elseif ($mod=='queuecallback'){
+									$sql = "SELECT * FROM vqplus_callback_config WHERE id = ?";
+									$sth = $this->db->prepare($sql);
+									$sth->execute(array($id));
+									$qcbResults = $sth->fetch(\PDO::FETCH_ASSOC);
+									$desc = $qcbResults['name'];
+									if (!empty($qcbResults['announcement'])){
+										$recId = $qcbResults['announcement'];
+									}else{
+										$recId=0;
+									}
+									
+								} elseif ($mod=='voicemail'){
+										$desc='voicemail';
+										
+										if (preg_match('/vm([a-z])(\d+)/', $id, $matches)) {
+											$type = $matches[1]; // "u"
+											$ext = $matches[2]; // "210"
+											$vm = \FreePBX::Voicemail();
+											$vmResults = $vm->getGreetingsByExtension($ext);
+											$typeMap = array(
+													'u' => 'unavail',
+													'b' => 'busy',
+											);
+
+											$greetKey = isset($typeMap[$type]) ? $typeMap[$type] : null;
+											$filename = isset($vmResults[$greetKey]) ? $vmResults[$greetKey] : null;
+											
+											$recId = 'voicemail';
+											$displayname= _('Ext').' '.$ext;
+										}
+								}
+
+								if ($recId!=0){
+									
+									$fpbxResults= \FreePBX::Recordings()->getRecordingById($recId);
+									if (!empty($fpbxResults)){
+										//getrecording
+										if (isset($fpbxResults) && !empty($fpbxResults['playbacklist'])){
+											$audiolist='';
+											foreach ($fpbxResults['playbacklist'] as $f){
+												if (!empty($fpbxResults['soundlist'][$f]['filenames'][$lang])){
+													$audiolist.='/var/lib/asterisk/sounds/'.$lang.'/'.$f.'&';
+												}
+											}
+											$audiolist = rtrim($audiolist, '&');
+											
+											$displayname = $fpbxResults['displayname'];
+											$filename = $audiolist;
+										}
+										
+									}else{
+										$recId = 0;
+										$displayname = '';
+										$filename = '';
+									}
+								}elseif ($recId==='voicemail'){
+									
+									
+								}else{
+									$displayname = '';
+									$filename = '';
+								}
 								
                 header('Content-Type: application/json');
                 echo json_encode(array(
-                    'displayname' => $results['displayname'],
-                    'filename' => $results['filename']
+										'modDescription' => $desc,
+										'recId' => $recId,
+                    'displayname' => $displayname,
+                    'filename' => $filename
                 ));
                 exit;
 
             case 'getfile':
-                include 'views/audio.php';
+                if (isset($_POST['file'])){
+									$filename= $_POST['file'];
+									if (substr($filename, -4) !== ".wav") {
+										$filename .= ".wav";
+									}
+
+									if (file_exists($filename) && is_readable($filename)) {
+											$xFilename = str_replace(
+													array("/var/lib/asterisk/sounds/", "/var/spool/asterisk/voicemail/"),
+													"",
+													$filename
+											);
+											header('Content-Type: audio/wav');
+											header('Content-Length: ' . filesize($filename));
+											header('Content-Disposition: inline; filename="' . basename($xFilename) . '"');
+											header('X-Filename: ' . "$xFilename");
+											readfile($filename);
+											exit;
+									} else {
+											http_response_code(404);
+											echo "File not found.";
+											exit;
+									}
+								}
+
                 exit;
 
 						case 'saveview':
@@ -246,6 +403,50 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								}
 
 									exit;
+
+						case 'feedback':
+								// Get data from form
+								$message = isset($_POST['message']) ? $_POST['message'] : '';
+								$email   = isset($_POST['email']) ? $_POST['email'] : '';
+								$lang   = isset($_POST['lang']) ? $_POST['lang'] : '';
+								$modinfo = \FreePBX::Modules()->getInfo('dpviz');
+								$dpvizVersion = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['rawname'].' '.$modinfo['dpviz']['version'] : '0.0.0';
+
+								// Basic validation
+								if (trim($message) === '') {
+										echo json_encode(array('status' => 'error', 'message' => 'Message is required'));
+										exit;
+								}
+
+								// Prepare relay request
+								$postFields = array(
+										'message' => $message,
+										'email' => $email,
+										'fpbxversion' => \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND") . ' ' . get_framework_version(),
+										'dpversion' => $dpvizVersion,
+										'lang' => $lang
+								);
+
+								$ch = curl_init("https://modules.volchko.xyz/dpviz/feedback.php");
+								curl_setopt($ch, CURLOPT_POST, true);
+								curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
+								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+								$response = curl_exec($ch);
+								$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+								curl_close($ch);
+
+								// Decode JSON from external service
+								$data = json_decode($response, true);
+
+								if ($httpCode === 200 && isset($data['status']) && $data['status'] === 'ok') {
+										echo json_encode(array('status' => 'ok'));
+								} else {
+										$errorMsg = isset($data['message']) ? $data['message'] : 'External service failed';
+										echo json_encode(array('status' => 'error', 'message' => $errorMsg));
+								}
+
+								exit;
 
             default:
                 echo json_encode(array('status' => 'error', 'message' => 'Unknown command'));

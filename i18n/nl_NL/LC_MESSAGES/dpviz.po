@@ -670,9 +670,6 @@ msgstr "Ringgroep"
 msgid "List"
 msgstr "Lijst"
 
-msgid "Extextnsion"
-msgstr "Extensie"
-
 msgid "Timezone"
 msgstr "Tijdzone"
 
@@ -842,3 +839,75 @@ msgstr "Toon wachttijd-agent straf"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "Toont de strafwaarde voor wachtrijagenten."
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "Dankjewel! Uw feedback is verstuurd."
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "Uw feedback is niet verzonden. Probeer later opnieuw."
+
+msgid "(%s secs)"
+msgstr "(%s seconden)"
+
+msgid "No Answer (%s secs)"
+msgstr "Geen aanwezigheid (%s seconden)"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "Submit"
+msgstr "Verstuur"
+
+msgid "Give Feedback"
+msgstr "Geef Feedback"
+
+msgid "Enter filename"
+msgstr "Voer de bestandsnaam in"
+
+msgid "IVR"
+msgstr "IVR"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "Groet is niet opgenomen of ontbreekt."
+
+msgid "Voicemail"
+msgstr "Stemmail"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Voicemail Blast"
+msgstr "Stemmail opblaasje"
+
+msgid "Skip"
+msgstr "Opslaan"
+
+msgid "Force"
+msgstr "Dwang"
+
+msgid "Whisper"
+msgstr "Flauwjes"
+
+msgid "Read Group Number"
+msgstr "Lees Groep Nummer"
+
+msgid "Beep Only - No Confirmation"
+msgstr "Geen bevestiging"
+
+msgid "Dynamic Route"
+msgstr "Dynamische Route"
+
+msgid "Default"
+msgstr "Standaard"
+
+msgid "Your Feedback"
+msgstr "Uw Feedback"
+
+msgid "Email (optional)"
+msgstr "E-mail (optioneel)"
+
+msgid "Provide your email if you would like a response."
+msgstr "Geef uw e-mailadres op als u een reactie wilt ontvangen."
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "Geef eventuele opmerkingen of suggesties (tot 500 tekens)."

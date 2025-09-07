@@ -548,7 +548,7 @@ msgid "Unlimited"
 msgstr "Illimitato"
 
 msgid "Extension Node Status"
-msgstr "\"Stato del nodo estensione\""
+msgstr "Stato del nodo estensione"
 
 msgid "Registered extension (green border)"
 msgstr "Estensione registrata (confine verde)"
@@ -667,9 +667,6 @@ msgstr "Gruppo di Anello"
 
 msgid "List"
 msgstr "Elenco"
-
-msgid "Extextnsion"
-msgstr "Estensione"
 
 msgid "Timezone"
 msgstr "Fuso orario"
@@ -841,3 +838,75 @@ msgstr "Mostra Penalità dell'Agenzia in Coda"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "Visualizza il valore della penalità per gli agenti in coda."
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "Grazie! Il tuo feedback è stato inviato."
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "Invio del feedback fallito. Riprova più tardi."
+
+msgid "(%s secs)"
+msgstr "(%s secondi)"
+
+msgid "No Answer (%s secs)"
+msgstr "Nessuna risposta (%s secondi)"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "Submit"
+msgstr "Invia"
+
+msgid "Give Feedback"
+msgstr "Dai il tuo feedback"
+
+msgid "Enter filename"
+msgstr "Inserisci il nome del file"
+
+msgid "IVR"
+msgstr "IVR"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "Saluto non registrato o mancante."
+
+msgid "Voicemail"
+msgstr "Voicemail"
+
+msgid "Download"
+msgstr "Scarica"
+
+msgid "Voicemail Blast"
+msgstr "Colpisci vocemail"
+
+msgid "Skip"
+msgstr "Salta"
+
+msgid "Force"
+msgstr "Forza"
+
+msgid "Whisper"
+msgstr "L'urlo"
+
+msgid "Read Group Number"
+msgstr "Leggi Numero Gruppo"
+
+msgid "Beep Only - No Confirmation"
+msgstr "Beep Solo - Nessuna Conferma"
+
+msgid "Dynamic Route"
+msgstr "Route Dinamica"
+
+msgid "Default"
+msgstr "Predefinito"
+
+msgid "Your Feedback"
+msgstr "Tua Valutazione"
+
+msgid "Email (optional)"
+msgstr "E-mail (opzionale)"
+
+msgid "Provide your email if you would like a response."
+msgstr "Fornisci la tua email se desideri una risposta."
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "Fornire eventuali commenti o suggerimenti (massimo 500 caratteri)."

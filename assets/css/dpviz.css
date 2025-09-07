@@ -4,15 +4,32 @@ html, body {
 	padding: 0;
 }
 #vizContainer {
-	width: 100%;
-	height: 100%;
-	max-width: 100%;
-	max-height: 100%;
-	min-height: 65vh;
-	/*overflow: hidden; 
-	/*border: 1px solid black; /* Just for visualization */
+  width: 100%;
+  min-height: 70vh;
 }
-#set_table tr:nth-child(even){background-color: #EEEEEE;}
+
+
+#vizGraph {
+  width: 100%;
+  min-height: 70vh;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+	z-index: 80;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+#graph0 {
+	border: none;
+}
 
 /* Hover highlight */
 .edge:hover path,
@@ -21,7 +38,7 @@ html, body {
   stroke: fuchsia;
   stroke-width: 3;
   stroke-opacity: 1;
-  fill: none;  /* prevent curved paths from filling */
+  fill: none;
 }
 
 .edge:hover polygon,
@@ -29,28 +46,16 @@ html, body {
   cursor: pointer;
   stroke: fuchsia;
   stroke-width: 3;
-  fill: fuchsia;        /* arrowhead fill is fine */
+  fill: fuchsia;
   stroke-opacity: 1;
   fill-opacity: 1;
 }
 
-/* If you want the label text to recolor too */
 .edge:hover text,
 .edge.selected text {
   cursor: pointer;
   fill: fuchsia;
-  font-weight: normal; /* keep weight unchanged */
-}
-
-
-svg {
-	max-width: 100%;
-	max-height: 100%;
-	display: block;
-	/*margin: auto; /* Center the SVG horizontally */
-}
-#graph0 {
-	border: none;
+  font-weight: normal;
 }
 
 .selected ellipse {
@@ -64,10 +69,7 @@ svg {
 	fill: #ff0000 !important;
 }
 
-#append.active {
-  background-color: green; /* or any visual cue */
-}
-#vizButtons {
+#vizToolbar {
 	position: sticky; 
 	top:50px;
 }
@@ -143,25 +145,9 @@ svg {
 	z-index: 999;
 }
 
-#recording-displayname{
-	text-align:left;
-	width:100%;
-	font-size: 20px;
-	font-weight: bold;
-	margin-bottom:20px;
-}
-
 .recording-container{
 	margin-bottom:10px;
 	text-align:left;
-}
-
-
-.custom-card-bg {
-	background-color: #f0f0f0;
-	border-radius: 8px;
-	padding: 15px;
-	margin-bottom:20px;
 }
 
 #overlay {
@@ -183,44 +169,104 @@ svg {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-  width: 90%;
-	max-width: 600px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 9999;
-  font-family: sans-serif;
+	background: #fff;
+	width: 600px;
+	max-width: 90%;
+	border-radius: 12px;
+	box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+	z-index: 1050;
+	padding: 0;
+	font-family: Arial, sans-serif;
+	overflow: hidden;
 }
 
 #recordingmodal-header {
-  background: #007bff;
-  color: white;
-  padding: 8px 12px;
-  cursor: move;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #007bff;
+	color: #fff;
+	padding: 10px 14px;
+	font-size: 18px;
+	font-weight: bold;
+	cursor: move;
 }
 
-#recordingmodal-title {
-  font-weight: bold;
+#recordingmodal-title i {
+	margin-right: 8px;
 }
 
 #modal-close-btn {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
+	background: none;
+	border: none;
+	color: #fff;
+	font-size: 20px;
+	cursor: pointer;
+	transition: color 0.2s ease;
 }
 
-#recordingmodal audio {
+#modal-close-btn:hover {
+	color: #ffdddd;
+}
+
+/* Main content links */
+#recording-displayname {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 16px;
+}
+
+#recording-displayname a {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 16px;
+	border-radius: 8px;
+	transition: all 0.2s ease;
+}
+
+#recording-displayname a:hover {
+	background: #f8f9fa;
+	border-color: #007bff;
+}
+
+/* Audio card */
+#audioList {
+	padding: 0 16px 16px;
+}
+
+.custom-card-bg {
+	border-radius: 10px;
+	border: 1px solid #e0e0e0;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+	padding: 5px;
+	margin: 15px 0px;
+}
+
+.card-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 15px;
+	margin-bottom: 10px;
+}
+
+.card-title span {
+	font-weight: 500;
+	color: #333;
+}
+
+audio {
 	width: 100%;
+	border-radius: 6px;
+	outline: none;
 }
 
+.btn-outline-secondary {
+	border-radius: 6px;
+}	
+	
 #saveModalBtn {
 	float:right;
 }
@@ -291,8 +337,6 @@ svg {
 	border: 1px solid #8b0000;
 	display: none; /* hidden by default */
 }
-
-
 
 /* Select2 css */
 .select2-container--default .select2-selection--single {
@@ -383,3 +427,198 @@ ul.help-list strong {
 .dropdownMenu button:hover {
   background: #ddd;
 }
+
+
+.feedback-modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.5);
+	z-index:1000;
+}
+.feedback-modal-content {
+	background: #fff;
+	margin: 10% auto;
+	padding: 20px 25px;
+	border-radius: 8px;              /* Rounded corners */
+	box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* Soft shadow */
+	width: 600px;
+	max-width: 90%;                  /* Responsive on smaller screens */
+	z-index: 1001;
+	position: relative;
+	font-family: sans-serif;
+}
+
+.feedback-modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	border-bottom: 1px solid #eee;   /* Subtle separator */
+	padding-bottom: 8px;
+}
+
+.feedback-modal-header h2 {
+	margin: 0;
+	font-size: 1.2em;
+	color: #333;
+}
+
+.feedback-close {
+	cursor: pointer;
+	font-size: 1.4em;
+	border: none;
+	background: none;
+	color: #666;
+	transition: color 0.2s ease;
+}
+.feedback-close:hover {
+	color: #000;
+}
+
+textarea, input[type="email"] {
+	width: 100%;
+	margin-bottom: 12px;
+	padding: 8px 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+	font-size: 0.95em;
+	transition: border-color 0.2s ease;
+	resize: vertical;
+}
+textarea:focus, input[type="email"]:focus {
+	border-color: #007bff;
+	outline: none;
+}
+
+.feedback-actions {
+	text-align: right;
+}
+.feedback-actions button {
+	margin-left: 5px;
+	padding: 6px 14px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.emoji {
+	position: relative;
+	top: 5px;
+	padding: 5px;
+	cursor: pointer;
+	font-size: 1.3em;
+	border: none;
+	background: none;
+}
+
+
+/* --- Modal general styling --- */
+.feedback-modal {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5); /* dim overlay */
+  z-index: 1050;
+}
+
+.feedback-modal-content {
+  background: #fff;
+  width: 600px;
+  max-width: 90%;
+  margin: 10% auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.feedback-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.feedback-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.feedback-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s ease;
+}
+.feedback-close:hover {
+  color: #d00;
+}
+
+.label-with-help { display: block; /* make label full-width */ }
+
+.help-icon {
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #007bff;
+  vertical-align: middle;
+}
+
+/* help text hidden by default, placed on next line (block) */
+.help-text {
+  display: none;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* show when hovering/focusing the icon OR when hovering the help text */
+.label-with-help .help-icon:hover + .help-text,
+.label-with-help .help-icon:focus + .help-text,
+.label-with-help .help-text:hover {
+  display: block;
+}
+
+/* Feedback actions */
+.feedback-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/*
+
+.help-icon {
+    margin-left: 5px;
+    cursor: help;
+    color: #0073aa;
+}
+
+.help-text {
+    display: none;            
+    font-size: 13px;
+    color: #333;
+    background: #f5f5f5;      
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-top: 2px;
+    width: 260px;
+}
+
+
+.help-icon:hover + .help-text {
+    display: block;
+}
+*/

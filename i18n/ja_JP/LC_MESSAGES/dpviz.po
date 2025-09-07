@@ -666,9 +666,6 @@ msgstr "リンググループ"
 msgid "List"
 msgstr "リスト"
 
-msgid "Extextnsion"
-msgstr "拡張機能"
-
 msgid "Timezone"
 msgstr "時刻帯"
 
@@ -838,3 +835,75 @@ msgstr "キューエージェントのペナルティを表示する"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "キューエージェントのペナルティ値を表示します。"
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "ありがとうございます。フィードバックが送信されました。"
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "フィードバックの送信に失敗しました。後で再試行してください。"
+
+msgid "(%s secs)"
+msgstr "(％s秒)"
+
+msgid "No Answer (%s secs)"
+msgstr "応答しなかった(%s秒)"
+
+msgid "Feedback"
+msgstr "フィードバック"
+
+msgid "Submit"
+msgstr "送信する"
+
+msgid "Give Feedback"
+msgstr "フィードバックを与える"
+
+msgid "Enter filename"
+msgstr "ファイル名を入力してください"
+
+msgid "IVR"
+msgstr "イーヴァール (IVR)"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "挨拶は記録されていませんか、または行きがけがありません。"
+
+msgid "Voicemail"
+msgstr "ボイスメール"
+
+msgid "Download"
+msgstr "ダウンロード"
+
+msgid "Voicemail Blast"
+msgstr "ボイスメールブラスト"
+
+msgid "Skip"
+msgstr "スキップ"
+
+msgid "Force"
+msgstr "強制的"
+
+msgid "Whisper"
+msgstr "「ワイスパー」"
+
+msgid "Read Group Number"
+msgstr "グループ番号を読み取る"
+
+msgid "Beep Only - No Confirmation"
+msgstr "ビープのみ - 確認なし"
+
+msgid "Dynamic Route"
+msgstr "動的ルート"
+
+msgid "Default"
+msgstr "デフォルト"
+
+msgid "Your Feedback"
+msgstr "ごフィードバック"
+
+msgid "Email (optional)"
+msgstr "メール（任意）"
+
+msgid "Provide your email if you would like a response."
+msgstr "応答を希望する場合は、メールアドレスを提供してください。"
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "提供したいコメントや建議（最大500文字）を入力してください。"

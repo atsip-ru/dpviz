@@ -27,8 +27,6 @@ require_once 'graphviz/src/Alom/Graphviz/AttributeBag.php';
 require_once 'graphviz/src/Alom/Graphviz/Graph.php';
 require_once 'graphviz/src/Alom/Graphviz/Digraph.php';
 require_once 'graphviz/src/Alom/Graphviz/AttributeSet.php';
-require_once 'graphviz/src/Alom/Graphviz/Subgraph.php';
-require_once 'graphviz/src/Alom/Graphviz/RawText.php';
 
 //options
 $options=\FreePBX::Dpviz()->getOptions();
@@ -45,6 +43,9 @@ $options['skip'] = isset($input['skip']) ? $input['skip'] : array();
 
 $datetime = isset($options['datetime']) ? $options['datetime'] : '1';
 $panzoom = isset($options['panzoom']) ? $options['panzoom'] : '1';
+
+
+
 function dpp_load_incoming_routes() {
   global $db;
 	
@@ -59,7 +60,11 @@ function dpp_load_incoming_routes() {
   if (is_array($results)) {
     foreach ($results as $route) {
       $num = $route['extension'];
-      $cid = $route['cidnum'];
+			if (!empty($route['cid'])){
+				$cid = '&'.$route['cidnum'];
+			}else{
+				$cid='';
+			}
 			if (empty($num) && empty($cid)){$exten='ANY';}else{$exten=$num.$cid;}
       $routes[$exten] = $route;
     }
@@ -86,6 +91,9 @@ function dpp_find_route($routes, $num) {
 
 
 $inroutes=dpp_load_incoming_routes();
+
+
+
 $dproute['extension']= $ext;
 //print_r($options);
 	if (empty($dproute)) {
@@ -445,13 +453,14 @@ if ($minimal){
 		
 			if (isset($route['recordings'][$recID])){
 				$recording= $route['recordings'][$recID];
-				$announcement= $recording['displayname'];
 				$recordingId=$recording['id'];
+				$featureCode= getFeatureNum($recordingId,$route);
+				$announcement= "\n🔊 "._('Recording').": ". sanitizeLabels($recording['displayname']) ." (" . $anlang . ")\n"._('Feature Code').": ".$featureCode;
 			}else{
-				$announcement="None";
+				$announcement="\n"._('Recording').": "._('None');
 			}
 		
-			$label=sanitizeLabels($an['description'])."\n". _('Recording').": ".sanitizeLabels($announcement);
+			$label=sanitizeLabels($an['description']).$announcement;
 			$tooltip='';
 			makeNode($module,$annum,$label,$tooltip,$node);
 			if ($stop){
@@ -469,12 +478,6 @@ if ($minimal){
 				dpp_follow_destinations($route, $an['post_dest'].','.$anlang,'',$options);
 			}
 			
-			if (isset($route['recordings'][$recID])){
-				$route['parent_edge_label']= " "._('Recording');
-				$route['parent_edge_code']= 'recording';
-				$route['parent_node'] = $node;
-				dpp_follow_destinations($route, 'play-system-recording,'.$recordingId.',1,'.$anlang,'',$options);
-			}
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -717,13 +720,15 @@ if ($minimal){
 			$recID=$dynrt['announcement_id'];
 			if (isset($route['recordings'][$recID])){
 				$recording= $route['recordings'][$recID];
-				$announcement= $recording['displayname'];
+				$dynRecName= $recording['displayname'];
 				$recordingId=$recording['id'];
+				$featureCode= getFeatureNum($recordingId,$route);
+				$dynRecName= "🔊 "._('Announcement')." (".$dynLang."): ".sanitizeLabels($dynRecName)."\n"._('Feature Code').": ".$featureCode;
 			}else{
-				$announcement="None";
+				$dynRecName=_('Announcement').': '._('None');
 			}
 			
-			$label=sanitizeLabels($dynrt['name'])."\n"._('Announcement').": ".sanitizeLabels($announcement);
+			$label=sanitizeLabels($dynrt['name'])."\n".$dynRecName;
 			$tooltip='';
 			makeNode($module,$dynnum,$label,$tooltip,$node);
 			if ($stop){
@@ -744,14 +749,6 @@ if ($minimal){
 					$route['parent_node'] = $node;
 					dpp_follow_destinations($route, $ent['dest'].','.$dynLang,'',$options);
 				}
-			}
-			
-			if (isset($route['recordings'][$recID])){
-				$route['parent_node'] = $node;
-				$route['parent_edge_label']= " "._('Recording');
-				$route['parent_edge_code']= 'recording';
-				dpp_follow_destinations($route, 'play-system-recording,'.$recordingId.',1,'.$dynLang,'',$options);
-				
 			}
 			
 			//are the invalid and default destinations the same?
@@ -843,16 +840,16 @@ if ($minimal){
 						$grplist = preg_split("/-/", $extension['fmfm']['grplist']);
 						foreach ($grplist as $g){
 							$g=trim($g);
-							//$g=str_replace('#', '', $g);
 							$follow='from-did-direct,'.$g.',1,'.$extLang;
 							
-							$route['parent_edge_label'] = ' FMFM ('.secondsToTimes($extension['fmfm']['pre_ring']).')';
+							$route['parent_edge_label'] = " FMFM ".sprintf(_('(%s secs)'), $extension['fmfm']['pre_ring']);
 							$route['parent_node'] = $node;
 							dpp_follow_destinations($route, $follow,'',$options);
 						}
 						
 						if (isset($extension['fmfm']['postdest']) && $extension['fmfm']['postdest']!='ext-local,'.$extnum.',dest'){
-							$route['parent_edge_label'] = " FMFM "._('No Answer');
+							 
+							$route['parent_edge_label'] = " FMFM ".sprintf(_('No Answer (%s secs)'), $extension['fmfm']['grptime']);
 							$route['parent_node'] = $node;
 							dpp_follow_destinations($route,$extension['fmfm']['postdest'].','.$extLang,'',$options);
 						}
@@ -970,10 +967,11 @@ if ($minimal){
 		#
 		# Inbound Routes
 		#
-  } elseif (preg_match("/^from-trunk,((?:[^\[,]+(?:\[[^\]]+\])?))\-([^,]*),(\d+),(.+)/", $destination, $matches)) {
-		
+  } elseif (preg_match("/^from-trunk,((?:[^\[&,]+(?:\[[^\]]+\])?))(&[^,]*)?,(\d+),(.+)/", $destination, $matches)) {
+	
 		$num = $matches[1];
-		$numcid = $matches[2];
+		
+		$numcid = str_replace("&", "", $matches[2]);
 		$numLang= $matches[4];		
 	
 		$allowCheck = 0;
@@ -987,9 +985,15 @@ if ($minimal){
 		$blackCheck=\FreePBX::Modules()->checkStatus("blacklist");
 		
 		if (empty($num)){$num='ANY';}
-		if ($numcid==''){$numcidd=" / ANY";}else{$numcidd=" / ".$numcid;}
+		if (!empty($numcid)){
+			$combNum=$num.'&'.$numcid;
+			$numcidd=" / " . formatPhoneNumbers($numcid);
+		}else{
+			$combNum=$num;
+			$numcidd=" / ANY";
+		}
 		
-		$incoming = $route['incoming'][$num.$numcid];
+		$incoming = $route['incoming'][$combNum];
 		if (isset($incoming['language'])){$numLang=$incoming['language'];}
 		
 		$didLabel = ($num == "ANY") ? "ANY" : formatPhoneNumbers($num);
@@ -1112,7 +1116,7 @@ if ($minimal){
 		#
 		# IVRs
 		#
-  } elseif (preg_match("/^ivr-(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
+	} elseif (preg_match("/^ivr-(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
 		$module="IVR";
     $inum = $matches[1];
     $iflag = $matches[2];
@@ -1127,12 +1131,13 @@ if ($minimal){
 				$recording= $route['recordings'][$recID];
 				$ivrRecName= $recording['displayname'];
 				$recordingId=$recording['id'];
-				
+				$featureCode= getFeatureNum($recordingId,$route);
+				$ivrRecName= "🔊 "._('Announcement')." (".$ilang."): ".sanitizeLabels($ivrRecName)."\n"._('Feature Code').": ".$featureCode;
 			}else{
-				$ivrRecName="None";
+				$ivrRecName=_('Announcement').': '._('None');
 			}
 			
-			$label=sanitizeLabels($ivr['name'])."\n"._('Announcement').": ".sanitizeLabels($ivrRecName);
+			$label=sanitizeLabels($ivr['name'])."\n".$ivrRecName;
 			if ($ivr['directdial']=='ext-local'){
 				$ddial="Enabled";
 			}elseif (is_numeric($ivr['directdial'])){
@@ -1159,13 +1164,6 @@ if ($minimal){
 			
 			# The destinations we need to follow are the invalid_destination,
 			# timeout_destination, and the selection targets
-			if (isset($route['recordings'][$recID])){
-				$route['parent_node'] = $node;
-				$route['parent_edge_label']=" "._('Recording');
-				$route['parent_edge_code']= 'recording';
-				dpp_follow_destinations($route, 'play-system-recording,'.$recordingId.',1,'.$ilang,'',$options);
-				
-			}
 			
 			#now go through the selections
 			if (!empty($ivr['entries'])){
@@ -1286,7 +1284,7 @@ if ($minimal){
 		}
 		#end of MISC Destinations
 
-#
+		#
 		# Page Group
 		#
   } elseif (preg_match("/^app-pagegroups,(\d+),(\d+),(.+)/", $destination, $matches)) {
@@ -1296,19 +1294,39 @@ if ($minimal){
 		
 		if (isset($route['paging'][$pagenum])){
 			$paging=$route['paging'][$pagenum];
-			$audioID=$paging['announcement'];
-			if (!is_numeric($audioID)){$announcement=_('Announcement').": ".$audioID."\n";}else{$announcement='';}
-			$busyArray=array('Skip','Force','Whisper');
-			$duplexArray=array('No','Yes');
-			$label=$paging['page_group']." ".sanitizeLabels($paging['description']);
-			$tooltip=_('Page Group').": ".$paging['page_group']."\n"._('Description').": ".sanitizeLabels($paging['description'])."\n".$announcement._('Busy Extensions').": ".$busyArray[$paging['force_page']]."\n"._('Duplex').": ".$duplexArray[$paging['duplex']];
+			
+			$recID=$paging['announcement'];
+			if (isset($route['recordings'][$recID])){
+				$recording= $route['recordings'][$recID];
+				$pageRecName= $recording['displayname'];
+				$recordingId=$recording['id'];
+				$featureCode= getFeatureNum($recordingId,$route);
+				$pageRecName= "\n🔊 "._('Announcement')." (".$pageLang."): ".sanitizeLabels($pageRecName)."\n"._('Feature Code').": ".$featureCode;
+			}else{
+				$pageRecName="\n"._('Announcement').": ".ucfirst($recID);
+			}
+			
+			$busyArray=array(_('Skip'),_('Force'),_('Whisper'));
+			$duplexArray=array(_('No'),_('Yes'));
+			$label=$paging['page_group']." ".sanitizeLabels($paging['description']).$pageRecName;
+			$tooltip=_('Page Group').": ".$paging['page_group']."\n"._('Description').": ".sanitizeLabels($paging['description'])."\n".$pageRecName."\n"._('Busy Extensions').": ".$busyArray[$paging['force_page']]."\n"._('Duplex').": ".$duplexArray[$paging['duplex']];
 			makeNode($module,$pagenum,$label,$tooltip,$node);
 			
 			if (!empty($paging['members']) && !$minimal){
 				$line="Page Group ".$pagenum." "._('members').":\n";
 				foreach ($paging['members'] as $member) {
-					if (isset($route['extensions'][$member])){
-						$line.= _('Ext')." ".$member." ".sanitizeLabels($route['extensions'][$member]['name'])."\l";
+					if (isset($route['extensions'][$member])) {
+							if (!isset($route['extensions'][$member]['reg_status'])) {
+									$status = isExtensionRegistered($member, $route['extensions'][$member]['tech']);
+									$route['extensions'][$member]['reg_status'] = $status;
+							}
+
+							$isRegistered = $route['extensions'][$member]['reg_status'];
+							$regstatus = $isRegistered ? '🟢' : '🔴';
+
+							$line .= $regstatus ." "._('Ext')." ".$member." ".$route['extensions'][$member]['name']."\l";
+					} else {
+							$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
 					}
 				}
 				
@@ -1320,18 +1338,12 @@ if ($minimal){
 						'target' => '_blank',
 						'shape' => 'rect',
 						'style' => 'filled',
-						'fillcolor' => $pastels[16]
+						'fillcolor' => '#87CEFA'
 					)
 				);
 				$edge= $dpgraph->beginEdge(array($node, $memNode));
 			}
 			
-			if (isset($route['recordings'][$audioID])){
-				$route['parent_node'] = $node;
-				$route['parent_edge_label']= " "._('Recording');
-				$route['parent_edge_code']= 'recording';
-				dpp_follow_destinations($route, 'play-system-recording,'.$audioID.',1,'.$pageLang,'',$options);
-			}
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -1350,6 +1362,7 @@ if ($minimal){
 		# Play Recording
 		#
   } elseif (preg_match("/^play-system-recording,(\d+),(\d+),(.+)/", $destination, $matches)) {
+		$module="System Recording";
 		$recID = $matches[1];
 		$recOther = $matches[2];
 		$recLang = $matches[3];
@@ -1357,29 +1370,20 @@ if ($minimal){
 		if (isset($route['recordings'][$recID])){
 			$rec=$route['recordings'][$recID];
 			$playName=$rec['displayname'];
-		}else{
-			$playName='None';
-		}
-		
-		#feature code exist?
-		if ( isset($route['featurecodes']['*29'.$recID]) ){
-			#custom feature code?
-			if ($route['featurecodes']['*29'.$recID]['customcode']!=''){$featurenum=$route['featurecodes']['*29'.$recID]['customcode'];}else{$featurenum=$route['featurecodes']['*29'.$recID]['defaultcode'];}
-			#is it enabled?
-			if ( ($route['recordings'][$recID]['fcode']== '1') && ($route['featurecodes']['*29'.$recID]['enabled']=='1') ){$recEnabled=$featurenum;}else{$recEnabled=$featurenum.' ('._('Disabled').')';}
-		}else{
-			$recEnabled=_('Disabled');
-		}
-		
-		$label = _('Recording') . ' (' . $recLang . '): ' . sanitizeLabels($playName) . "\n" .
-         _('Feature Code') . ': ' . $recEnabled;
+			$featureCode= getFeatureNum($recID,$route);
+			$playName= $playName."\nFeature Code: ".$featureCode;
+			
+			$label = "🔊 ". _('Recording') . " (" . $recLang . "): " . sanitizeLabels($playName);
 
-		$node->attribute('label', $label);
-		$node->attribute('tooltip', $node->getAttribute('label'));
-		$node->attribute('URL', '#');
-		$node->attribute('shape', 'rect');
-		$node->attribute('fillcolor', $pastels[16]);
-		$node->attribute('style', 'filled');
+			$node->attribute('label', $label);
+			$node->attribute('tooltip', $node->getAttribute('label'));
+			$node->attribute('URL', '#');
+			$node->attribute('shape', 'rect');
+			$node->attribute('fillcolor', $pastels[16]);
+			$node->attribute('style', 'filled');
+		}else{
+			notFound($module,$destination,$node);
+		}
 		#end of Play Recording
 		
 		#
@@ -1627,11 +1631,12 @@ if ($minimal){
 							$line.="["._('Dynamic')."]\n";
 						}
 						
-						/*table view with registrations?
+						
 						foreach ($type as $member) {
 							$split=explode(',',$member);
 							$member=$split[0];
 							$pen=$split[1];
+							$penalty = ($options['queue_penalty'] == 1) ? ",$pen" : '';
 							
 							if (isset($route['extensions'][$member])) {
 									if (!isset($route['extensions'][$member]['reg_status'])) {
@@ -1640,39 +1645,15 @@ if ($minimal){
 									}
 
 									$isRegistered = $route['extensions'][$member]['reg_status'];
-									$fontcolor = $isRegistered ? 'green' : 'red';
+									$regstatus = $isRegistered ? '🟢' : '🔴';
 
-									$reg = "Ext {$member} {$route['extensions'][$member]['name']},{$pen}";
-									$line .= '<font color="' . $fontcolor . '">' . htmlspecialchars($reg) . '</font><br align="left"/>';
-									
+									$line .= $regstatus ." "._('Ext')." ".$member.$penalty." ".$route['extensions'][$member]['name']."\l";
 							} else {
-									$line .= $member.','.$pen.'<br align="left"/>';
+									$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
 							}
 						}
-						*/
-						
-						
-						foreach ($type as $member){
-							$splitMember= explode(',', $member);
-							$member=$splitMember[0];
-							$pen=$splitMember[1];
-							
-							if ($options['queue_penalty']==1){
-								$penalty=",".$pen;
-							}else{
-								$penalty='';
-							}
-							
-							if (isset($route['extensions'][$member])){
-								$line.= _('Ext')." ".$member.$penalty." ".sanitizeLabels($route['extensions'][$member]['name'])."\l";
-							}else{
-								$line.=$member.$penalty."\l";
-							}
-							
-						}
-						
 					}
-					//$finalLabel = new Alom\Graphviz\RawText('<<' . $line . '>>');
+					
 					$memNode= $dpgraph->beginNode('queuemembers'.$qnum,
 						array(
 							'label' => $line,
@@ -1681,7 +1662,7 @@ if ($minimal){
 							'target' => '_blank',
 							'shape' => 'rect',
 							'style' => 'filled',
-							'fillcolor' => $pastels[20]
+							'fillcolor' => 'mediumaquamarine'
 						)
 					);
 					$edge= $dpgraph->beginEdge(array($node, $memNode));
@@ -1810,6 +1791,7 @@ if ($minimal){
 		if (isset($route['queuecallback'][$qcallbackId])){
 			$module="Queue Callback";
 			$qcallback=$route['queuecallback'][$qcallbackId];
+			$recID=$qcallback['announcement'];
 			
 			if (empty($qcallback['cbqueue'])){
 				$queue= $route['parent_node']->getId();
@@ -1819,16 +1801,17 @@ if ($minimal){
 				$queue = "ext-vqueues,".substr($qcallback['cbqueue'], 1).",1,".$qcallbackLang;
 			}
 			
-			if (isset($route['recordings'][$qcallback['announcement']])){
-				$qcbrecording= $route['recordings'][$qcallback['announcement']];
-				$qcbRecName= $qcbrecording['displayname'];
-				$recordingId=$qcbrecording['id'];
-				
+			if (isset($route['recordings'][$recID])){
+				$recording= $route['recordings'][$recID];
+				$qcbRecName= $recording['displayname'];
+				$recordingId=$recording['id'];
+				$featureCode= getFeatureNum($recordingId,$route);
+				$qcbRecName= "🔊 "._('Announcement')." (".$qcallbackLang."): ".sanitizeLabels($qcbRecName)."\n"._('Feature Code').": ".$featureCode;
 			}else{
-				$qcbRecName="Default";
+				$qcbRecName=_('Announcement').': '._('Default');
 			}
 			
-			$label=sanitizeLabels($qcallback['name'])."\n"._('Announcement').": ".sanitizeLabels($qcbRecName);
+			$label=sanitizeLabels($qcallback['name'])."\n".$qcbRecName;
 			$tooltip = "Caller ID: ".$qcallback['cid']."\n"._('Timeout').": ".secondsToTimes($qcallback['timeout'])."\n"._('Retries').": ".$qcallback['retries']."\n"._('Retry Delay').": ".secondsToTimes($qcallback['retrydelay']);
 			
 			makeNode($module,$qcallbackId,$label,$tooltip,$node);
@@ -1839,12 +1822,6 @@ if ($minimal){
 				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
 				
 				return;
-			}
-			
-			if ($qcallback['announcement']!=''){
-				$route['parent_node'] = $node;
-				$route['parent_edge_label'] = " "._('Announcement');
-				dpp_follow_destinations($route,'play-system-recording,'.$recordingId.',1,'.$qcallbackLang,'',$options);
 			}
 			
 			$route['parent_node'] = $node;
@@ -1865,8 +1842,19 @@ if ($minimal){
 		$rglang = $matches[3];
 		if (isset($route['ringgroups'][$rgnum])){
 			$rg = $route['ringgroups'][$rgnum];
+			$recID= $rg['annmsg_id'];
 			
-			$label=$rgnum.' '.sanitizeLabels($rg['description']);
+			if (isset($route['recordings'][$recID])){
+				$recording= $route['recordings'][$recID];
+				$rgRecName= $recording['displayname'];
+				$recordingId=$recording['id'];
+				$featureCode= getFeatureNum($recordingId,$route);
+				$rgRecName= "\n🔊 "._('Announcement')." (".$rglang."): ".sanitizeLabels($rgRecName)."\n"._('Feature Code').": ".$featureCode;
+			}else{
+				$rgRecName='';
+			}
+			
+			$label=$rgnum.' '.sanitizeLabels($rg['description']).$rgRecName;
 			if ($rg['needsconf']!=''){$conf='Yes';}else{$conf="No";}
 			$tooltip="Strategy: ".$rg['strategy']."\n"._('Ring Time').": ".secondsToTimes($rg['grptime'])."\n"._('Music On Hold').": ".$rg['ringing']."\n"._('CID Prefix').": ".$rg['grppre']."\n"._('Confirm Calls').": ".$conf."\n"._('Call Recording').": ".$rg['recording']."\n";
 			makeNode($module,$rgnum,$label,$tooltip,$node);
@@ -1882,7 +1870,7 @@ if ($minimal){
 			$grplist=$rg['grplist'];
 			$grplist = preg_split("/-/", $grplist);
 			
-			if ($options['ring_member_display']==1){
+			if ($options['ring_member_display']==1){ //--option "Single"
 				foreach ($grplist as $member) {
 					$route['parent_node'] = $node;
 					$route['parent_edge_label'] = '';
@@ -1898,13 +1886,21 @@ if ($minimal){
 					}
 					dpp_follow_destinations($route,$go,'',$options);
 				} 
-			}elseif ($options['ring_member_display']==2){
+			}elseif ($options['ring_member_display']==2){  //--option "Combine"
 				$line=_('Ring Group')." ".$rgnum." "._('List').":\n";
 				foreach ($grplist as $member){
 					if (isset($route['extensions'][$member])){
-						$line.=_('Ext')." ".$member." ".$route['extensions'][$member]['name']."\l";
+						if (!isset($route['extensions'][$member]['reg_status'])) {
+								$status = isExtensionRegistered($member, $route['extensions'][$member]['tech']);
+								$route['extensions'][$member]['reg_status'] = $status;
+						}
+
+						$isRegistered = $route['extensions'][$member]['reg_status'];
+						$regstatus = $isRegistered ? '🟢' : '🔴';
+									
+						$line.=$regstatus." "._('Ext')." ".$member." ".$route['extensions'][$member]['name']."\l";
 					}else{
-						$line.=$member."\l";
+						$line.="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
 					}
 				}
 				
@@ -1923,7 +1919,7 @@ if ($minimal){
 				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
 				
 			}else{
-				//do not display ring group members
+				//do not display members --option "Hide"
 			}
 				
 				# The destinations we need to follow are the no-answer destination
@@ -1932,11 +1928,6 @@ if ($minimal){
 					$route['parent_edge_label'] = " ".sprintf(_('No Answer (%s)'), secondsToTimes($rg['grptime']));
 					$route['parent_node'] = $node;
 					dpp_follow_destinations($route, $rg['postdest'].','.$rglang,'',$options);
-				}
-				if ($rg['annmsg_id']!=0){
-					$route['parent_node'] = $node;
-					$route['parent_edge_label'] = " "._('Announcement');
-					dpp_follow_destinations($route,'play-system-recording,'.$rg['annmsg_id'].',1,'.$rglang,'',$options);
 				}
 			
 		}else{
@@ -1950,7 +1941,7 @@ if ($minimal){
 } elseif (preg_match("/^rgmember([#\d]+)/", $destination, $matches)) {
 		$rgext = $matches[1];
 		$rglabel = isset($route['extensions'][$rgext]) ? _('Ext')." ".$rgext."\n".$route['extensions'][$rgext]['name'] : $rgext;
-		$tooltip = isset($route['extensions'][$rgext]) ? _('Extextnsion').": ".$rgext."\n"._('Name').": ".$route['extensions'][$rgext]['name'] : $rgext;
+		$tooltip = isset($route['extensions'][$rgext]) ? _('Ext').": ".$rgext."\n"._('Name').": ".$route['extensions'][$rgext]['name'] : $rgext;
 
 		//registration status
 		if (isset($route['extensions'][$rgext]) && ($route['extensions'][$rgext]['tech']=='pjsip' || $route['extensions'][$rgext]['tech']=='sip' || $route['extensions'][$rgext]['tech']=='iax2')){
@@ -2189,7 +2180,9 @@ if ($minimal){
 				$tooltip.="\n".ucfirst($m).": ".ucfirst($mm);
 			}
 			
-			$label=$vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".sanitizeLabels($vmemail);
+			if ($vmtype=='u' || $vmtype=='b'){$speaker='🔊 ';}else{$speaker='';}
+			
+			$label=$speaker . $vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".sanitizeLabels($vmemail);
 
 			makeNode($module,$vmnum,$label,$tooltip,$node);
 		}else{
@@ -2210,13 +2203,24 @@ if ($minimal){
 			$vmblast = $route['vmblasts'][$vmblastnum];
 			$audioID = $vmblast['audio_label'];
 			if ($audioID > 0){
-				$audioLabel=findRecording($route,$audioID);
+				
+				if (isset($route['recordings'][$audioID])){
+					$recording= $route['recordings'][$audioID];
+					$vmRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$vmRecName= "🔊 "._('Audio Label')." (".$vmblastLang."): ".sanitizeLabels($vmRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$vmRecName=_('Audio Label').': '._('None');
+				}		
+
 			}elseif ($audioID=='-1'){
-				$audioLabel="Read Group Number";
+				$vmRecName=_('Audio Label').": "._('Read Group Number');
 			}elseif ($audioID=='-2'){
-				$audioLabel="Beep Only - No Confirmation";
+				$vmRecName=_('Audio Label').": "._('Beep Only - No Confirmation');
 			}
-			$label=$vmblastnum." ".sanitizeLabels($vmblast['description'])."\n"._('Audio Label').": ".$audioLabel;
+			
+			$label=$vmblastnum." ".sanitizeLabels($vmblast['description'])."\n".$vmRecName;
 			if ($vmblast['password'] !=''){$pass="\nPassword: ".$vmblast['password'];}else{$pass='';}
 			$tooltip=$module.": ".$label.$pass;
 			makeNode($module,$vmblastnum,$label,$tooltip,$node);
@@ -2239,19 +2243,12 @@ if ($minimal){
 						'target' => '_blank',
 						'shape' => 'rect',
 						'style' => 'filled',
-						'fillcolor' => $pastels[16]
+						'fillcolor' => 'gainsboro'
 					)
 				);
 				$edge= $dpgraph->beginEdge(array($node, $memNode));
 			}
 			
-			if (isset($route['recordings'][$audioID])){
-				$route['parent_node'] = $node;
-				$route['parent_edge_label']= " "._('Recording');
-				$route['parent_edge_code']= 'recording';
-				dpp_follow_destinations($route, 'play-system-recording,'.$audioID.',1,'.$vmblastLang,'',$options);
-				
-			}
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2370,7 +2367,13 @@ function dpp_load_tables(&$dproute,$options) {
   }
   foreach($results as $incoming) {
 		$id = empty($incoming['extension']) ? 'ANY' : $incoming['extension'];
-    $dproute['incoming'][$id.$incoming['cidnum']] = $incoming;
+		if (!empty($incoming['cidnum'])){
+			$cid='&'.$incoming['cidnum'];
+		}else{
+			$cid='';
+		}
+		
+    $dproute['incoming'][$id.$cid] = $incoming;
   }	
 	
   # IVRs
@@ -2572,10 +2575,6 @@ function dpp_load_tables(&$dproute,$options) {
 					$dproute['queues'][$id] = $q;
 					$dproute['queues'][$id]['members']['static']=array();
 					$dproute['queues'][$id]['members']['dynamic']=array();
-					//$dproute['queues'][$id]['static']['members']=array();
-					//$dproute['queues'][$id]['static']['penalties']=array();
-					//$dproute['queues'][$id]['dynamic']['members']=array();
-					//$dproute['queues'][$id]['dynamic']['penalties']=array();
 				}
 		}elseif ($table == 'queues_details') {
         foreach($results as $qd) {
@@ -2869,7 +2868,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 
 	switch ($module) {
 			case 'Announcement':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
+					$url='#';
 					$shape='note';
 					$color='oldlace';
 					break;
@@ -3231,5 +3230,31 @@ function translateRange($value, $map) {
     return implode('-', $translated);
 }
 
+
+function getFeatureNum($recID, $route) {
+	
+		if (strpos($route['recordings'][$recID]['filename'], '&') !== false) {
+				//cannot record on concact files.
+				
+		} elseif (isset($route['featurecodes']['*29' . $recID])) {
+        $fc = $route['featurecodes']['*29' . $recID];
+
+        // pick custom code if set, otherwise default
+        $featurenum = !empty($fc['customcode']) ? $fc['customcode'] : $fc['defaultcode'];
+
+        // check if enabled
+        if (
+            isset($route['recordings'][$recID]['fcode']) &&
+            $route['recordings'][$recID]['fcode'] == '1' &&
+            $fc['enabled'] == '1'
+        ) {
+            return $featurenum;
+        } else {
+            return $featurenum . ' (' . _('Disabled') . ')';
+        }
+    }
+
+    return _('Disabled');
+}
 
 

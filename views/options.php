@@ -2,6 +2,38 @@
 <?php
 $options = \FreePBX::Dpviz()->getOptions();
 ?>
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="feedback-modal">
+	<div class="feedback-modal-content">
+		<div class="feedback-modal-header">
+			<h2><?php echo _('Feedback'); ?></h2>
+			<button class="feedback-close" id="closeFeedbackModal">✖</button>
+		</div>
+		<form id="feedbackForm">
+			<label for="fbMessage" class="label-with-help">
+				<?php echo _('Your Feedback'); ?>:
+				<span class="help-icon" tabindex="0" aria-hidden="true"><i class="fa fa-question-circle fpbx-help-icon" data-for="fbMessage"></i></span>
+				<span class="help-text"><?php echo _('Provide any comments or suggestions (up to 500 characters).'); ?></span>
+			</label>
+			<textarea id="fbMessage" name="message" rows="7" maxlength="500" required></textarea>
+
+			<label for="fbEmail" class="label-with-help">
+				<?php echo _('Email (optional)'); ?>:
+				<span class="help-icon" tabindex="0" aria-hidden="true"><i class="fa fa-question-circle fpbx-help-icon" data-for="fbEmail"></i></span>
+				<span class="help-text"><?php echo _('Provide your email if you would like a response.'); ?></span>
+			</label>
+			<input type="email" id="fbEmail" name="email" />
+
+				<div class="feedback-actions">
+					<button class="btn btn-secondary" type="reset"><?php echo _('Reset'); ?></button>
+					<button class="btn btn-default" type="submit"><?php echo _('Submit'); ?></button>
+				</div>
+				<input type="hidden" name="lang" value="<?php echo preg_replace('/\.UTF8$/i', '', setlocale(LC_TIME, 0)); ?>">
+		</form>
+	</div>
+</div>
+
+
 <div class="display no-border">
 	<div class="row">
 		<div class="col-sm-12">
@@ -12,7 +44,15 @@ $options = \FreePBX::Dpviz()->getOptions();
 						<div class="col-md-12">
 							<div class="row">
 								<div class="col-md-3">
-									<button id="check-update-btn" class="btn btn-default"><?php echo _('Check for Updates'); ?></button>&nbsp;&nbsp;&nbsp;<a href="https://github.com/madgen78/dpviz/" title="GitHub" target="_blank"><i class="fa fa-github"></i></a>&nbsp;&nbsp;&nbsp;<a href="https://buymeacoffee.com/adamvolchko" style="text-decoration:none;" title="<?php echo _('Buy Me a Coffee'); ?>" target="_blank">☕</a>
+									<button id="check-update-btn" class="btn btn-default"><?php echo _('Check for Updates'); ?></button>
+										<a href="https://github.com/madgen78/dpviz/" class="emoji" title="GitHub" target="_blank"><i class="fa fa-github"></i></a>
+										<a href="https://buymeacoffee.com/adamvolchko" class="emoji" style="text-decoration:none;" title="<?php echo _('Buy Me a Coffee'); ?>" target="_blank">☕</a>
+										<?php
+											if (version_compare(get_framework_version(), '14.0.0', '>')) {
+													echo '<span id="openFeedbackModal" class="emoji" title="' . _('Give Feedback') . '">💬</span>';
+											}
+										?>
+									
 								</div>
 								<div class="col-md-9">
 									<div id="update-result"></div>

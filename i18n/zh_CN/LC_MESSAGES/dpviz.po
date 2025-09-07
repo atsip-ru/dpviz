@@ -655,9 +655,6 @@ msgstr "铃声群组"
 msgid "List"
 msgstr "列表"
 
-msgid "Extextnsion"
-msgstr "外线"
-
 msgid "Timezone"
 msgstr "时区"
 
@@ -825,3 +822,75 @@ msgstr "显示队列代理人员罚款"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "显示队列代理的罚款值。"
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "谢谢！您的反馈已经发送。"
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "反馈提交失败。请稍后再试。"
+
+msgid "(%s secs)"
+msgstr "（%s秒）"
+
+msgid "No Answer (%s secs)"
+msgstr "没有回答（%s秒）"
+
+msgid "Feedback"
+msgstr "反馈"
+
+msgid "Submit"
+msgstr "提交"
+
+msgid "Give Feedback"
+msgstr "提供反馈"
+
+msgid "Enter filename"
+msgstr "输入文件名"
+
+msgid "IVR"
+msgstr "PBX自动回复系统"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "问候语未记录或缺失。"
+
+msgid "Voicemail"
+msgstr "留言"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "Voicemail Blast"
+msgstr "声音邮件炸弹"
+
+msgid "Skip"
+msgstr "跳过"
+
+msgid "Force"
+msgstr "强制"
+
+msgid "Whisper"
+msgstr "发呆"
+
+msgid "Read Group Number"
+msgstr "读取组号"
+
+msgid "Beep Only - No Confirmation"
+msgstr "仅提示 - 无确认"
+
+msgid "Dynamic Route"
+msgstr "动态路由"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Your Feedback"
+msgstr "您的反馈"
+
+msgid "Email (optional)"
+msgstr "电子邮件（可选）"
+
+msgid "Provide your email if you would like a response."
+msgstr "如果您希望获得回复，请提供您的电子邮件地址。"
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "提供任何评论或建议（最多500个字符）。"

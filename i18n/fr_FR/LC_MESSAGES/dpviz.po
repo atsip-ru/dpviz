@@ -679,9 +679,6 @@ msgstr "Groupe d'appel"
 msgid "List"
 msgstr "Liste"
 
-msgid "Extextnsion"
-msgstr "Extension"
-
 msgid "Timezone"
 msgstr "Fuseau horaire"
 
@@ -852,3 +849,75 @@ msgstr "Afficher les pénalités des agents de file d'attente"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "Affiche la valeur de pénalité pour les agents de file d'attente."
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "Merci ! Votre commentaire a été envoyé."
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "Soumission de commentaire échouée. Veuillez réessayer plus tard."
+
+msgid "(%s secs)"
+msgstr "(%s secondes)"
+
+msgid "No Answer (%s secs)"
+msgstr "Pas de réponse (%s secondes)"
+
+msgid "Feedback"
+msgstr "Retour"
+
+msgid "Submit"
+msgstr "Soumettre"
+
+msgid "Give Feedback"
+msgstr "Fournir des commentaires"
+
+msgid "Enter filename"
+msgstr "Entrez le nom du fichier"
+
+msgid "IVR"
+msgstr "IVR"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "Le message d'accueil n'a pas été enregistré ou est manquant."
+
+msgid "Voicemail"
+msgstr "Messagerie vocale"
+
+msgid "Download"
+msgstr "Télécharger"
+
+msgid "Voicemail Blast"
+msgstr "Coup de fil en masse"
+
+msgid "Skip"
+msgstr "Passer"
+
+msgid "Force"
+msgstr "Force"
+
+msgid "Whisper"
+msgstr "Murmure"
+
+msgid "Read Group Number"
+msgstr "Lire le numéro de groupe"
+
+msgid "Beep Only - No Confirmation"
+msgstr "Bip uniquement - Aucune confirmation"
+
+msgid "Dynamic Route"
+msgstr "Route dynamique"
+
+msgid "Default"
+msgstr "Défaut"
+
+msgid "Your Feedback"
+msgstr "Votre commentaire"
+
+msgid "Email (optional)"
+msgstr "Email (facultatif)"
+
+msgid "Provide your email if you would like a response."
+msgstr "Fournissez votre adresse e-mail si vous souhaitez recevoir une réponse."
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "Fournissez un commentaire ou des suggestions (jusqu'à 500 caractères)."

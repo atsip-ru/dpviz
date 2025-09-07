@@ -667,9 +667,6 @@ msgstr "Grupo de Ligacoes"
 msgid "List"
 msgstr "Lista"
 
-msgid "Extextnsion"
-msgstr "Extensão"
-
 msgid "Timezone"
 msgstr "Fuso Horário"
 
@@ -839,3 +836,75 @@ msgstr "Mostrar Penalidades do Agente da Fila"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "Exibe o valor da penalidade para os agentes de fila."
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "Obrigado! A sua opinião foi enviada."
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "Feedback de submissão falhou. Tente novamente mais tarde."
+
+msgid "(%s secs)"
+msgstr "(%s segundos)"
+
+msgid "No Answer (%s secs)"
+msgstr "Não respondido (%s segundos)"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "Submit"
+msgstr "Enviar"
+
+msgid "Give Feedback"
+msgstr "Dê Feedback"
+
+msgid "Enter filename"
+msgstr "Insira o nome do ficheiro"
+
+msgid "IVR"
+msgstr "IVR"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "A saudação ainda não foi gravada ou está faltando."
+
+msgid "Voicemail"
+msgstr "Correio de voz"
+
+msgid "Download"
+msgstr "Baixar"
+
+msgid "Voicemail Blast"
+msgstr "Ligar Mensagem de Voz"
+
+msgid "Skip"
+msgstr "Pular"
+
+msgid "Force"
+msgstr "Força"
+
+msgid "Whisper"
+msgstr "Susurro"
+
+msgid "Read Group Number"
+msgstr "Ler Número do Grupo"
+
+msgid "Beep Only - No Confirmation"
+msgstr "Som apenas - Não confirmação"
+
+msgid "Dynamic Route"
+msgstr "Rota Dinâmica"
+
+msgid "Default"
+msgstr "Padrão"
+
+msgid "Your Feedback"
+msgstr "Seu Feedback"
+
+msgid "Email (optional)"
+msgstr "E-mail (opcional)"
+
+msgid "Provide your email if you would like a response."
+msgstr "Forneça o seu endereço de e-mail se desejar uma resposta."
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "Forneça quaisquer comentários ou sugestões (até 500 caracteres)."

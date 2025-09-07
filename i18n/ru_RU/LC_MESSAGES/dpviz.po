@@ -674,9 +674,6 @@ msgstr "Группа звонков"
 msgid "List"
 msgstr "Список"
 
-msgid "Extextnsion"
-msgstr "Экстенсия"
-
 msgid "Timezone"
 msgstr "Часовой пояс"
 
@@ -847,3 +844,76 @@ msgstr "Показать штрафы агента очереди"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "Отображает значение штрафа для агентов очереди."
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "Спасибо! Ваше мнение было успешно отправлено."
+
+msgid "Feedback submission failed. Please try again later."
+msgstr "Отправка обратной связи не удалась. Попробуйте позже."
+
+msgid "(%s secs)"
+msgstr "(%s секунд)"
+
+msgid "No Answer (%s secs)"
+msgstr "Без ответа (%s сек)"
+
+msgid "Feedback"
+msgstr "Отзыв"
+
+msgid "Submit"
+msgstr "Отправить"
+
+msgid "Give Feedback"
+msgstr "Дайте отзыв"
+
+msgid "Enter filename"
+msgstr "Введите имя файла"
+
+msgid "IVR"
+msgstr "ИВР"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "Приветствие не записано или отсутствует."
+
+msgid "Voicemail"
+msgstr "Смотреть сообщения озвучки"
+
+msgid "Download"
+msgstr "Скачать"
+
+msgid "Voicemail Blast"
+msgstr "Возвращение голосовых сообщений"
+
+msgid "Skip"
+msgstr "Пропустить"
+
+msgid "Force"
+msgstr "Сила"
+
+msgid "Whisper"
+msgstr "Шепчать"
+
+msgid "Read Group Number"
+msgstr "Прочитать группу номеров"
+
+msgid "Beep Only - No Confirmation"
+msgstr "Бой - Без подтверждения"
+
+msgid "Dynamic Route"
+msgstr "Динамическое направление"
+
+msgid "Default"
+msgstr "Значение по умолчанию"
+
+msgid "Your Feedback"
+msgstr "Ваше мнение"
+
+msgid "Email (optional)"
+msgstr "Электронная почта (необязательно)"
+
+msgid "Provide your email if you would like a response."
+msgstr ""
+"Предоставьте свой адрес электронной почты, если вы хотите получить ответ."
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "Предоставьте любые комментарии или предложения (до 500 символов)."

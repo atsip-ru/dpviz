@@ -30,12 +30,26 @@ const translations = {
 	fileNotFound: "<?php echo _('could not be found. To generate the file, simply go to the recording, select the \"convert to\" wav option, and click submit.'); ?>",
 	recordingLabel: "<?php echo _('Recording'); ?>",
 	noFilesLang: "<?php echo _('No files found for language:'); ?>",
+	noVmFile: "<?php echo _('Greeting has not been recorded or is missing.'); ?>",
 	copyFilename: "<?php echo _('Copy filename'); ?>",
+	downloadFile: "<?php echo _('Download'); ?>",
 	audioLabel: "<?php echo _('Audio'); ?>",
 	viewSaved: "<?php echo _('View Saved Successfully'); ?>",
 	viewDeleted: "<?php echo _('View Deleted Successfully'); ?>",
 	sanitizeLabels: "<?php echo _('Sanitize Labels'); ?>",
-	restoreLabels: "<?php echo _('Restore Labels'); ?>"
+	restoreLabels: "<?php echo _('Restore Labels'); ?>",
+	enterFilename: "<?php echo _('Enter filename'); ?>",
+	feedbackSuccess: "<?php echo _('Thank you! Your feedback has been sent.'); ?>",
+	feedbackError: "<?php echo _('Feedback submission failed. Please try again later.'); ?>",
+	systemrecording: "<?php echo _('System Recording'); ?>",
+	announcement: "<?php echo _('Announcement'); ?>",
+	ivr: "<?php echo _('IVR'); ?>",
+	voicemail: "<?php echo _('Voicemail'); ?>",
+	ringgroup: "<?php echo _('Ring Group'); ?>",
+	vmblast: "<?php echo _('Voicemail Blast'); ?>",
+	pagegroups: "<?php echo _('Page Group'); ?>",
+	dynroute: "<?php echo _('Dynamic Route'); ?>",
+	queuecallback: "<?php echo _('Queue Callback'); ?>"
 };
 </script>
 <meta charset="UTF-8">
@@ -66,7 +80,7 @@ const translations = {
 				</ul>
 				<div class="tab-content display">
 					<div role="tabpanel" id="dpbox" class="tab-pane active">
-						<div id="vizButtons">
+						<div id="vizToolbar">
 							<?php require('views/toolbar.php');?>
 						</div>
 						<div id="vizSpinner">
@@ -79,8 +93,8 @@ const translations = {
 							<!-- Recording Modal container -->
 							<div id="recordingmodal">
 								<div id="recordingmodal-header">
-									<span id="recordingmodal-title">🔊 <?php echo _('System Recording'); ?></span>
-									<button id="modal-close-btn" onclick="closeModal()">✖</button>
+									<span id="recordingmodal-title"></span>
+									<button id="modal-close-btn" onclick="closeModal('recordingmodal')">✖</button>
 								</div>
 								<div id="recording-displayname"></div>
 								<div id="audioList"></div>
@@ -89,7 +103,7 @@ const translations = {
 							<!-- Saved View Modal container -->
 							<div id="saveModal" class="savemodal">
 								<div class="savemodal-content">
-									<span class="saveclose" onclick="closeSaveModal()">&times;</span>
+									<span class="saveclose" onclick="closeSaveModal()">✖</span>
 
 									<form id="saveViewForm">
 										<label for="description" style="font-weight: bold; display: block; margin-bottom: 5px;"><?php echo _('Description'); ?>:</label>
@@ -121,8 +135,3 @@ const translations = {
 		</div>
 	</div>
 </div>
-<script>
-
-console.log(navigator.language);
-</script>
-

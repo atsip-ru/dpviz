@@ -100,19 +100,16 @@ $('#reloadButton').click(function() {
 function generateVisualization(ext, jump, skips, pan) {	
 	const vizContainer = document.getElementById("vizContainer");
 	const spinner = document.getElementById("vizSpinner");
-	const modal = document.getElementById('recordingmodal');
+	const recordingModal = document.getElementById('recordingmodal');
 	const overlay = document.getElementById('overlay');
 	const vizHeader = document.getElementById('vizHeader');
 	const vizGraph = document.getElementById('vizGraph');
-	const toggleButton = document.getElementById("append");
 	const sanitizeBtn = document.getElementById("sanitizeBtn");
 	const header = document.getElementById("headerSelected");
 	
-
-	
 	skips = skips || [];
 	
-	closeModal();
+	closeModal('recordingmodal');
 	//console.log("Skips:", skips.join(", "));
 	
 	spinner.style.display = "flex";
@@ -155,9 +152,9 @@ function generateVisualization(ext, jump, skips, pan) {
 
 				viz.renderSVGElement(dot)
 					.then(function(element) {
+						svgContainer = element;
 						isFocused = false;
 						isSanitized = false;
-            svgContainer = element;
 						
             vizGraph.appendChild(element);
 						spinner.style.display = "none";  //hide spinner
@@ -182,22 +179,46 @@ function generateVisualization(ext, jump, skips, pan) {
 
 								const titleText = titleElement.textContent || titleElement.innerText || "";
 
-								// Check for "Play Recording:" pattern
-								if (titleText.startsWith("play-system-recording")) {
-									e.preventDefault();
-									
-									
-									if (modal && overlay && !isFocused && !isSanitized && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-										//overlay.style.display = 'block';
-										spinner.style.display = "flex";
-										getRecording(titleText);
+								// Patterns that trigger recording modal
+								const recordingPatterns = [
+									"play-system-recording",
+									"ext-local",
+									"app-announcement-",
+									"ivr-",
+									"ext-group",
+									"vmblast-grp",
+									"app-pagegroups",
+									"dynroute",
+									"queuecallback"
+								];
+
+								for (const pattern of recordingPatterns) {
+									if (titleText.startsWith(pattern)) {
+										closeModal("recordingmodal");
+										// special case: skip vms / vmi when pattern = ext-local
+										if (
+											pattern === "ext-local" &&
+											(titleText.includes("vms") || titleText.includes("vmi"))
+										) {
+											return;
+										}
 										
-										setTimeout(() => {
-											spinner.style.display = "none";
-											modal.style.display = 'block';
-										}, 500);
+										e.preventDefault();
+
+										if (overlay && !isFocused && !isSanitized && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+											
+											spinner.style.display = "flex";
+											getRecording(titleText);
+
+											setTimeout(() => {
+												spinner.style.display = "none";
+												recordingModal.style.display = "block";
+											}, 500);
+										}
+										break; // stop after first match
 									}
 								}
+								
 								
 								if (titleText.startsWith("reset") && !isFocused && !isSanitized) {
 									e.preventDefault();
@@ -230,8 +251,12 @@ function generateVisualization(ext, jump, skips, pan) {
 								// Shift Key -skip(s)
 								if (e.shiftKey && !isFocused && !isSanitized) {
 									e.preventDefault();
-									const allowedKeywords = ["announcement","callback","callrecording","daynight","directory","dynroute","ext-group","ext-tts","from-trunk",
-										"ivr","languages","miscapp","queueprio","queues","vqueues","setcid","timeconditions","vmblast-grp"];
+									const allowedKeywords = [
+										"announcement","callback","callrecording","daynight","directory",
+										"dynroute","ext-group","ext-tts","from-trunk","ivr","languages",
+										"miscapp","queueprio","queues","vqueues","setcid","timeconditions",
+										"vmblast-grp"
+									];
 
 									const match = allowedKeywords.find(keyword =>
 											titleText.toLowerCase().includes(keyword.toLowerCase())
@@ -306,77 +331,73 @@ function generateVisualization(ext, jump, skips, pan) {
 
 						// Only bind the master button once
 						if (!sanitizeBtn._bound) {
-    sanitizeBtn.addEventListener("click", () => {
-        const texts = document.querySelectorAll("g.node text");
-        const header = document.getElementById("headerSelected");
-        const input = document.getElementById("filenameInput");
-        const version = document.getElementById("version");
+								sanitizeBtn.addEventListener("click", () => {
+										const texts = document.querySelectorAll("g.node text");
+										const header = document.getElementById("headerSelected");
+										const input = document.getElementById("filenameInput");
+										const version = document.getElementById("version");
 
-        if (!isSanitized) {
-            // ENTER sanitize mode
-            originalFilename = input.value; // store filename
-            disableLinks();
-            input.value = "";
-            input.placeholder = "Enter filename...";
-            version.style.display = "flex";
+										if (!isSanitized) {
+												// ENTER sanitize mode
+												originalFilename = input.value; // store filename
+												disableLinks();
+												input.value = "";
+												input.placeholder = translations.enterFilename + '...';
+												version.style.display = "flex";
 
-            document.querySelectorAll("g.node a").forEach(link => {
-                link.addEventListener("click", e => {
-                    if (isSanitized) e.preventDefault();
-                });
-            });
+												document.querySelectorAll("g.node a").forEach(link => {
+														link.addEventListener("click", e => {
+																if (isSanitized) e.preventDefault();
+														});
+												});
 
-            // Black out all labels
-            texts.forEach(t => censor(t));
+												// Black out all labels
+												texts.forEach(t => censor(t));
 
-            if (header) {
-                delete header.dataset.censored;
-                delete header.dataset.prevColor;
-                delete header.dataset.prevBg;
-                censor(header);
-            }
+												if (header) {
+														delete header.dataset.censored;
+														delete header.dataset.prevColor;
+														delete header.dataset.prevBg;
+														censor(header);
+												}
 
-            setSanitizeButton("restore");
+												setSanitizeButton("restore");
 
-        } else {
-            // EXIT sanitize mode
-            input.value = originalFilename; // restore filename
-            version.style.display = "none";
-            texts.forEach(t => uncensor(t));
+										} else {
+												// EXIT sanitize mode
+												input.value = originalFilename; // restore filename
+												version.style.display = "none";
+												texts.forEach(t => uncensor(t));
 
-            if (header) uncensor(header);
+												if (header) uncensor(header);
 
-            restoreLinks();
-            setSanitizeButton("sanitize");
-        }
+												restoreLinks();
+												setSanitizeButton("sanitize");
+										}
 
-        isSanitized = !isSanitized;
-    });
+										isSanitized = !isSanitized;
+								});
 
-    // 🔹 GLOBAL DELEGATION: Handle clicks on nodes + header
-    document.addEventListener("click", e => {
-        if (!isSanitized) return;
+								// 🔹 GLOBAL DELEGATION: Handle clicks on nodes + header
+								document.addEventListener("click", e => {
+										if (!isSanitized) return;
 
-        // Node labels
-        if (e.target.closest("g.node")) {
-            e.stopPropagation();
-            e.target.closest("g.node").querySelectorAll("text").forEach(t => toggleCensor(t));
-        }
+										// Node labels
+										if (e.target.closest("g.node")) {
+												e.stopPropagation();
+												e.target.closest("g.node").querySelectorAll("text").forEach(t => toggleCensor(t));
+										}
 
-        // Header
-        const header = document.getElementById("headerSelected");
-        if (header && e.target === header) {
-            e.stopPropagation();
-            toggleCensor(header);
-        }
-    });
+										// Header
+										const header = document.getElementById("headerSelected");
+										if (header && e.target === header) {
+												e.stopPropagation();
+												toggleCensor(header);
+										}
+								});
 
-    sanitizeBtn._bound = true; // prevent duplicate bindings
-}
-
-
-
-
+								sanitizeBtn._bound = true; // prevent duplicate bindings
+						}
 						//end sanitize
 
           })
@@ -406,13 +427,77 @@ function generateVisualization(ext, jump, skips, pan) {
 }
 
 
-function getRecording(titleid) {	
+function getRecording(titleid) {
 	const parts = titleid.split(",");
-	const id = parts[1];
-	const other = parts[2];
+	const module = parts[0];
 	const lang = parts[3];
-
+	
+	//console.log(titleid);
+	let mod = "";
+	let id = "";
+	let url= "";
+	
+	if (module.startsWith("play-system-recording")) {
+		mod = 'systemrecording';
+		id = parts[1];
+		url = 'recordings&action=edit&id=' + id;
+	}
+	
+	if (module.startsWith("app-announcement")) {
+		const modParts = module.split("-");
+		mod = modParts[1];
+		id = modParts[2];
+		url = 'announcement&view=form&extdisplay=' + id;
+	}
+	
+	if (module.startsWith("ivr")) {
+		const modParts = module.split("-");
+		mod = modParts[0];
+		id = modParts[1];
+		url = 'ivr&action=edit&id=' + id;
+	}
+	
+	if (module.startsWith("ext-group")) {
+		mod = 'ringgroup';
+		id = parts[1];
+		url = 'ringgroups&view=form&extdisplay=' + id;
+	}
+	
+	if (module.startsWith("vmblast-grp")) {
+		mod = 'vmblast';
+		id = parts[1];
+		url = 'vmblast&view=form&extdisplay=' + id;
+	}
+	
+	if (module.startsWith("app-pagegroups")) {
+		mod = 'pagegroups';
+		id = parts[1];
+		url = 'paging&view=form&extdisplay=' + id;
+	}
+	
+	if (module.startsWith("dynroute")) {
+		const modParts = module.split("-");
+		mod = modParts[0];
+		id = modParts[1];
+		url = 'dynroute&action=edit&id=' + id;
+	}
+	
+	if (module.startsWith("queuecallback")) {
+		const modParts = module.split("-");
+		mod = modParts[0];
+		id = modParts[1];
+		url = 'queuecallback&view=form&id=' + id;
+	}
+	
+	if (module.startsWith("ext-local")) {
+		mod = 'voicemail';
+		id = parts[1];
+		ext = id.slice(3);
+		url = 'extensions&extdisplay=' + ext + '#voicemail';
+	}
+	
 	const formData = new URLSearchParams();
+	formData.append('app', mod);
 	formData.append('id', id);
 	formData.append('lang', lang);
 
@@ -429,17 +514,59 @@ function getRecording(titleid) {
 	})
 	.then(async data => {
 		//console.log("Display name:", data.displayname);
-		console.log("Filename(s):", data.filename);
+		//console.log("Filename(s):", data.filename);
 
+		const description = data.modDescription;
+		let recId = isNaN(Number(data.recId)) ? data.recId : Number(data.recId);
 		const displayname = data.displayname;
 		const audioList = document.getElementById('audioList');
 		audioList.innerHTML = "";
 
-		$('#recording-displayname').html(
-			'<a href="config.php?display=recordings&action=edit&id=' + id + '" target="_blank" style="width:100%" class="btn btn-default btn-lg">' +
-			'<i class="fa fa-bullhorn"></i> ' + translations.recordingLabel + ': ' + displayname +
-			' <i class="fa fa-external-link" aria-hidden="true"></i></a>'
-		);
+		$('#recordingmodal-title').html('<i class="fa fa-sitemap"></i> ' + translations[mod]);
+		let html = '';
+		
+		if (mod !== 'systemrecording' && mod !== 'voicemail'){
+			html += 
+				'<a href="config.php?display=' + url + '" target="_blank" style="width:100%" class="btn btn-default btn-lg">' +
+					'<i class="fa fa-sitemap"></i> ' + translations[mod] + ': ' + description +
+					' <i class="fa fa-external-link" aria-hidden="true"></i>' +
+				'</a>';
+		}
+		// now decide on the recording button
+		
+		if (recId > 0) {
+			// valid recording → show second button
+			html += 
+				'<a href="config.php?display=recordings&action=edit&id=' + recId +
+					'" target="_blank" style="width:100%" class="btn btn-default btn-lg">' +
+					'<i class="fa fa-bullhorn"></i> ' + translations.recordingLabel + ': ' + displayname +
+					' <i class="fa fa-external-link" aria-hidden="true"></i>' +
+				'</a>';
+		} else if (recId === 'voicemail'){
+			html += 
+				'<a href="config.php?display=' + url +
+					'" target="_blank" style="width:100%" class="btn btn-default btn-lg">' +
+					'<i class="fa fa-envelope"></i> ' + translations.voicemail + ': ' + displayname +
+					' <i class="fa fa-external-link" aria-hidden="true"></i>' +
+				'</a>';
+			
+		} else {
+			// no recording → show standard message
+			html += 
+				'<div class="btn btn-default btn-lg disabled" style="width:100%">' +
+					'<i class="fa fa-bullhorn"></i> ' + translations.recordingLabel + ': ' + "None" +
+				'</div>';
+				
+			$('#recording-displayname').html(html);
+			return;
+		}
+
+
+		$('#recording-displayname').html(html);
+	
+		if (mod === 'voicemail' && !data.filename) {
+			throw new Error(`${translations.noVmFile}`);
+		}
 		
 		if (!data.filename || data.filename.trim() === '') {
 			throw new Error(`${translations.noFilesLang} <strong>${lang}</strong>`);
@@ -453,7 +580,7 @@ function getRecording(titleid) {
 		const audioElements = []; // keep all audio tags
 
 		for (const filename of filenames) {
-			console.log("Fetching file:", filename);
+			//console.log("Fetching file:", filename);
 
 			try {
 				const response = await fetch('ajax.php?module=dpviz&command=getfile', {
@@ -485,32 +612,28 @@ function getRecording(titleid) {
 
 				// Create span for text
 				const titleText = document.createElement('span');
-				titleText.textContent = `${translations.audioLabel}: ${headerFilename}.wav`;
+				titleText.textContent = `${translations.audioLabel}: ${headerFilename}`;
 
-				// Create copy button
-				const copyBtn = document.createElement('button');
-				copyBtn.classList.add('btn', 'btn-sm', 'btn-outline-secondary');
-				copyBtn.innerHTML = '  <i class="fa fa-copy"></i>';
-				copyBtn.title = translations.copyFilename;
-				copyBtn.style.marginLeft = '10px';
+				// Create download button
+				const downloadBtn = document.createElement('button');
+				downloadBtn.classList.add('btn', 'btn-sm', 'btn-outline-secondary');
+				downloadBtn.innerHTML = '  <i class="fa fa-download"></i>';
+				downloadBtn.title = translations.downloadFile;
+				downloadBtn.style.marginLeft = '10px';
 
-				// Handle copy to clipboard
-				copyBtn.addEventListener('click', () => {
-					navigator.clipboard.writeText(shortFilename + '.wav')
-						.then(() => {
-							copyBtn.innerHTML = '  <i class="fa fa-check"></i>';
-							setTimeout(() => {
-								copyBtn.innerHTML = '  <i class="fa fa-copy"></i>';
-							}, 1500);
-						})
-						.catch(err => {
-							console.error('Copy failed:', err);
-						});
+				// Handle download
+				downloadBtn.addEventListener('click', () => {
+					const link = document.createElement("a");
+					link.href = audioUrl;                // audioUrl from your blob
+					link.download = shortFilename;       // preserved filename
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
 				});
 
 				// Append text and button to the card title
 				cardTitle.appendChild(titleText);
-				cardTitle.appendChild(copyBtn);
+				cardTitle.appendChild(downloadBtn);
 
 				// Append to card body
 				cardBody.appendChild(cardTitle);
@@ -566,7 +689,7 @@ function getRecording(titleid) {
 		container.classList.add('recording-container', 'error');
 
 		const label = document.createElement('div');
-		label.classList.add('alert', 'alert-danger');
+		label.classList.add('alert', 'alert-warning');
 		label.innerHTML = `<strong>Error:</strong> ${err.message}`;
 
 		container.appendChild(label);
@@ -587,24 +710,26 @@ document.addEventListener('play', function(e) {
 
 document.addEventListener('keydown', function(event) {
   if (event.key === 'Escape') {
-    const modal = document.getElementById('recordingmodal');
+    const recordingModal = document.getElementById('recordingmodal');
 		const savemodal = document.getElementById('saveModal');
-    if (modal && modal.style.display !== 'none') {
-      closeModal();
+    if (recordingModal && recordingModal.style.display !== 'none') {
+      closeModal('recordingmodal');
     }
+		
 		if (savemodal && savemodal.style.display !== 'none') {
       closeSaveModal();
     }
   }
 });
 
-function closeModal() {
-  const modal = document.getElementById('recordingmodal');
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
   const overlay = document.getElementById('overlay');
-  modal.style.display = 'none';
-  overlay.style.display = 'none';
+  
+  if (modal) modal.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
 
-  // Stop and reset all audio elements in the document
+  // Stop and reset all audio elements
   const allAudio = document.querySelectorAll('audio');
   allAudio.forEach(audio => {
     audio.pause();
@@ -612,34 +737,42 @@ function closeModal() {
   });
 }
 
-const modal = document.getElementById("recordingmodal");
-const header = document.getElementById("recordingmodal-header");
+document.addEventListener("DOMContentLoaded", () => {
+    const recordingModal = document.getElementById("recordingmodal");
+    const recordingHeader = document.getElementById("recordingmodal-header");
+    makeDraggable(recordingModal, recordingHeader);
 
-let isDragging = false;
-let offsetX = 0;
-let offsetY = 0;
-
-header.addEventListener("mousedown", (e) => {
-	isDragging = true;
-	offsetX = e.clientX - modal.offsetLeft;
-	offsetY = e.clientY - modal.offsetTop;   
-	document.body.style.userSelect = 'none';
 });
 
-document.addEventListener("mouseup", () => {
-	isDragging = false;
-	document.body.style.userSelect = 'auto';
-});
+function makeDraggable(modal, header) {
+    if (!modal || !header) return; // safety check
+    
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
 
-document.addEventListener("mousemove", (e) => {
-	if (isDragging) {
-		modal.style.left = (e.clientX - offsetX) + "px";
-		modal.style.top = (e.clientY - offsetY) + "px";
-	}
-});
+    header.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        offsetX = e.clientX - modal.offsetLeft;
+        offsetY = e.clientY - modal.offsetTop;
+        document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+        document.body.style.userSelect = "auto";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            modal.style.left = e.clientX - offsetX + "px";
+            modal.style.top = e.clientY - offsetY + "px";
+        }
+    });
+}
 
 
-//saved view modal
+//saved view saveModal
 document.getElementById('saveModalBtn').addEventListener('click', function () {
 	const viewId = document.getElementById('viewId')?.value.trim() || '';
 	const deleteBtn = document.getElementById('deleteViewBtn');
@@ -652,15 +785,16 @@ document.getElementById('saveModalBtn').addEventListener('click', function () {
 });
 
 window.addEventListener('click', function (e) {
-  const modal = document.getElementById('saveModal');
-  if (e.target === modal) {
-    modal.style.display = 'none';
+  const saveModal = document.getElementById('saveModal');
+  if (e.target === saveModal) {
+    saveModal.style.display = 'none';
   }
 });
 
 function closeSaveModal() {
   document.getElementById('saveModal').style.display = 'none';
 }
+
 
 //save / delete views
 document.getElementById('saveViewForm').addEventListener('submit', function (e) {
@@ -685,14 +819,14 @@ document.getElementById('saveViewForm').addEventListener('submit', function (e) 
 		url: 'ajax.php?module=dpviz&command=saveview',
 		data: data,
 		success: function (response) {
-			fpbxToast(`${translations.viewSaved}`,'Saving','success');
+			fpbxToast(`${translations.viewSaved}`,'Success','success');
 			$('#saveModal').hide();
 			$('#description').val('');
 
 			setTimeout(function () {
 				location.reload();
 			}, 2000);
-			console.log('Response:', response);
+			//console.log('Response:', response);
 		},
 		error: function (xhr, status, error) {
 			alert('Error saving view.');
@@ -700,7 +834,7 @@ document.getElementById('saveViewForm').addEventListener('submit', function (e) 
 		}
 	});
 
-  // Close modal after submit
+  // Close saveModal after submit
   document.getElementById('saveModal').style.display = 'none';
 });
 
@@ -713,14 +847,14 @@ document.getElementById('deleteViewBtn').addEventListener('click', function () {
 		data: { id: viewId },
 		success: function (response) {
 			
-			fpbxToast(`${translations.viewDeleted}`,'Saving','success');
+			fpbxToast(`${translations.viewDeleted}`,'Success','success');
 			$('#saveModal').hide();
 			$('#description').val('');
 
 			setTimeout(function () {
 				location.reload();
 			}, 2000);
-			console.log('Response:', response);
+			//console.log('Response:', response);
 		},
 		error: function (xhr, status, error) {
 			alert('Error saving view.');
@@ -862,3 +996,46 @@ document.addEventListener("click", (e) => {
 		dropdown.style.display = "none";
 	}
 });
+
+
+//feedback form
+const modal = document.getElementById('feedbackModal');
+const openBtn = document.getElementById('openFeedbackModal');
+const closeBtn = document.getElementById('closeFeedbackModal');
+
+openBtn.onclick = () => { 
+    modal.style.display = 'block';
+		if (typeof fpbxHelp !== 'undefined' && fpbxHelp.init) {
+			fpbxHelp.init(modal);
+		} 
+};
+
+closeBtn.onclick = () => { modal.style.display = 'none'; };
+window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const form = e.target;             // 👈 the form element
+    const formData = new FormData(form);
+
+    fetch("ajax.php?module=dpviz&command=feedback", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "ok") {
+            fpbxToast(`${translations.feedbackSuccess}`, 'info','info');
+        } else {
+            fpbxToast(`${translations.feedbackError}`, 'error','error');
+        }
+    })
+    .catch(err => {
+        fpbxToast(`${translations.feedbackError}`, 'error','error');
+    });
+
+    modal.style.display = 'none';
+    form.reset();
+});
+

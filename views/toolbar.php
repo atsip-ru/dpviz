@@ -41,11 +41,16 @@ function dpp_load_incoming_routes() {
 
 $inroutes= dpp_load_incoming_routes();
 
+
+
 function dpp_load_tables() {
 	global $db;
 	$dproute=array();
 
-	$tables = array('announcement','daynight','dynroute','languages','ivr_details','kvstore_FreePBX_modules_Customappsreg','miscapps','queues_config','ringgroups','timeconditions','virtual_queue_config','dpviz_views');
+	$tables = array('announcement','daynight','dynroute','languages','ivr_details',
+	  'kvstore_FreePBX_modules_Customappsreg','miscapps','queues_config',
+		'ringgroups','timeconditions','virtual_queue_config','dpviz_views'
+	);
 	
 	foreach ($tables as $table) {
     // Check if the table exists
@@ -136,11 +141,7 @@ function dpp_load_tables() {
 }
 
 $otherroutes= dpp_load_tables();
-/*
-echo '<pre>';
-print_r($otherroutes);
-echo '</pre>';
-*/
+
 
 //build dropdowns
 $dropOptions="";
@@ -167,8 +168,8 @@ if (isset($inroutes) && count($inroutes) > 0){
 	foreach ($inroutes as $in=>$extt){
 		$e=$extt['extension'];
 		if (empty($e)){$e='ANY';}
-		if (!empty($extt['cidnum'])){$c=$extt['cidnum'];$cName=' / '.$c;}else{$c=$cName='';}
-		$dropOptions.='<option value="from-trunk,'.$e.'-'.$c.',1,'.$options['lang'].'">'.$e.$cName.' : '.$extt['description'].' ['.$extt['goDestination'].']</option>';
+		if (!empty($extt['cidnum'])){$c='&'.$extt['cidnum'];$cName=' / '.$extt['cidnum'];}else{$c=$cName='';}
+		$dropOptions.='<option value="from-trunk,'.$e.$c.',1,'.$options['lang'].'">'.$e.$cName.' : '.$extt['description'].' ['.$extt['goDestination'].']</option>';
 	}
 	$dropOptions.='</optgroup>';
 }

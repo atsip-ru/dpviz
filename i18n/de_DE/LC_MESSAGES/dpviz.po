@@ -675,9 +675,6 @@ msgstr "Ringgruppe"
 msgid "List"
 msgstr "Liste"
 
-msgid "Extextnsion"
-msgstr "Erweiterung"
-
 msgid "Timezone"
 msgstr "Zeitzone"
 
@@ -848,3 +845,76 @@ msgstr "Zeige Warteschlangen-Agent-Strafen an"
 
 msgid "Displays the penalty value for queue agents."
 msgstr "Zeigt den Strafwert für die Warteschlange-Agenten an."
+
+msgid "Thank you! Your feedback has been sent."
+msgstr "Vielen Dank! Ihre Rückmeldung wurde gesendet."
+
+msgid "Feedback submission failed. Please try again later."
+msgstr ""
+"Rückmeldung wurde nicht gespeichert. Bitte probieren Sie später noch einmal."
+
+msgid "(%s secs)"
+msgstr "(%s Sekunden)"
+
+msgid "No Answer (%s secs)"
+msgstr "Keine Antwort (%s Sekunden)"
+
+msgid "Feedback"
+msgstr "Rückmeldung"
+
+msgid "Submit"
+msgstr "Absenden"
+
+msgid "Give Feedback"
+msgstr "Gib Feedback"
+
+msgid "Enter filename"
+msgstr "Geben Sie den Dateinamen ein"
+
+msgid "IVR"
+msgstr "IVR"
+
+msgid "Greeting has not been recorded or is missing."
+msgstr "Servicemeldung wurde nicht aufgenommen oder fehlt."
+
+msgid "Voicemail"
+msgstr "Nachrichtenkassette"
+
+msgid "Download"
+msgstr "Herunterladen"
+
+msgid "Voicemail Blast"
+msgstr "Sprachnachrichten-Ausstrahlung"
+
+msgid "Skip"
+msgstr "\"Überspringen\""
+
+msgid "Force"
+msgstr "Zwingen"
+
+msgid "Whisper"
+msgstr "Flüstern"
+
+msgid "Read Group Number"
+msgstr "Gib Gruppen-Nr. ein"
+
+msgid "Beep Only - No Confirmation"
+msgstr "Klingelton nur - Keine Bestätigung"
+
+msgid "Dynamic Route"
+msgstr "Dynamische Route"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Your Feedback"
+msgstr "Ihre Rückmeldung"
+
+msgid "Email (optional)"
+msgstr "E-Mail (optional)"
+
+msgid "Provide your email if you would like a response."
+msgstr "Geben Sie Ihre E-Mail-Adresse an, wenn Sie eine Antwort möchten."
+
+msgid "Provide any comments or suggestions (up to 500 characters)."
+msgstr "Geben Sie mögliche Kommentare oder Vorschläge an (bis zu 500 Zeichen)."
