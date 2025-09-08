@@ -255,7 +255,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 										}
 								}
 
-								if ($recId!=0){
+								if (is_numeric($recId) && $recId > 0){
 									
 									$fpbxResults= \FreePBX::Recordings()->getRecordingById($recId);
 									if (!empty($fpbxResults)){
