@@ -2173,6 +2173,7 @@ if ($minimal){
 			$voicemail=$route['extensions'][$vmnum]['mailbox'];
 			$vmname= $voicemail['name'];
 			$vmemail= $voicemail['email'];
+			$context= $voicemail['vmcontext'];
 			$vmemail= str_replace(",",",\n",$vmemail);
 			$tooltip="\n\n"._('Voicemail: Enabled');
 			$tooltip.="\n"._('Email').": ".$vmemail;
@@ -2181,8 +2182,13 @@ if ($minimal){
 			}
 			
 			if ($vmtype=='u' || $vmtype=='b'){$speaker='🔊 ';}else{$speaker='';}
+			$inbox = countVmMessages($vmnum, $context, 'inbox');
+			$other   = countVmMessages($vmnum, $context, 'other');
+			$messages=_('INBOX').": ".$inbox."  "._('Other').": ".$other."  "._('Total').": ".($inbox + $other);
+			$tooltip.="\n"._('INBOX').": ".$inbox."\n"._('Other').": ".$other."\n"._('Total').": ".($inbox + $other);
 			
-			$label=$speaker . $vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".sanitizeLabels($vmemail);
+			
+			$label=$speaker . $vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".$messages."\n".sanitizeLabels($vmemail);
 
 			makeNode($module,$vmnum,$label,$tooltip,$node);
 		}else{
@@ -3027,7 +3033,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 					break;
 
 			case 'Voicemail':
-					$url='extensions&extdisplay='.$id.'#voicemail';
+					$url='voicemail&action=bsettings&ext='.$id;
 					$shape='folder';
 					$color='#979291';
 					break;
@@ -3257,4 +3263,27 @@ function getFeatureNum($recID, $route) {
     return _('Disabled');
 }
 
+function countVmMessages($ext, $context, $folderType) {
+    $basePath = "/var/spool/asterisk/voicemail/$context/$ext";
+
+    if ($folderType === "inbox") {
+        $path = "$basePath/INBOX";
+        return is_dir($path) ? count(glob("$path/*.txt")) : 0;
+    }
+
+    if ($folderType === "other") {
+        $folders = ["Family", "Friends", "Old", "Work", "Urgent"];
+        $count = 0;
+        foreach ($folders as $f) {
+            $path = "$basePath/$f";
+            if (is_dir($path)) {
+                $count += count(glob("$path/*.txt"));
+            }
+        }
+        return $count;
+    }
+
+    // If invalid type passed, return 0
+    return 0;
+}
 

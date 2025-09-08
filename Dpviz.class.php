@@ -252,6 +252,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 											
 											$recId = 'voicemail';
 											$displayname= _('Ext').' '.$ext;
+											
 										}
 								}
 
@@ -292,6 +293,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 										'recId' => $recId,
                     'displayname' => $displayname,
                     'filename' => $filename
+										
                 ));
                 exit;
 

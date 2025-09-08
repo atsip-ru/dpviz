@@ -917,3 +917,12 @@ msgstr ""
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Предоставьте любые комментарии или предложения (до 500 символов)."
+
+msgid "INBOX"
+msgstr "INBOX"
+
+msgid "Other"
+msgstr "Другое"
+
+msgid "Total"
+msgstr "Итого"

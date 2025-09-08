@@ -432,7 +432,6 @@ function getRecording(titleid) {
 	const module = parts[0];
 	const lang = parts[3];
 	
-	//console.log(titleid);
 	let mod = "";
 	let id = "";
 	let url= "";
@@ -493,7 +492,7 @@ function getRecording(titleid) {
 		mod = 'voicemail';
 		id = parts[1];
 		ext = id.slice(3);
-		url = 'extensions&extdisplay=' + ext + '#voicemail';
+		url = 'voicemail&action=bsettings&ext=' + ext;
 	}
 	
 	const formData = new URLSearchParams();
@@ -513,8 +512,6 @@ function getRecording(titleid) {
 		return response.json();
 	})
 	.then(async data => {
-		//console.log("Display name:", data.displayname);
-		//console.log("Filename(s):", data.filename);
 
 		const description = data.modDescription;
 		let recId = isNaN(Number(data.recId)) ? data.recId : Number(data.recId);

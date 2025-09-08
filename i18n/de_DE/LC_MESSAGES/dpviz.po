@@ -918,3 +918,12 @@ msgstr "Geben Sie Ihre E-Mail-Adresse an, wenn Sie eine Antwort möchten."
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Geben Sie mögliche Kommentare oder Vorschläge an (bis zu 500 Zeichen)."
+
+msgid "INBOX"
+msgstr "INBOX"
+
+msgid "Other"
+msgstr "Andere"
+
+msgid "Total"
+msgstr "Gesamt"

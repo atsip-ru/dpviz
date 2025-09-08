@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-07 21:34-0400\n"
+"POT-Creation-Date: 2025-09-08 11:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -222,15 +222,15 @@ msgstr ""
 #: /var/www/html/admin/modules/dpviz/process.php:1304
 #: /var/www/html/admin/modules/dpviz/process.php:1809
 #: /var/www/html/admin/modules/dpviz/process.php:1852
-#: /var/www/html/admin/modules/dpviz/process.php:2212
+#: /var/www/html/admin/modules/dpviz/process.php:2218
 msgid "Feature Code"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:460
 #: /var/www/html/admin/modules/dpviz/process.php:728
 #: /var/www/html/admin/modules/dpviz/process.php:1137
-#: /var/www/html/admin/modules/dpviz/process.php:2214
-#: /var/www/html/admin/modules/dpviz/process.php:3094
+#: /var/www/html/admin/modules/dpviz/process.php:2220
+#: /var/www/html/admin/modules/dpviz/process.php:3100
 #: /var/www/html/admin/modules/dpviz/views/options.php:158
 msgid "None"
 msgstr ""
@@ -350,8 +350,8 @@ msgstr ""
 #: /var/www/html/admin/modules/dpviz/process.php:1758
 #: /var/www/html/admin/modules/dpviz/process.php:1954
 #: /var/www/html/admin/modules/dpviz/process.php:2147
-#: /var/www/html/admin/modules/dpviz/process.php:2267
-#: /var/www/html/admin/modules/dpviz/process.php:2322
+#: /var/www/html/admin/modules/dpviz/process.php:2273
+#: /var/www/html/admin/modules/dpviz/process.php:2328
 #: /var/www/html/admin/modules/dpviz/views/options.php:77
 #: /var/www/html/admin/modules/dpviz/views/options.php:104
 #: /var/www/html/admin/modules/dpviz/views/options.php:131
@@ -370,8 +370,8 @@ msgstr ""
 #: /var/www/html/admin/modules/dpviz/process.php:1758
 #: /var/www/html/admin/modules/dpviz/process.php:1954
 #: /var/www/html/admin/modules/dpviz/process.php:2147
-#: /var/www/html/admin/modules/dpviz/process.php:2267
-#: /var/www/html/admin/modules/dpviz/process.php:2322
+#: /var/www/html/admin/modules/dpviz/process.php:2273
+#: /var/www/html/admin/modules/dpviz/process.php:2328
 #: /var/www/html/admin/modules/dpviz/views/options.php:79
 #: /var/www/html/admin/modules/dpviz/views/options.php:106
 #: /var/www/html/admin/modules/dpviz/views/options.php:133
@@ -400,12 +400,12 @@ msgid "Tech"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:811
-#: /var/www/html/admin/modules/dpviz/process.php:2177
+#: /var/www/html/admin/modules/dpviz/process.php:2178
 msgid "Voicemail: Enabled"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:812
-#: /var/www/html/admin/modules/dpviz/process.php:2178
+#: /var/www/html/admin/modules/dpviz/process.php:2179
 msgid "Email"
 msgstr ""
 
@@ -438,8 +438,8 @@ msgstr ""
 #: /var/www/html/admin/modules/dpviz/process.php:827
 #: /var/www/html/admin/modules/dpviz/process.php:1554
 #: /var/www/html/admin/modules/dpviz/process.php:1567
-#: /var/www/html/admin/modules/dpviz/process.php:3253
-#: /var/www/html/admin/modules/dpviz/process.php:3257
+#: /var/www/html/admin/modules/dpviz/process.php:3259
+#: /var/www/html/admin/modules/dpviz/process.php:3263
 msgid "Disabled"
 msgstr ""
 
@@ -629,7 +629,7 @@ msgid "Duplex"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:1316
-#: /var/www/html/admin/modules/dpviz/process.php:2229
+#: /var/www/html/admin/modules/dpviz/process.php:2235
 msgid "members"
 msgstr ""
 
@@ -639,7 +639,7 @@ msgstr ""
 #: /var/www/html/admin/modules/dpviz/process.php:1901
 #: /var/www/html/admin/modules/dpviz/process.php:1943
 #: /var/www/html/admin/modules/dpviz/process.php:1944
-#: /var/www/html/admin/modules/dpviz/process.php:2232
+#: /var/www/html/admin/modules/dpviz/process.php:2238
 msgid "Ext"
 msgstr ""
 
@@ -911,133 +911,148 @@ msgstr ""
 msgid "Unavailable Message"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2212
-#: /var/www/html/admin/modules/dpviz/process.php:2214
+#: /var/www/html/admin/modules/dpviz/process.php:2187
+#: /var/www/html/admin/modules/dpviz/process.php:2188
+msgid "INBOX"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2187
+#: /var/www/html/admin/modules/dpviz/process.php:2188
+msgid "Other"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2187
+#: /var/www/html/admin/modules/dpviz/process.php:2188
+msgid "Total"
+msgstr ""
+
 #: /var/www/html/admin/modules/dpviz/process.php:2218
 #: /var/www/html/admin/modules/dpviz/process.php:2220
+#: /var/www/html/admin/modules/dpviz/process.php:2224
+#: /var/www/html/admin/modules/dpviz/process.php:2226
 msgid "Audio Label"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2218
+#: /var/www/html/admin/modules/dpviz/process.php:2224
 msgid "Read Group Number"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2220
+#: /var/www/html/admin/modules/dpviz/process.php:2226
 msgid "Beep Only - No Confirmation"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2268
-#: /var/www/html/admin/modules/dpviz/process.php:2324
-#: /var/www/html/admin/modules/dpviz/process.php:2325
+#: /var/www/html/admin/modules/dpviz/process.php:2274
+#: /var/www/html/admin/modules/dpviz/process.php:2330
+#: /var/www/html/admin/modules/dpviz/process.php:2331
 msgid "Target"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2268
-#: /var/www/html/admin/modules/dpviz/process.php:2273
-#: /var/www/html/admin/modules/dpviz/process.php:2324
-#: /var/www/html/admin/modules/dpviz/process.php:2325
-#: /var/www/html/admin/modules/dpviz/process.php:2329
+#: /var/www/html/admin/modules/dpviz/process.php:2274
+#: /var/www/html/admin/modules/dpviz/process.php:2279
+#: /var/www/html/admin/modules/dpviz/process.php:2330
+#: /var/www/html/admin/modules/dpviz/process.php:2331
+#: /var/www/html/admin/modules/dpviz/process.php:2335
 msgid "Return"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2286
+#: /var/www/html/admin/modules/dpviz/process.php:2292
 msgid "Bad Dest: Blacklist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2638
+#: /var/www/html/admin/modules/dpviz/process.php:2644
 msgid "Mon"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2639
+#: /var/www/html/admin/modules/dpviz/process.php:2645
 msgid "Tue"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2640
+#: /var/www/html/admin/modules/dpviz/process.php:2646
 msgid "Wed"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2641
+#: /var/www/html/admin/modules/dpviz/process.php:2647
 msgid "Thu"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2642
+#: /var/www/html/admin/modules/dpviz/process.php:2648
 msgid "Fri"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2643
+#: /var/www/html/admin/modules/dpviz/process.php:2649
 msgid "Sat"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2644
+#: /var/www/html/admin/modules/dpviz/process.php:2650
 msgid "Sun"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2648
+#: /var/www/html/admin/modules/dpviz/process.php:2654
 msgid "Jan"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2649
+#: /var/www/html/admin/modules/dpviz/process.php:2655
 msgid "Feb"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2650
+#: /var/www/html/admin/modules/dpviz/process.php:2656
 msgid "Mar"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2651
+#: /var/www/html/admin/modules/dpviz/process.php:2657
 msgid "Apr"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2652
+#: /var/www/html/admin/modules/dpviz/process.php:2658
 msgid "May"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2653
+#: /var/www/html/admin/modules/dpviz/process.php:2659
 msgid "Jun"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2654
+#: /var/www/html/admin/modules/dpviz/process.php:2660
 msgid "Jul"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2655
+#: /var/www/html/admin/modules/dpviz/process.php:2661
 msgid "Aug"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2656
+#: /var/www/html/admin/modules/dpviz/process.php:2662
 msgid "Sep"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2657
+#: /var/www/html/admin/modules/dpviz/process.php:2663
 msgid "Oct"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2658
+#: /var/www/html/admin/modules/dpviz/process.php:2664
 msgid "Nov"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2659
+#: /var/www/html/admin/modules/dpviz/process.php:2665
 msgid "Dec"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:3054
+#: /var/www/html/admin/modules/dpviz/process.php:3060
 msgid "Click to continue..."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:3076
-#: /var/www/html/admin/modules/dpviz/process.php:3077
+#: /var/www/html/admin/modules/dpviz/process.php:3082
+#: /var/www/html/admin/modules/dpviz/process.php:3083
 msgid "Bad Dest"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:3091
+#: /var/www/html/admin/modules/dpviz/process.php:3097
 msgid "not found"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:3121
+#: /var/www/html/admin/modules/dpviz/process.php:3127
 msgid "month inverted"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:3137
+#: /var/www/html/admin/modules/dpviz/process.php:3143
 msgid "day-of-month inverted"
 msgstr ""
 

@@ -910,3 +910,12 @@ msgstr "Fornisci la tua email se desideri una risposta."
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Fornire eventuali commenti o suggerimenti (massimo 500 caratteri)."
+
+msgid "INBOX"
+msgstr "INBOX"
+
+msgid "Other"
+msgstr "Altri"
+
+msgid "Total"
+msgstr "Totale"

@@ -894,3 +894,12 @@ msgstr "如果您希望获得回复，请提供您的电子邮件地址。"
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "提供任何评论或建议（最多500个字符）。"
+
+msgid "INBOX"
+msgstr "收件箱"
+
+msgid "Other"
+msgstr "其他"
+
+msgid "Total"
+msgstr "合计"

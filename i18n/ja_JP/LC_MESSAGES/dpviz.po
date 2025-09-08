@@ -907,3 +907,12 @@ msgstr "応答を希望する場合は、メールアドレスを提供してく
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "提供したいコメントや建議（最大500文字）を入力してください。"
+
+msgid "INBOX"
+msgstr "受信トレイ"
+
+msgid "Other"
+msgstr "他の"
+
+msgid "Total"
+msgstr "総額"

@@ -921,3 +921,12 @@ msgstr "Fournissez votre adresse e-mail si vous souhaitez recevoir une réponse.
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Fournissez un commentaire ou des suggestions (jusqu'à 500 caractères)."
+
+msgid "INBOX"
+msgstr "BOÎTE DE RÉCEPTION"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Total"
+msgstr "Total :"

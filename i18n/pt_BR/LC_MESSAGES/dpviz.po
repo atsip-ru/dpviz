@@ -908,3 +908,12 @@ msgstr ""
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Forneça qualquer comentários ou sugestões (até 500 caracteres)."
+
+msgid "INBOX"
+msgstr "CAIXA DE ENTRADA"
+
+msgid "Other"
+msgstr "Outro"
+
+msgid "Total"
+msgstr "Total:"

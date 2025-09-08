@@ -911,3 +911,12 @@ msgstr "Proporcione su dirección de correo electrónico si desea una respuesta.
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Proporcione cualquier comentario o sugerencia (hasta 500 caracteres)."
+
+msgid "INBOX"
+msgstr "INBOX"
+
+msgid "Other"
+msgstr "Otro"
+
+msgid "Total"
+msgstr "Total"

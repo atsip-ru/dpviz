@@ -911,3 +911,12 @@ msgstr "Geef uw e-mailadres op als u een reactie wilt ontvangen."
 
 msgid "Provide any comments or suggestions (up to 500 characters)."
 msgstr "Geef eventuele opmerkingen of suggesties (tot 500 tekens)."
+
+msgid "INBOX"
+msgstr "INLADING"
+
+msgid "Other"
+msgstr "Andere"
+
+msgid "Total"
+msgstr "Totaal"
