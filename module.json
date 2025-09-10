@@ -6,7 +6,7 @@
     "publisher": "AdamV",
     "license": "GPLv3+",
     "licenselink": "http://www.gnu.org/licenses/gpl-3.0.txt",
-    "changelog": "Added Feedback form. Listen to unavailable / busy voicemail nodes. Moved recordings to modules. Ext registration status in 'combined' view for queues and ring groups.",
+    "changelog": "Voicemail node message counts, queue and ring group member sorting, pan/ zoom/ exporting fixes.",
     "category": "Reports",
     "description": "Graphical display of the dial plan for any Inbound Route",
     "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.26.tar.gz"
