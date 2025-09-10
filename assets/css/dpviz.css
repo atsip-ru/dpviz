@@ -12,6 +12,17 @@ html, body {
 #vizGraph {
   width: 100%;
   min-height: 70vh;
+	overflow: hidden;
+	position: relative;
+	cursor: grab;
+}
+
+#vizGraph:active {
+  cursor: grabbing;    /* while dragging */
+}
+
+#vizGraph.panning * {
+  pointer-events: none;   /* disables hover/click during pan */
 }
 
 svg {
@@ -20,14 +31,27 @@ svg {
   max-height: 100%;
   width: auto;
   height: auto;
-	z-index: 80;
+	overflow: visible;  /* allow drawing outside */
+  transform-origin: 0 0;	
+}
+
+#vizGraph svg:focus {
+  outline: none;
 }
 
 svg:not(:root) {
-  overflow: hidden;
+  overflow: visible;
+	
 }
 
 #graph0 {
+	border: none;
+}
+
+
+.divider {
+	height: 1px;
+	background-color: #e0e0e0;
 	border: none;
 }
 
@@ -72,6 +96,7 @@ svg:not(:root) {
 #vizToolbar {
 	position: sticky; 
 	top:50px;
+	z-index:1000;
 }
 
 .dropdown-large {

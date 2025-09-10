@@ -328,14 +328,13 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
           <i class="fa fa-download"></i> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-					<li><a class="dropdown-item" href="#" onclick="handleExport(8)"><i class="fa fa-certificate"></i> <?php echo _('Super'); ?> .png</a></li>
-          <li><a class="dropdown-item" href="#" onclick="handleExport(4)"><i class="fa fa-star"></i> <?php echo _('High'); ?> .png</a></li>
-          <li><a class="dropdown-item" href="#" onclick="handleExport(2)"><i class="fa fa-circle"></i> <?php echo _('Standard'); ?> .png</a></li>
-          <li><a class="dropdown-item" href="#" onclick="handleSVGExport()"><i class="fa fa-code"></i> SVG .svg</a></li>
+					<li><a class="dropdown-item" href="#" onclick="exportImage(8)"><i class="fa fa-certificate"></i> <?php echo _('Super'); ?> .png</a></li>
+          <li><a class="dropdown-item" href="#" onclick="exportImage(4)"><i class="fa fa-star"></i> <?php echo _('High'); ?> .png</a></li>
+          <li><a class="dropdown-item" href="#" onclick="exportImage(2)"><i class="fa fa-circle"></i> <?php echo _('Standard'); ?> .png</a></li>
+          <li id="svgExButton"><a class="dropdown-item" href="#" onclick="handleSVGExport()"><i class="fa fa-code"></i> SVG .svg</a></li>
         </ul>
       </div>
     </div>
-
   </div>
 </div>
 <script>

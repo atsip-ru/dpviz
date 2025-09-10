@@ -160,14 +160,7 @@ function generateVisualization(ext, jump, skips, pan) {
 						spinner.style.display = "none";  //hide spinner
 
             if (pan === "1") {
-							const innerGroup = element.querySelector('g'); // first <g> inside <svg>
-							if (innerGroup) {
-								panzoom(innerGroup, {
-									zoomDoubleClickSpeed: 1,
-								});
-							} else {
-								console.warn("Could not find inner <g> element for panzoom.");
-							}
+							initPanZoom("vizGraph");
 						}
 						
 						// Ctrl/Command + shift + click handler for Graphviz nodes
@@ -334,6 +327,7 @@ function generateVisualization(ext, jump, skips, pan) {
 								sanitizeBtn.addEventListener("click", () => {
 										const texts = document.querySelectorAll("g.node text");
 										const header = document.getElementById("headerSelected");
+										const svgExButton = document.getElementById("svgExButton");
 										const input = document.getElementById("filenameInput");
 										const version = document.getElementById("version");
 
@@ -360,6 +354,7 @@ function generateVisualization(ext, jump, skips, pan) {
 														delete header.dataset.prevBg;
 														censor(header);
 												}
+												svgExButton.style.display = 'none';
 
 												setSanitizeButton("restore");
 
@@ -370,6 +365,7 @@ function generateVisualization(ext, jump, skips, pan) {
 												texts.forEach(t => uncensor(t));
 
 												if (header) uncensor(header);
+												svgExButton.style.display = 'block';
 
 												restoreLinks();
 												setSanitizeButton("sanitize");
@@ -1036,3 +1032,92 @@ document.getElementById('feedbackForm').addEventListener('submit', (e) => {
     form.reset();
 });
 
+
+function initPanZoom(containerId) {
+  const viewport = document.getElementById(containerId);
+  const svgElement = viewport.querySelector('svg');
+
+  if (!svgElement) {
+    console.warn("No SVG found in container", containerId);
+    return;
+  }
+
+  let panX = 0, panY = 0, scale = 1;
+  let isPanning = false;
+  let startX = 0, startY = 0;
+  let panStartX = 0, panStartY = 0;
+  const dragThreshold = 3;
+  let moved = false;
+
+  function updateTransform() {
+    svgElement.style.transform =
+      `translate(${panX}px, ${panY}px) scale(${scale})`;
+    svgElement.style.transformOrigin = "0 0";
+  }
+
+  function onMouseDown(e) {
+    e.preventDefault();
+    isPanning = true;
+    moved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    panStartX = panX;
+    panStartY = panY;
+    // temporarily allow pointer events on SVG
+    svgElement.style.pointerEvents = 'auto';
+  }
+
+  function onMouseMove(e) {
+    if (!isPanning) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    if (!moved && Math.hypot(dx, dy) > dragThreshold) {
+      moved = true;
+      // disable pointer events on SVG to block accidental clicks while dragging
+      svgElement.style.pointerEvents = 'none';
+    }
+
+    if (moved) {
+      panX = panStartX + dx;
+      panY = panStartY + dy;
+      updateTransform();
+    }
+  }
+
+  function onMouseUp() {
+    isPanning = false;
+    // re-enable pointer events after drag ends
+    svgElement.style.pointerEvents = 'auto';
+  }
+
+  function onWheel(e) {
+    e.preventDefault();
+    const rect = viewport.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const zoomIntensity = 0.2;
+
+    // Calculate new scale
+    let newScale = e.deltaY < 0
+        ? scale * (1 + zoomIntensity)  // zoom in
+        : scale * (1 - zoomIntensity); // zoom out
+
+    // Clamp the scale
+    newScale = Math.max(0.3, Math.min(5, newScale)); // min 0.5, max 3
+
+    // Adjust pan to keep zoom centered on mouse
+    panX = mouseX - (mouseX - panX) * (newScale / scale);
+    panY = mouseY - (mouseY - panY) * (newScale / scale);
+    scale = newScale;
+
+    updateTransform();
+}
+
+
+  viewport.addEventListener("mousedown", onMouseDown);
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("mouseup", onMouseUp);
+  viewport.addEventListener("wheel", onWheel);
+}

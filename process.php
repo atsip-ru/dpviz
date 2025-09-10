@@ -146,93 +146,101 @@ $dproute['extension']= $ext;
 			</h2>';
 		if ($datetime==1){$header.= "<h6>".date('Y-m-d H:i:s')."</h6>";}
 		$header .= '
-				<input type="hidden" id="processed" value="yes">
-				<input type="hidden" id="ext" value="' . htmlspecialchars($ext, ENT_QUOTES) . '">
-				<input type="hidden" id="jump" value="' . htmlspecialchars($jump, ENT_QUOTES) . '">
-				<input type="hidden" id="skip" value=\'' . json_encode($skip) . '\'>
-				<input type="hidden" id="panzoom" value="' . htmlspecialchars($panzoom, ENT_QUOTES) . '">
-				
-				<script>
-					function updateHeaderSelected() {
-						let name = sessionStorage.getItem("selectedName");
-						const headerSelected = document.getElementById("headerSelected");
-						if (headerSelected) {
-							headerSelected.textContent = name || "'._('No name selected').'";
-						}
-					}
-					updateHeaderSelected();
-					
-					function exportImage(scale, filename) {
-						html2canvas(document.querySelector(\'#vizContainer\'), {
-								scale: scale,
-								useCORS: true,
-								allowTaint: true
-						}).then(function(canvas) {
-								let imgData = canvas.toDataURL("image/png");
-								saveAs(imgData, filename);
-						});
-					}
+<input type="hidden" id="processed" value="yes">
+<input type="hidden" id="ext" value="' . htmlspecialchars($ext, ENT_QUOTES) . '">
+<input type="hidden" id="jump" value="' . htmlspecialchars($jump, ENT_QUOTES) . '">
+<input type="hidden" id="skip" value=\'' . json_encode($skip) . '\'>
+<input type="hidden" id="panzoom" value="' . htmlspecialchars($panzoom, ENT_QUOTES) . '">
 
-					function saveAs(uri, filename) {
-							var link = document.createElement(\'a\');
-							if (typeof link.download === \'string\') {
-									link.href = uri;
-									link.download = filename;
-									document.body.appendChild(link);
-									link.click();
-									document.body.removeChild(link);
-							} else {
-									window.open(uri);
-							}
-					}
-					
-					function handleSVGExport() {
-						const svgElement = document.querySelector(\'#vizContainer svg\');
-						if (!svgElement) {
-							alert(\'SVG not found!\');
-							return;
-						}
 
-						const input = document.getElementById(\'filenameInput\');
-						const filename = (input?.value.trim() || \'graph\') + \'.svg\';
-						exportCleanedSVG(svgElement, filename);
-					}
-					
-					function handleExport(scale) {
-							var input = document.getElementById(\'filenameInput\');
-							var filename = input.value.trim() || \'export\';
-							exportImage(scale, filename + \'.png\');
-					}
-					
-					
-					function exportCleanedSVG(svgElement, filename) {
-						// Clone the SVG to avoid changing the original
-						const clonedSVG = svgElement.cloneNode(true);
 
-						// Remove all <a> (link) elements from the SVG
-						clonedSVG.querySelectorAll(\'a\').forEach(link => {
-							const parent = link.parentNode;
-							while (link.firstChild) {
-								parent.insertBefore(link.firstChild, link);
-							}
-							parent.removeChild(link);
-						});
+<script>
+function updateHeaderSelected() {
+    let name = sessionStorage.getItem("selectedName");
+    const headerSelected = document.getElementById("headerSelected");
+    if (headerSelected) {
+        headerSelected.textContent = name || "'._('No name selected').'";
+    }
+}
+updateHeaderSelected();
 
-						// Serialize the cleaned SVG and prepare the Blob
-						const svgData = new XMLSerializer().serializeToString(clonedSVG);
-						const blob = new Blob([svgData], { type: \'image/svg+xml;charset=utf-8\' });
-						const url = URL.createObjectURL(blob);
+function exportImage(scale = 2) {
+    const container = document.querySelector("#vizContainer");
+    if (!container) return alert("Container not found!");
 
-						// Trigger download
-						const a = document.createElement(\'a\');
-						a.href = url;
-						a.download = filename.endsWith(\'.svg\') ? filename : `${filename}.svg`;
-						document.body.appendChild(a);
-						a.click();
-						document.body.removeChild(a);
-						URL.revokeObjectURL(url);
-					}
-				</script>';
+    // Clone the container so we can manipulate without affecting the UI
+    const clone = container.cloneNode(true);
+
+    // Reset SVG transform in the clone
+    const svg = clone.querySelector("svg");
+    if (svg) svg.style.transform = "none";
+
+    // Put the clone offscreen so it\'s not visible
+    clone.style.position = "absolute";
+    clone.style.left = "-99999px";
+    document.body.appendChild(clone);
+
+    // Render with html2canvas
+    html2canvas(clone, {
+        scale: scale,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const input = document.getElementById("filenameInput");
+        const filename = (input?.value.trim() || "export") + ".png";
+
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Remove clone
+        document.body.removeChild(clone);
+    });
+}
+
+
+
+// Export cleaned SVG
+function handleSVGExport() {
+    const svgElement = document.querySelector("#vizContainer svg");
+    if (!svgElement) {
+        alert("SVG not found!");
+        return;
+    }
+
+    const input = document.getElementById("filenameInput");
+    const filename = (input?.value.trim() || "graph") + ".svg";
+    exportCleanedSVG(svgElement, filename);
+}
+
+function exportCleanedSVG(svgElement, filename) {
+    const clonedSVG = svgElement.cloneNode(true);
+
+    // Remove all <a> elements from SVG
+    clonedSVG.querySelectorAll("a").forEach(link => {
+        const parent = link.parentNode;
+        while (link.firstChild) parent.insertBefore(link.firstChild, link);
+        parent.removeChild(link);
+    });
+
+    const svgData = new XMLSerializer().serializeToString(clonedSVG);
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename.endsWith(".svg") ? filename : filename + ".svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>';
+
 	}
 
 #
@@ -1658,7 +1666,7 @@ if ($minimal){
 						array(
 							'label' => $line,
 							'tooltip' => $line,
-							'URL' => $node->getAttribute('URL', ''),
+							'URL' => $node->getAttribute('URL', '').'#qagentlist',
 							'target' => '_blank',
 							'shape' => 'rect',
 							'style' => 'filled',
@@ -2587,12 +2595,16 @@ function dpp_load_tables(&$dproute,$options) {
 					$id = $qd['id'];
 					if ($qd['keyword'] == 'member') {
 						$member = $qd['data'];
+						$staticMembers = array();
 						if (preg_match("/Local\/(\d+).*?,(\d+)/", $member, $matches)) {
 							$enum = $matches[1];
 							$pen= $matches[2];
-							$dproute['queues'][$id]['members']['static'][]=$enum.','.$pen;
-	
+							$staticMembers[] = $enum.','.$pen;
+
 						}
+	
+						addAndSortMembers($dproute['queues'][$id]['members']['static'], $staticMembers);
+						
 					}else{
 						$dproute['queues'][$id]['data'][$qd['keyword']]=$qd['data'];
 					}
@@ -2605,13 +2617,16 @@ function dpp_load_tables(&$dproute,$options) {
 						$D='/usr/sbin/asterisk -rx "database show QPENALTY '.$id.'" | grep \'/agents/\' | cut -d\'/\' -f5';
 						exec($D, $dynmem);
 						
+						$dynamicMembers=array();
 						foreach ($dynmem as $enum){
+							
 							list($ext, $pen) = explode(':', $enum);
 							$ext=trim($ext);
 							$pen=trim($pen);
-							$dproute['queues'][$id]['members']['dynamic'][]=$ext.','.$pen;
-							
+							$dynamicMembers[] = $ext.','.$pen;
+
 						}
+						addAndSortMembers($dproute['queues'][$id]['members']['dynamic'], $dynamicMembers);
 					}
 				}
     }elseif ($table == 'recordings') {
@@ -2621,6 +2636,17 @@ function dpp_load_tables(&$dproute,$options) {
 				}
     }elseif ($table == 'ringgroups') {
         foreach($results as $rg) {
+					 if (isset($rg['grplist']) && strlen($rg['grplist'])) {
+							$items = explode('-', $rg['grplist']);
+
+							usort($items, function($a, $b) {
+									$numA = (int) rtrim($a, '#');
+									$numB = (int) rtrim($b, '#');
+									return ($numA < $numB) ? -1 : (($numA > $numB) ? 1 : 0);
+							});
+
+							$rg['grplist'] = implode('-', $items);
+					}
 					$id = $rg['grpnum'];
 					$dproute['ringgroups'][$id] = $rg;
 				}
@@ -3272,7 +3298,7 @@ function countVmMessages($ext, $context, $folderType) {
     }
 
     if ($folderType === "other") {
-        $folders = ["Family", "Friends", "Old", "Work", "Urgent"];
+        $folders = array("Family", "Friends", "Old", "Work", "Urgent");
         $count = 0;
         foreach ($folders as $f) {
             $path = "$basePath/$f";
@@ -3287,3 +3313,36 @@ function countVmMessages($ext, $context, $folderType) {
     return 0;
 }
 
+/**
+ * Add members to a queue array and keep them sorted.
+ *
+ * @param array &$queueMembers Reference to the members array (static or dynamic)
+ * @param array $newMembers    Array of members in "enum,pen" format
+ */
+function addAndSortMembers(&$queueMembers, $newMembers) {
+    if (!isset($queueMembers) || !is_array($queueMembers)) {
+        $queueMembers = array();
+    }
+
+    // Add all new members
+    foreach ($newMembers as $member) {
+        $queueMembers[] = trim($member);
+    }
+
+    // Sort by pen first, then enum
+    usort($queueMembers, function($a, $b) {
+        $partsA = explode(',', $a);
+        $partsB = explode(',', $b);
+
+        $enumA = (int)$partsA[0];
+        $penA  = (int)$partsA[1];
+        $enumB = (int)$partsB[0];
+        $penB  = (int)$partsB[1];
+
+        if ($penA != $penB) {
+            return $penA - $penB;
+        }
+
+        return $enumA - $enumB;
+    });
+}

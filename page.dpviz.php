@@ -4,14 +4,18 @@ if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
 //	Copyright 2013 Schmooze Com Inc.
 //  Copyright (C) 2011 Mikael Carlsson (mickecarlsson at gmail dot com)
 //
+$module = 'dpviz';
+$info = \FreePBX::Modules()->getInfo($module);
+$version = $info[$module]['version'];
 ?>
+<link rel="stylesheet" href="modules/dpviz/assets/css/select2.min.css"  />
+<link rel="stylesheet" href="modules/dpviz/assets/css/dpviz.css?load_version=<?php echo $version; ?>" />
+
+<script src="modules/dpviz/assets/js/html2canvas.min.js"></script>
 <script src="modules/dpviz/assets/js/viz.min.js"></script>
 <script src="modules/dpviz/assets/js/full.render.js"></script>
-<script src="modules/dpviz/assets/js/html2canvas.min.js"></script>
-<script src="modules/dpviz/assets/js/panzoom.min.js"></script>
 <script src="modules/dpviz/assets/js/focus.js"></script>
 <script src="modules/dpviz/assets/js/select2.min.js"></script>
-<link href="modules/dpviz/assets/css/select2.min.css" rel="stylesheet" />
 <script type="text/javascript">
 //load graphviz
 var viz = new Viz();
@@ -112,7 +116,6 @@ const translations = {
 											<button type="button" id="deleteViewBtn">🗑️ <?php echo _('Delete View'); ?></button>
 											<button type="submit" id="saveviewbtn">💾 <?php echo _('Save View'); ?></button>
 										</div>
-										
 										<input type="hidden" id="viewId" name="id">
 									</form>
 								</div>
@@ -120,7 +123,8 @@ const translations = {
 							
 							<div id="vizContainer" class="display full-border">
 								<div id="vizHeader"><p><strong><?php echo _('Dial Plan Not Selected'); ?></strong><br><?php echo _('Use the dropdown to select a dial plan.'); ?></p></div>
-								<div id="vizGraph"></div>
+								<div class="divider"></div>	
+								<div id="vizGraph" class="grid-background"></div>
 							</div>
 						</div>
 					</div>
