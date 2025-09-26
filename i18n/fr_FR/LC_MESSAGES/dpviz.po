@@ -27,9 +27,6 @@ msgstr "Erreur : Impossible de trouver une route d'entrée pour"
 msgid "Reset"
 msgstr "Réinitialiser"
 
-msgid "No name selected"
-msgstr "Aucun nom sélectionné"
-
 msgid "Always"
 msgstr "Toujours"
 
@@ -930,3 +927,71 @@ msgstr "Autre"
 
 msgid "Total"
 msgstr "Total :"
+
+msgid "No name selected"
+msgstr "Aucun nom sélectionné"
+
+msgid "Show Allowlist"
+msgstr "Afficher la liste de confiance"
+
+msgid "Show Blacklist"
+msgstr "Montrer la liste noire"
+
+msgid "Displays the Allowlist information and destination."
+msgstr "Affiche les informations de la liste d'autorisés et le destination."
+
+msgid "Displays the Blacklist information and destination."
+msgstr "Affiche les informations de la liste noire et la destination."
+
+msgid "Allowlist module is not installed."
+msgstr "Le module de liste d'autorisation n'est pas installé."
+
+msgid "Auto-play audio"
+msgstr "Lecture automatique d'audio"
+
+msgid "Automatically play audio when a node with audio is selected."
+msgstr ""
+"Jouez automatiquement des audio lorsque vous sélectionnez un nœud avec de "
+"l'audio."
+
+msgid "User Agent"
+msgstr "Agent utilisateur"
+
+msgid "Extensions"
+msgstr "Extensions"
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Next"
+msgstr "Next"
+
+msgid "Call Forward All"
+msgstr "Appel à l'avant tout"
+
+msgid "Call Forward Busy"
+msgstr "Appel de transfert en cas d'occupation"
+
+msgid "Call Forward Unavailable"
+msgstr "Appel de transfert indisponible"
+
+msgid "Do Not Disturb"
+msgstr "Ne pas être dérangé"
+
+msgid "Call Forward"
+msgstr "Redirection des appels"
+
+msgid "Paused"
+msgstr "Pausé"
+
+msgid "DND/CF"
+msgstr "DND/CF"
+
+msgid "Dynamic agent logged into queue (blue border)"
+msgstr "Agent dynamique connecté à la file d'attente (bordure bleue)"
+
+msgid "Paused queue member"
+msgstr "Membre de file d'attente en pause"
+
+msgid "DND or Call Forwarding enabled (yellow border)"
+msgstr "DND activé ou Répercussion d'appel activée (bordure jaune)"

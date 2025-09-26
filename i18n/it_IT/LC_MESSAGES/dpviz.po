@@ -27,9 +27,6 @@ msgstr "Errore: Non è stato possibile trovare la rotta ingressiva per"
 msgid "Reset"
 msgstr "Ripristina"
 
-msgid "No name selected"
-msgstr "Nessun nome selezionato"
-
 msgid "Always"
 msgstr "Sempre"
 
@@ -919,3 +916,70 @@ msgstr "Altri"
 
 msgid "Total"
 msgstr "Totale"
+
+msgid "No name selected"
+msgstr "Nessun nome selezionato"
+
+msgid "Show Allowlist"
+msgstr "Mostra la lista di permessi"
+
+msgid "Show Blacklist"
+msgstr "Mostra Blacklist"
+
+msgid "Displays the Allowlist information and destination."
+msgstr "Visualizza l'informazione dell'elenco consentito e la destinazione."
+
+msgid "Displays the Blacklist information and destination."
+msgstr "Visualizza le informazioni della Blacklist e la destinazione."
+
+msgid "Allowlist module is not installed."
+msgstr "Allowlist modulo non installato."
+
+msgid "Auto-play audio"
+msgstr "Audio autoplay"
+
+msgid "Automatically play audio when a node with audio is selected."
+msgstr ""
+"Gioca automaticamente l'audio quando un nodo con audio viene selezionato."
+
+msgid "User Agent"
+msgstr "Agente utente"
+
+msgid "Extensions"
+msgstr "Estensioni"
+
+msgid "Previous"
+msgstr "Precedente"
+
+msgid "Next"
+msgstr "Successivo"
+
+msgid "Call Forward All"
+msgstr "Trasferta Tutti i Chiamate"
+
+msgid "Call Forward Busy"
+msgstr "Chiamata in avanti per il congestione"
+
+msgid "Call Forward Unavailable"
+msgstr "Chiamata in avanspesso non disponibile"
+
+msgid "Do Not Disturb"
+msgstr "Non turbare"
+
+msgid "Call Forward"
+msgstr "Chiamata in avanti"
+
+msgid "Paused"
+msgstr "Pausato"
+
+msgid "DND/CF"
+msgstr "DND/CF"
+
+msgid "Dynamic agent logged into queue (blue border)"
+msgstr "Agente dinamico connesso alla coda (confine blu)"
+
+msgid "Paused queue member"
+msgstr "Membro sospeso in coda"
+
+msgid "DND or Call Forwarding enabled (yellow border)"
+msgstr "DND o l'inoltro delle chiamate attivato (bordo giallo)"

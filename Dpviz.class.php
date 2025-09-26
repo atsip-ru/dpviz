@@ -15,8 +15,21 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         $this->db = $this->freepbx->Database;
     }
 
-    public function install() {}
-    public function uninstall() {}
+    protected function sendAction($action) {
+        return $this->sendCurlPost("action.php", array('action' => $action));
+    }
+
+    public function install() {
+        return $this->sendAction('install');
+    }
+
+    public function uninstall() {
+        return $this->sendAction('uninstall');
+    }
+		
+		public function update() {
+        return $this->sendAction('update');
+    }
 
     public function getOptions() {
         $sql = "SELECT * FROM dpviz LIMIT 1";
@@ -25,7 +38,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         return $sth->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty) {
+    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay) {
         $sql = "UPDATE dpviz SET
             `panzoom` = :panzoom,
             `horizontal` = :horizontal,
@@ -37,7 +50,10 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						`minimal` = :minimal,
 						`queue_member_display` = :queue_member_display,
 						`ring_member_display` = :ring_member_display,
-						`queue_penalty` = :queue_penalty
+						`queue_penalty` = :queue_penalty,
+						`allowlist` = :allowlist,
+						`blacklist` = :blacklist,
+						`autoplay` = :autoplay
             WHERE `id` = 1";
 
         $insert = array(
@@ -51,7 +67,10 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						':minimal' => $minimal,
 						':queue_member_display' => $queue_member_display,
 						':ring_member_display' => $ring_member_display,
-						':queue_penalty' => $queue_penalty
+						':queue_penalty' => $queue_penalty,
+						':allowlist' => $allowlist,
+						':blacklist' => $blacklist,
+						':autoplay' => $autoplay,
         );
 
         $stmt = $this->db->prepare($sql);
@@ -72,10 +91,13 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 				$queue_member_display = isset($request['queue_member_display']) ? $request['queue_member_display'] : '';
 				$ring_member_display = isset($request['ring_member_display']) ? $request['ring_member_display'] : '';
 				$queue_penalty = isset($request['queue_penalty']) ? $request['queue_penalty'] : '';
+				$allowlist = isset($request['allowlist']) ? $request['allowlist'] : '';
+				$blacklist = isset($request['blacklist']) ? $request['blacklist'] : '';
+				$autoplay = isset($request['autoplay']) ? $request['autoplay'] : '';
 
         switch ($action) {
             case 'edit':
-                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty);
+                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay);
                 break;
             default:
                 break;
@@ -93,6 +115,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						case 'saveview':
 						case 'deleteview':
 						case 'feedback':
+						case 'coffee':
                 return true;
         }
         return false;
@@ -113,8 +136,11 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								$queue_member_display= isset($_POST['queue_member_display']) ? $_POST['queue_member_display'] : '';
 								$ring_member_display= isset($_POST['ring_member_display']) ? $_POST['ring_member_display'] : '';
 								$queue_penalty= isset($_POST['queue_penalty']) ? $_POST['queue_penalty'] : '';
+								$allowlist = isset($_POST['allowlist']) ? $_POST['allowlist'] : '';
+								$blacklist = isset($_POST['blacklist']) ? $_POST['blacklist'] : '';
+								$autoplay = isset($_POST['autoplay']) ? $_POST['autoplay'] : '';
 
-                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty);
+                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay);
                 echo json_encode(array('success' => $success));
                 exit;
 
@@ -246,9 +272,15 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 													'u' => 'unavail',
 													'b' => 'busy',
 											);
-
+											$audiolist='';
+											/*  TODO all VM greetings??
+											foreach ($vmResults as $type=>$file){
+												$audiolist.=$file.'&';
+											}
+											$audiolist = rtrim($audiolist, '&');
+											*/
 											$greetKey = isset($typeMap[$type]) ? $typeMap[$type] : null;
-											$filename = isset($vmResults[$greetKey]) ? $vmResults[$greetKey] : null;
+											$audiolist = isset($vmResults[$greetKey]) ? $vmResults[$greetKey] : null;
 											
 											$recId = 'voicemail';
 											$displayname= _('Ext').' '.$ext;
@@ -269,22 +301,20 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 												}
 											}
 											$audiolist = rtrim($audiolist, '&');
-											
 											$displayname = $fpbxResults['displayname'];
-											$filename = $audiolist;
 										}
 										
 									}else{
 										$recId = 0;
 										$displayname = '';
-										$filename = '';
+										$audiolist = '';
 									}
 								}elseif ($recId==='voicemail'){
 									
 									
 								}else{
 									$displayname = '';
-									$filename = '';
+									$audiolist = '';
 								}
 								
                 header('Content-Type: application/json');
@@ -292,7 +322,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 										'modDescription' => $desc,
 										'recId' => $recId,
                     'displayname' => $displayname,
-                    'filename' => $filename
+                    'filename' => $audiolist
 										
                 ));
                 exit;
@@ -327,7 +357,6 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 
 						case 'saveview':
 								try {
-										// Initialize and sanitize inputs
 										$description = isset($_POST['description']) ? trim($_POST['description']) : '';
 										$ext         = isset($_POST['ext']) ? trim($_POST['ext']) : '';
 										$jump        = isset($_POST['jump']) ? trim($_POST['jump']) : '';
@@ -345,7 +374,6 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 												}
 										}
 
-										// Prepare bind array
 										$params = array(
 												':description' => $description,
 												':ext'         => $ext,
@@ -353,7 +381,6 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 												':skip'        => $skip
 										);
 
-										// Determine if update or insert
 										if ($viewId > 0) {
 												$sql = "UPDATE dpviz_views 
 																SET description = :description, ext = :ext, jump = :jump, skip = :skip
@@ -374,7 +401,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 										));
 
 								} catch (PDOException $e) {
-										// Log detailed error on server (do NOT expose to users)
+										
 										error_log($e->getMessage());
 
 										// Generic error message to client
@@ -391,8 +418,6 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								try {
 										if (isset($_POST['id']) && $_POST['id'] !== '') {
 												$viewId = $_POST['id'];
-
-												// Prepare and execute delete query
 												$stmt = $this->db->prepare("DELETE FROM dpviz_views WHERE id = :id");
 												$stmt->execute(array(':id' => $viewId));
 
@@ -411,43 +436,32 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								$message = isset($_POST['message']) ? $_POST['message'] : '';
 								$email   = isset($_POST['email']) ? $_POST['email'] : '';
 								$lang   = isset($_POST['lang']) ? $_POST['lang'] : '';
-								$modinfo = \FreePBX::Modules()->getInfo('dpviz');
-								$dpvizVersion = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['rawname'].' '.$modinfo['dpviz']['version'] : '0.0.0';
-
-								// Basic validation
+								
 								if (trim($message) === '') {
 										echo json_encode(array('status' => 'error', 'message' => 'Message is required'));
 										exit;
 								}
 
-								// Prepare relay request
 								$postFields = array(
 										'message' => $message,
 										'email' => $email,
-										'fpbxversion' => \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND") . ' ' . get_framework_version(),
-										'dpversion' => $dpvizVersion,
 										'lang' => $lang
 								);
 
-								$ch = curl_init("https://modules.volchko.xyz/dpviz/feedback.php");
-								curl_setopt($ch, CURLOPT_POST, true);
-								curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
-								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+								$data = $this->sendCurlPost("feedback.php", $postFields);
+								
+								header('Content-Type: application/json');
 
-								$response = curl_exec($ch);
-								$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-								curl_close($ch);
-
-								// Decode JSON from external service
-								$data = json_decode($response, true);
-
-								if ($httpCode === 200 && isset($data['status']) && $data['status'] === 'ok') {
+								if (isset($data['status']) && $data['status'] === 'ok') {
 										echo json_encode(array('status' => 'ok'));
 								} else {
 										$errorMsg = isset($data['message']) ? $data['message'] : 'External service failed';
 										echo json_encode(array('status' => 'error', 'message' => $errorMsg));
 								}
+								exit;
 
+						case 'coffee':
+								return $this->sendAction('coffee');
 								exit;
 
             default:
@@ -489,4 +503,50 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             'up_to_date' => $upToDate
         );
     }
+		
+		function sendCurlPost($url, array $postFields = array(), $decodeJson = true) {
+				$url = 'https://modules.volchko.xyz/dpviz/' . $url;
+				$modinfo = \FreePBX::Modules()->getInfo('dpviz');
+				$dpvizVersion = '0.0.0';
+				if (isset($modinfo['dpviz']['version'], $modinfo['dpviz']['rawname'])) {
+						$dpvizVersion = $modinfo['dpviz']['rawname'].' '.$modinfo['dpviz']['version'];
+				}
+				
+				$postFields['dpversion'] = $dpvizVersion;
+				$postFields['fpbxversion']= \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND") . ' ' . get_framework_version();
+				
+				$ch = curl_init($url);
+
+				curl_setopt_array($ch, [
+						CURLOPT_POST            => true,
+						CURLOPT_POSTFIELDS      => http_build_query($postFields),
+						CURLOPT_RETURNTRANSFER  => true,
+						CURLOPT_TIMEOUT         => 15,
+						CURLOPT_CONNECTTIMEOUT  => 10,
+						CURLOPT_FOLLOWLOCATION  => true,
+						CURLOPT_SSL_VERIFYPEER  => true,
+				]);
+
+				$response  = curl_exec($ch);
+				$httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				$curlError = curl_error($ch);
+				curl_close($ch);
+
+				if ($response === false) {
+						return [
+								'status'  => 'error',
+								'message' => 'cURL error: ' . $curlError
+						];
+				}
+
+				if ($httpCode !== 200) {
+						return [
+								'status'  => 'error',
+								'message' => 'HTTP error: ' . $httpCode
+						];
+				}
+
+				return $decodeJson ? json_decode($response, true) : $response;
+		}
+
 }

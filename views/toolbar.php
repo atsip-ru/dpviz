@@ -11,7 +11,7 @@ try{
 	freepbx_log(FPBX_LOG_ERROR,"Soundlang is missing, please install it."); 
 	$options['lang'] = "en";
 }
-$panzoom = isset($options['panzoom']) ? $options['panzoom'] : '1';
+
 
 function dpp_load_incoming_routes() {
   global $db;
@@ -147,6 +147,30 @@ $otherroutes= dpp_load_tables();
 $dropOptions="";
 
 
+/*
+$all_modules = module_getinfo(false, MODULE_STATUS_ENABLED);
+$me= framework_check_destination_usage('from-did-direct,102,1',$all_modules);
+
+echo '<pre>';
+print_r($otherroutes['queues']);
+echo '</pre>';
+*/
+
+
+# Users
+$users=\FreePBX::Core()->getAllUsersByDeviceType();
+
+foreach($users as $user) {
+	$id = $user['extension'];
+	$otherroutes['extensions'][$id]= $user;
+}
+
+/*
+echo '<pre>';
+print_r($otherroutes['extensions']);
+echo '</pre>';
+*/
+
 //Saved Views
 if (isset($otherroutes['dpvizViews']) && count($otherroutes['dpvizViews']) > 0){
 	$dropOptions.='<optgroup label="' . _('Saved Views') . '">';
@@ -162,7 +186,7 @@ if (isset($otherroutes['dpvizViews']) && count($otherroutes['dpvizViews']) > 0){
 		$dropOptions.='</optgroup>';
 }
 
-//Inbound Routes
+//Inbound Routes 
 if (isset($inroutes) && count($inroutes) > 0){
 	$dropOptions .= '<optgroup label="' . _('Inbound Routes [destination]') . '">';
 	foreach ($inroutes as $in=>$extt){
@@ -181,6 +205,7 @@ if (isset($otherroutes['timeconditions']) && count($otherroutes['timeconditions'
 		$dropOptions.='<option value="timeconditions,'.$ii['timeconditions_id'].',1,'.$options['lang'].'">'.$ii['displayname'].'</option>';
 	}
 	$dropOptions.='</optgroup>';
+	
 }
 
 //Call Flow Control
@@ -196,13 +221,13 @@ if (isset($otherroutes['daynight']) && count($otherroutes['daynight']) > 0){
 		$dropOptions.='<option value="app-daynight,'.$ext.',1,'.$options['lang'].'">'.$name.'</option>';
 	}
 	$dropOptions.='</optgroup>';
+	
 }
 		
 //IVRs
 if (isset($otherroutes['ivrs']) && count($otherroutes['ivrs']) > 0){
 	$dropOptions.='<optgroup label="IVRs">';
 	foreach ($otherroutes['ivrs'] as $i=>$ii){
-		//if ($ext=='ivr-'.$ii['id'].',s,1,'.$options['lang']){$selected='selected'; $toolbarLabel='IVR'; $dialPlanHeader=$ii['name'];}else{$selected='';}
 		$dropOptions.='<option value="ivr-'.$ii['id'].',s,1,'.$options['lang'].'">'.$ii['name'].'</option>';
 	}
 	$dropOptions.='</optgroup>';
@@ -260,6 +285,7 @@ if (isset($otherroutes['languages']) && count($otherroutes['languages']) > 0){
 		$dropOptions.='<option value="app-languages,'.$ii['language_id'].',1,'.$options['lang'].'">'.$ii['description'].'</option>';
 	}
 	$dropOptions.='</optgroup>';
+	
 }
 
 //Misc Applications
@@ -270,6 +296,16 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
 	}
 	$dropOptions.='</optgroup>';
 }
+
+//Extensions
+if (isset($otherroutes['extensions']) && count($otherroutes['extensions']) > 0){
+	$dropOptions.='<optgroup label="' . _('Extensions') . '">';
+	foreach ($otherroutes['extensions'] as $i=>$ii){
+		$dropOptions.='<option value="from-did-direct,'.$ii['extension'].',1,'.$options['lang'].'">'.$ii['extension'].' '.$ii['name'].'</option>';
+	}
+	$dropOptions.='</optgroup>';
+	
+}	
 
 ?>
 <div style="border-radius: 10px; background-color:#F5F5F5; margin: 10px; padding: 10px;">
@@ -299,6 +335,7 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
 					</div>
 				</div>
 				
+				
 				<button type="button" class="btn btn-default" id="reloadButton" disabled>
           <i class="fa fa-refresh"></i> <?php echo _('Reload'); ?>
         </button>
@@ -307,18 +344,30 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
     </div>
 
     <!-- Middle: Dialplan -->
-    <div class="col-sm-7">
-      <div class="input-group" style="width: 90%; display: table;">
-        <span class="input-group-addon" style="white-space: nowrap; width: 150px; padding-left:0px; padding-right:0px; display: table-cell; vertical-align: middle;">
+		<div class="col-sm-7">
+			<div class="input-group" style="width: 90%; display: flex; flex-wrap: nowrap;">
+
+				<!-- Label -->
+				<div class="input-group-label" style="display: flex; align-items: center; min-width: 150px; white-space: nowrap; padding: 0 5px; border: 1px solid #ccc; border-right: none; background-color: #e9ecef;">
 					<i class="fa fa-sitemap" aria-hidden="true"></i>
-					<span id="dialplanLabel" style="margin-left: 5px;"></span>
-				</span>
-        <select id="dialPlan" class="form-control" style="width: 100%; display: table-cell; vertical-align: middle;">
-          <option value=""><?php echo _('Choose Dial Plan'); ?></option>
-          <?php echo $dropOptions; ?>
-        </select>
-      </div>
-    </div>
+					<span id="dialplanLabel" style="margin-left:5px;"></span>
+				</div>
+
+				<!-- Select -->
+				<select id="dialPlan" class="form-control">
+					<option value=""><?php echo _('Choose Dial Plan'); ?></option>
+					<?php echo $dropOptions; ?>
+				</select>
+
+				<!-- Buttons -->
+				<button id="prevBtn" class="btn btn-default" title="<?php echo _('Previous'); ?>">
+					<i class="fa fa-chevron-left"></i>
+				</button>
+				<button id="nextBtn" class="btn btn-default" title="<?php echo _('Next'); ?>">
+					<i class="fa fa-chevron-right"></i>
+				</button>
+			</div>
+		</div>
 
     <!-- Right Side: Export -->
     <div class="col-sm-3" style="margin-left:-75px;">
@@ -338,7 +387,10 @@ if (isset($otherroutes['miscapps']) && count($otherroutes['miscapps']) > 0){
   </div>
 </div>
 <script>
+let lastSearchTerm = '';
 $(document).ready(function() {
+	
+	
 	
 	$('#dialPlan').select2({
     placeholder: "<?php echo _('Choose Dial Plan'); ?>",
@@ -347,56 +399,54 @@ $(document).ready(function() {
     maximumSelectionLength: 20,
     dropdownCssClass: "custom-dropdown",
     dropdownParent: $("body"),
+	});
+
+
+	// Store search term right before selection
+	$('#dialPlan').on('select2:selecting', function () {
+			const $searchInput = $('.select2-search__field');
+			if ($searchInput.length) {
+					lastSearchTerm = $searchInput.val();
+			}
+	});
+
+	// Restore last search term and focus when dropdown opens
+	$('#dialPlan').on('select2:open', function () {
+			function restoreAndFocus() {
+					const $searchField = $('.select2-container--open .select2-search__field');
+					if (!$searchField.length) {
+							requestAnimationFrame(restoreAndFocus);
+							return;
+					}
+
+					// Restore last search term once
+					if (lastSearchTerm && $searchField.val() !== lastSearchTerm) {
+							// Delay to ensure internal handlers are attached
+							setTimeout(() => {
+									$searchField.val(lastSearchTerm).trigger('input');
+							}, 0);
+					}
+
+					// Focus cursor after restoring
+					$searchField.focus();
+
+					// Add clear button if not already present
+					if ($searchField.parent().find('.select2-search__clear').length === 0) {
+							const $clearBtn = $('<span class="select2-search__clear">×</span>');
+
+							$clearBtn.on('click', function () {
+									$searchField.val('').trigger('input').focus();
+							});
+
+							$searchField.wrap('<div class="select2-search__field-wrapper" style="position: relative;"></div>');
+							$searchField.parent().append($clearBtn);
+					}
+			}
+
+			restoreAndFocus();
 });
 
-let lastSearchTerm = '';
 
-// Store search term right before selection
-$('#dialPlan').on('select2:selecting', function () {
-    const $searchInput = $('.select2-search__field');
-    if ($searchInput.length) {
-        lastSearchTerm = $searchInput.val();
-    }
-});
-
-// Restore last search term and focus when dropdown opens
-$('#dialPlan').on('select2:open', function () {
-    function restoreAndFocus() {
-        const $searchField = $('.select2-container--open .select2-search__field');
-        if (!$searchField.length) {
-            requestAnimationFrame(restoreAndFocus);
-            return;
-        }
-
-        // Restore last search term once
-        if (lastSearchTerm && $searchField.val() !== lastSearchTerm) {
-            // Delay to ensure internal handlers are attached
-            setTimeout(() => {
-                $searchField.val(lastSearchTerm).trigger('input');
-            }, 0);
-        }
-
-        // Focus cursor after restoring
-        $searchField.focus();
-
-        // Add clear button if not already present
-        if ($searchField.parent().find('.select2-search__clear').length === 0) {
-            const $clearBtn = $('<span class="select2-search__clear">×</span>');
-
-            $clearBtn.on('click', function () {
-                $searchField.val('').trigger('input').focus();
-            });
-
-            $searchField.wrap('<div class="select2-search__field-wrapper" style="position: relative;"></div>');
-            $searchField.parent().append($clearBtn);
-        }
-    }
-
-    restoreAndFocus();
-});
-
-
-	// Your existing select logic
 	$('#dialPlan').on('select2:select', function (e) {
 		const selectedId = e.params.data.id;
 		const selectedText = e.params.data.text;
@@ -468,10 +518,74 @@ $('#dialPlan').on('select2:open', function () {
 		viewId.value='';
 	}
 
-	generateVisualization(ext, jump, skips, `<?php echo $panzoom; ?>`);
+	generateVisualization(ext, jump, skips);
 	
 	});
 
+});
+
+
+// Enhanced getVisibleOptions to respect lastSearchTerm when dropdown closed
+function getVisibleOptions($el) {
+  let searchTerm = lastSearchTerm || '';
+
+  // all non-disabled options **excluding placeholder (value="")**
+  let $options = $el.find('option:not(:disabled)').filter(function() {
+    return $(this).val() !== '';
+  });
+
+  if (searchTerm.length) {
+    let lower = searchTerm.toLowerCase();
+    $options = $options.filter(function() {
+      return $(this).text().toLowerCase().includes(lower);
+    });
+  }
+
+  return $options.map(function() { return this.value; }).get();
+}
+
+// Apply selection and trigger proper select2:select with correct data
+function applySelection($el, value) {
+  const $option = $el.find('option[value="' + value + '"]');
+  if (!$option.length) return;
+
+  const dataObj = { 
+    id: $option.val(), 
+    text: $option.text(), 
+    element: $option[0] 
+  };
+
+  $el.val(value).trigger('change'); // normal change event
+  $el.trigger({ type: 'select2:select', params: { data: dataObj } });
+}
+
+function select2Next($el) {
+  const visible = getVisibleOptions($el);
+  if (!visible.length) return;
+
+  const currentVal = $el.val();
+  let idx = visible.indexOf(currentVal);
+  let nextIndex = (idx + 1 + visible.length) % visible.length;
+  applySelection($el, visible[nextIndex]);
+}
+
+function select2Prev($el) {
+  const visible = getVisibleOptions($el);
+  if (!visible.length) return;
+
+  const currentVal = $el.val();
+  let idx = visible.indexOf(currentVal);
+  let prevIndex = (idx - 1 + visible.length) % visible.length;
+  applySelection($el, visible[prevIndex]);
+}
+
+// Buttons
+$('#nextBtn').on('click', function() {
+  select2Next($('#dialPlan'));
+});
+
+$('#prevBtn').on('click', function() {
+  select2Prev($('#dialPlan'));
 });
 
 

@@ -65,9 +65,6 @@ msgstr "Fout: Kon geen inkomende route vinden voor"
 msgid "Reset"
 msgstr "Reset"
 
-msgid "No name selected"
-msgstr "Geen naam geselecteerd"
-
 msgid "Always"
 msgstr "Altijd"
 
@@ -920,3 +917,71 @@ msgstr "Andere"
 
 msgid "Total"
 msgstr "Totaal"
+
+msgid "No name selected"
+msgstr "Geen naam geselecteerd"
+
+msgid "Show Allowlist"
+msgstr "Toon Toegestaan Lijst"
+
+msgid "Show Blacklist"
+msgstr "Weergeven Zwarte Lijst"
+
+msgid "Displays the Allowlist information and destination."
+msgstr "Toont de Allowlist-informatie en het bestemming."
+
+msgid "Displays the Blacklist information and destination."
+msgstr "Toont de zwarte lijst-informatie en bestemming."
+
+msgid "Allowlist module is not installed."
+msgstr "De allowlist-module is niet geïnstalleerd."
+
+msgid "Auto-play audio"
+msgstr "Automatisch audio afspelen"
+
+msgid "Automatically play audio when a node with audio is selected."
+msgstr ""
+"Automatisch geluid afspelen wanneer een knooppunt met geluidsbestandingen is "
+"geselecteerd."
+
+msgid "User Agent"
+msgstr "Gebruikersagent"
+
+msgid "Extensions"
+msgstr "Extensies"
+
+msgid "Previous"
+msgstr "Vorige"
+
+msgid "Next"
+msgstr "Volgende"
+
+msgid "Call Forward All"
+msgstr "Alles doorschakelen"
+
+msgid "Call Forward Busy"
+msgstr "Doorschakelen bij bezet"
+
+msgid "Call Forward Unavailable"
+msgstr "Oproepdoorschakeling niet beschikbaar"
+
+msgid "Do Not Disturb"
+msgstr "Niet storen"
+
+msgid "Call Forward"
+msgstr "Doorgaans-overleiding"
+
+msgid "Paused"
+msgstr "Gepauzeerd"
+
+msgid "DND/CF"
+msgstr "DND/CF"
+
+msgid "Dynamic agent logged into queue (blue border)"
+msgstr "Dynamisch agent aangemeld bij wachtrij (blauwe rand)"
+
+msgid "Paused queue member"
+msgstr "Vertraagde wachtrijlid"
+
+msgid "DND or Call Forwarding enabled (yellow border)"
+msgstr "DND of Call Forwarding ingeschakeld (geel rand)"

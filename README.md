@@ -50,9 +50,12 @@ You may adjust the schedule as needed.
 
 ## Usage
 1. **Log in to your PBX** and navigate to **Reports > Dial Plan Vizualizer**.
-2. **Select or search for an Inbound Route, Time Condition, Call Flow, IVR, Queue, Ring Group, Dynamic Route, Announcement, Language, or Misc Application** using the dropdown menu.
+2. **Select or search for an Inbound Route, Time Condition, Call Flow, IVR, Queue, Ring Group, Dynamic Route, Announcement, Language, Misc Application, or Extension** using the dropdown menu.
 3. **Labels** are placed on the right (vertical) or above (horizontal) the paths drawn.
-4. **Registration Status** is shown by the node border color: **green** (online), **red** (offline), or **black** (virtual or non-extension).
+4. **Registration Status** is shown by the node border color: **green** (online), **red** (offline), or **white** (virtual or non-extension).
+5. **Asterisk DND or Call Forward** status is shown by the node border color: **yellow** (enabled).
+6. **Queue paused state** is shown with a ⏸️ in the edge text(single) or next to the extension(combine).
+7. **Dynamic queue member login status** is shown by the node border color: **blue**(logged in).
 
 ### Highlighting Call Paths
 - Click **Highlight Paths**, then select a node or edge to highlight it (links are inactive).
@@ -71,13 +74,15 @@ You may adjust the schedule as needed.
 
 
 ## Navigation
+- **Reload Button:** Redraw the current dial plan to reflect any changes that were made to the phone system.
+- **Next / Previous buttons:** Select and view the next or previous menu option. Honors filtered search text.
 - **Ignore / hide from a Node:** Press Shift and left-click a node to make it the last node drawn. Helpful for focusing on important routes. (eg. Time condition flows into another time condition.) Multiple "shift + clicks" are supported.
 - **Redraw from a Node:** Press Ctrl (Cmd on macOS) and left-click a node to make it the new starting point in the diagram. To revert, Ctrl/Cmd + left-click the "Back" node.
 - **Pan** by holding down the left mouse button and dragging.
 - **Zoom** using the mouse wheel.
 
 ## Additional Features
-- **Listen** to recordings assigned to Announcement, Dynamic Route, IVR, and Play Recording modules. (**Note**: Supports multi-part and multi-language recordings. Only .wav files are supported.)
+- **Listen** to recordings assigned to Announcement, Dynamic Route, IVR, Play Recording, Voicemail modules. (**Note**: Supports multi-part and multi-language recordings. Only .wav files are supported.)
 - **Hover** over a path to highlight the route between destinations. **Click** the path to keep it highlighted.
 - **Click** on a destination to open it in a new tab.
 - **Click** on a "Match: (timegroup)" or "No Match" to open it in a new tab.

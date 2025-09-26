@@ -43,7 +43,6 @@ $('#dpvizForm').submit(function(event) {
 	var ext = document.getElementById('ext')?.value || '';
 	var jump = document.getElementById('jump')?.value || '';
 	var skip = [];
-	var pan = $form.find('input[name="panzoom"]:checked').val();
 	try {
 		const raw = document.getElementById('skip')?.value?.trim() || '[]';
 		skip = JSON.parse(raw);
@@ -64,7 +63,7 @@ $('#dpvizForm').submit(function(event) {
 			
 			setTimeout(function() {
 				if (processed === 'yes') {
-					generateVisualization(ext,jump,skip,pan);
+					generateVisualization(ext,jump,skip);
 				}
 				saveButton.innerHTML = originalContent;
 				$('.nav-tabs li[data-name="dpbox"] a').tab('show'); // Switch tab
@@ -82,7 +81,6 @@ $('#dpvizForm').submit(function(event) {
 $('#reloadButton').click(function() {
 	var ext = document.getElementById('ext')?.value || '';
 	var jump = document.getElementById('jump')?.value || '';
-	var pan = document.getElementById('panzoom')?.value || '';
 	
 	var skip = [];
 	try {
@@ -93,11 +91,11 @@ $('#reloadButton').click(function() {
 	}
 	
 	resetFocusMode();
-	generateVisualization(ext,jump,skip,pan);
+	generateVisualization(ext,jump,skip);
 });
 
 
-function generateVisualization(ext, jump, skips, pan) {	
+function generateVisualization(ext, jump, skips) {	
 	const vizContainer = document.getElementById("vizContainer");
 	const spinner = document.getElementById("vizSpinner");
 	const recordingModal = document.getElementById('recordingmodal');
@@ -106,7 +104,6 @@ function generateVisualization(ext, jump, skips, pan) {
 	const vizGraph = document.getElementById('vizGraph');
 	const sanitizeBtn = document.getElementById("sanitizeBtn");
 	const header = document.getElementById("headerSelected");
-	
 	skips = skips || [];
 	
 	closeModal('recordingmodal');
@@ -127,18 +124,10 @@ function generateVisualization(ext, jump, skips, pan) {
 			const saveButton = document.getElementById('saveModalBtn');
 			if ((jump && jump.trim() !== '') || skips.length > 0) {
 				saveButton.style.display = 'block';
-				//saveButton.disabled = false;
 			} else {
 				saveButton.style.display = 'none';
-				//saveButton.disabled = true;
 			}
 			
-			/*
-			if (!toggleButton.classList.contains("active")) {
-				vizGraph.innerHTML = ""; // clear the container if button is NOT active
-			}
-			*/
-	
       $('#vizHeader').html(response.vizHeader);
 			vizGraph.innerHTML = "";
       if (response.gtext) {
@@ -159,9 +148,7 @@ function generateVisualization(ext, jump, skips, pan) {
             vizGraph.appendChild(element);
 						spinner.style.display = "none";  //hide spinner
 
-            if (pan === "1") {
-							initPanZoom("vizGraph");
-						}
+						checkPanZoom();
 						
 						// Ctrl/Command + shift + click handler for Graphviz nodes
 						element.querySelectorAll('g.node').forEach(node => {
@@ -216,7 +203,7 @@ function generateVisualization(ext, jump, skips, pan) {
 								if (titleText.startsWith("reset") && !isFocused && !isSanitized) {
 									e.preventDefault();
 									resetFocusMode();
-									generateVisualization(ext,'','',pan);
+									generateVisualization(ext,'','');
 								}
 
 								if (titleText.startsWith("undoLast") && !isFocused && !isSanitized) {
@@ -230,7 +217,7 @@ function generateVisualization(ext, jump, skips, pan) {
 												skips.splice(index, 1);
 										}
 
-										generateVisualization(ext,jump,skips, pan);
+										generateVisualization(ext,jump,skips);
 								}
 								
 								// Ctrl/Meta -jump
@@ -238,7 +225,7 @@ function generateVisualization(ext, jump, skips, pan) {
 									e.preventDefault();
 									resetFocusMode();
 									
-									generateVisualization(ext,titleText,skips,pan);
+									generateVisualization(ext,titleText,skips);
 								}
 								
 								// Shift Key -skip(s)
@@ -263,7 +250,7 @@ function generateVisualization(ext, jump, skips, pan) {
 											skips.push(titleText);
 											resetFocusMode();
 
-											generateVisualization(ext,jump,skips,pan);
+											generateVisualization(ext,jump,skips);
 									}
 								}
 
@@ -513,6 +500,7 @@ function getRecording(titleid) {
 		let recId = isNaN(Number(data.recId)) ? data.recId : Number(data.recId);
 		const displayname = data.displayname;
 		const audioList = document.getElementById('audioList');
+		const autoplay = document.querySelector('input[name="autoplay"]:checked').value;
 		audioList.innerHTML = "";
 
 		$('#recordingmodal-title').html('<i class="fa fa-sitemap"></i> ' + translations[mod]);
@@ -655,7 +643,7 @@ function getRecording(titleid) {
 
 		// Chain audio playback
 		audioElements.forEach((audio, index) => {
-			if (index < audioElements.length - 1) {
+			if (autoplay === "1" && index < audioElements.length - 1) {
 				audio.addEventListener('ended', () => {
 					audioElements[index + 1].play().catch(err => {
 						console.log("Next playback blocked:", err);
@@ -663,9 +651,8 @@ function getRecording(titleid) {
 				});
 			}
 		});
-
-		// Autoplay the first one
-		if (audioElements.length > 0) {
+	
+		if (autoplay === "1" && audioElements.length > 0) {
 			setTimeout(() => {
 				audioElements[0].play().catch(err => {
 					console.log("Playback blocked:", err);
@@ -689,7 +676,6 @@ function getRecording(titleid) {
 		audioList.appendChild(container);
 	});
 }
-
 
 
 document.addEventListener('play', function(e) {
@@ -910,7 +896,6 @@ function uncensor(el) {
   }
 }
 
-
 function toggleCensor(el) {
   if (!el) return;
   if (!el.dataset.censored) {
@@ -919,8 +904,6 @@ function toggleCensor(el) {
     uncensor(el);
   }
 }
-
-
 
 // ----- resetSanitize -----
 function resetSanitize() {
@@ -959,9 +942,6 @@ function resetSanitize() {
   }
 }
 
-
-
-
 function setSanitizeButton(state) {
   if (state === "sanitize") {
     sanitizeBtn.innerHTML = '<i class="fa fa-eye-slash"></i> ' + translations.sanitizeLabels;
@@ -973,7 +953,6 @@ function setSanitizeButton(state) {
     sanitizeBtn.classList.add("btn-primary", "active");
   }
 }
-
 
 //hamburger menu
 const hamburger = document.getElementById("hamburgerBtn");
@@ -990,48 +969,19 @@ document.addEventListener("click", (e) => {
 	}
 });
 
+//PanZoom
+function checkPanZoom() {
+  const pan = document.querySelector('input[name="panzoom"]:checked').value;
+  const vizGraph = document.getElementById("vizGraph");
 
-//feedback form
-const modal = document.getElementById('feedbackModal');
-const openBtn = document.getElementById('openFeedbackModal');
-const closeBtn = document.getElementById('closeFeedbackModal');
-
-openBtn.onclick = () => { 
-    modal.style.display = 'block';
-		if (typeof fpbxHelp !== 'undefined' && fpbxHelp.init) {
-			fpbxHelp.init(modal);
-		} 
-};
-
-closeBtn.onclick = () => { modal.style.display = 'none'; };
-window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-
-document.getElementById('feedbackForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const form = e.target;             // 👈 the form element
-    const formData = new FormData(form);
-
-    fetch("ajax.php?module=dpviz&command=feedback", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "ok") {
-            fpbxToast(`${translations.feedbackSuccess}`, 'info','info');
-        } else {
-            fpbxToast(`${translations.feedbackError}`, 'error','error');
-        }
-    })
-    .catch(err => {
-        fpbxToast(`${translations.feedbackError}`, 'error','error');
-    });
-
-    modal.style.display = 'none';
-    form.reset();
-});
-
+  if (pan === "1") {
+    vizGraph.classList.add("panzoom-enabled");
+    initPanZoom("vizGraph");
+  } else {
+    vizGraph.classList.remove("panzoom-enabled");
+    // optionally: destroy/disable panzoom here if your lib supports it
+  }
+}
 
 function initPanZoom(containerId) {
   const viewport = document.getElementById(containerId);
@@ -1121,3 +1071,49 @@ function initPanZoom(containerId) {
   document.addEventListener("mouseup", onMouseUp);
   viewport.addEventListener("wheel", onWheel);
 }
+
+//feedback form
+const modal = document.getElementById('feedbackModal');
+const openBtn = document.getElementById('openFeedbackModal');
+const closeBtn = document.getElementById('closeFeedbackModal');
+
+openBtn.onclick = () => { 
+    modal.style.display = 'block';
+		if (typeof fpbxHelp !== 'undefined' && fpbxHelp.init) {
+			fpbxHelp.init(modal);
+		} 
+};
+
+closeBtn.onclick = () => { modal.style.display = 'none'; };
+window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+document.getElementById("coffee").addEventListener("click", function () {
+  const url = `ajax.php?module=dpviz&command=coffee`;
+  fetch(url, { method: "POST", credentials: "same-origin" })
+});
+
+document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const form = e.target;             // 👈 the form element
+    const formData = new FormData(form);
+
+    fetch("ajax.php?module=dpviz&command=feedback", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "ok") {
+            fpbxToast(`${translations.feedbackSuccess}`, 'info','info');
+        } else {
+            fpbxToast(`${translations.feedbackError}`, 'error','error');
+        }
+    })
+    .catch(err => {
+        fpbxToast(`${translations.feedbackError}`, 'error','error');
+    });
+
+    modal.style.display = 'none';
+    form.reset();
+});

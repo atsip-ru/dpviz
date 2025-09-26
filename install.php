@@ -103,6 +103,49 @@ if(DB::IsError($check)) {
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
 
+// Version 0.27 adds allowlist, blacklist, autoplay
+$sql = "SELECT allowlist FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD allowlist TINYINT(1) NOT NULL DEFAULT 0;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET allowlist = 0 WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+$sql = "SELECT blacklist FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD blacklist TINYINT(1) NOT NULL DEFAULT 0;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET blacklist = 0 WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+$sql = "SELECT autoplay FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD autoplay TINYINT(1) NOT NULL DEFAULT 0;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET autoplay = 1 WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
 // Check if table exists first
 $sql = "SHOW TABLES LIKE 'dpviz_views'";
 $exists = $db->getOne($sql);

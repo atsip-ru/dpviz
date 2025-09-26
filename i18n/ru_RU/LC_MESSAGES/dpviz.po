@@ -27,9 +27,6 @@ msgstr "Ошибка: Не удалось найти маршрут входящ
 msgid "Reset"
 msgstr "Сброс"
 
-msgid "No name selected"
-msgstr "Никто не выбран"
-
 msgid "Always"
 msgstr "Всегда"
 
@@ -926,3 +923,69 @@ msgstr "Другое"
 
 msgid "Total"
 msgstr "Итого"
+
+msgid "No name selected"
+msgstr "Никто не выбран"
+
+msgid "Show Allowlist"
+msgstr "Показать разрешённый список"
+
+msgid "Show Blacklist"
+msgstr "Показать черный список"
+
+msgid "Displays the Allowlist information and destination."
+msgstr "Отображает информацию о списке разрешений и назначении."
+
+msgid "Displays the Blacklist information and destination."
+msgstr "Отображает информацию о черном списке и назначении."
+
+msgid "Allowlist module is not installed."
+msgstr "Модуль Allowlist не установлен."
+
+msgid "Auto-play audio"
+msgstr "Автоматическое воспроизведение аудио"
+
+msgid "Automatically play audio when a node with audio is selected."
+msgstr "Автоматически воспроизводить аудио, когда выбран узел с аудио."
+
+msgid "User Agent"
+msgstr "Агент пользователя"
+
+msgid "Extensions"
+msgstr "Расширения"
+
+msgid "Previous"
+msgstr "Предыдущий"
+
+msgid "Next"
+msgstr "Следующий"
+
+msgid "Call Forward All"
+msgstr "Переадресация всех звонков"
+
+msgid "Call Forward Busy"
+msgstr "Переадресация звонков при занятости"
+
+msgid "Call Forward Unavailable"
+msgstr "Звонок переадресации недоступен"
+
+msgid "Do Not Disturb"
+msgstr "Не разводьте меня"
+
+msgid "Call Forward"
+msgstr "Переадресация вызова"
+
+msgid "Paused"
+msgstr "Пауза"
+
+msgid "DND/CF"
+msgstr "DND/CF (Отключение звонков/Переадресация звонков)"
+
+msgid "Dynamic agent logged into queue (blue border)"
+msgstr "Динамический агент вошёл в очередь (голущая рамка)"
+
+msgid "Paused queue member"
+msgstr "Повторно обрабатываемый член очереди"
+
+msgid "DND or Call Forwarding enabled (yellow border)"
+msgstr "DND или Переадресация звонков включены (желтыйborder)"

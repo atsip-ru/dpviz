@@ -2,7 +2,7 @@
   <rawname>dpviz</rawname>
   <repo>unsupported</repo>
   <name>Dial Plan Vizualizer</name>
-  <version>1.0.26</version>
+  <version>1.0.27</version>
   <publisher>AdamV</publisher>
   <license>GPLv3+</license>
   <licenselink>http://www.gnu.org/licenses/gpl-3.0.txt</licenselink>
@@ -13,6 +13,7 @@
     <dpviz>Dial Plan Vizualizer</dpviz>
   </menuitems>
 	<changelog>
+		*1.0.27* Added dynamic queue member login status. Added DND / CF / queue pause detection. Added options for Allowlist and Blacklist modules, and Auto-play audio. Added user agents. Added next and previous buttons. Added Extensions in dropdown.
 		*1.0.26* Voicemail node message counts, queue and ring group member sorting, pan/ zoom/ exporting fixes.
 		*1.0.25* Added Feedback form. Listen to unavailable / busy voicemail nodes. Moved recordings to modules. Ext registration status in 'combined' view for queues and ring groups.
 		*1.0.24* Added Save View. Added Sanitize Labels. Added Agent Queue Penalties. Corrected French translations.

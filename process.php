@@ -40,11 +40,7 @@ try{
 
 $options['hideall']=0;
 $options['skip'] = isset($input['skip']) ? $input['skip'] : array();
-
 $datetime = isset($options['datetime']) ? $options['datetime'] : '1';
-$panzoom = isset($options['panzoom']) ? $options['panzoom'] : '1';
-
-
 
 function dpp_load_incoming_routes() {
   global $db;
@@ -73,7 +69,6 @@ function dpp_load_incoming_routes() {
 	return $routes;
 }
 
-
 function dpp_find_route($routes, $num) {
 
   $match = array();
@@ -93,7 +88,6 @@ function dpp_find_route($routes, $num) {
 $inroutes=dpp_load_incoming_routes();
 
 
-
 $dproute['extension']= $ext;
 //print_r($options);
 	if (empty($dproute)) {
@@ -101,22 +95,27 @@ $dproute['extension']= $ext;
 	}else{
 		dpp_load_tables($dproute,$options);   # adds data for time conditions, IVRs, etc.
 		
+		
+		
 		if (!empty($jump)){
 			dpp_follow_destinations($dproute, '', $jump, $options); #starts with destination
 		}else{
 			dpp_follow_destinations($dproute, $ext, '', $options); #starts with empty destination
 		}
 		
-		/*  puts a box next to the first node.
+		
+		
+		/*  puts a box next to the first node.*/
+		/*
 		$dproute['dpgraph']->node('In Use By', array(
 			'label' => "In Use By:\nline 2\lLine3\lLine3\lLine3\l",
 			'shape' => 'box',
 			'style' => 'filled',
 			'fillcolor' => 'darkseagreen',
-			'rank'=>'same'
-			//'comment' => $langOption
+			'rank'=>'source'
 		));
-		*/
+	*/
+		
 		if (!empty($skip) && empty($jump)){
 			$dproute['dpgraph']->node('reset', array(
 				'label' => "   "._('Reset'),
@@ -150,9 +149,6 @@ $dproute['extension']= $ext;
 <input type="hidden" id="ext" value="' . htmlspecialchars($ext, ENT_QUOTES) . '">
 <input type="hidden" id="jump" value="' . htmlspecialchars($jump, ENT_QUOTES) . '">
 <input type="hidden" id="skip" value=\'' . json_encode($skip) . '\'>
-<input type="hidden" id="panzoom" value="' . htmlspecialchars($panzoom, ENT_QUOTES) . '">
-
-
 
 <script>
 function updateHeaderSelected() {
@@ -265,7 +261,7 @@ $minimal= isset($options['minimal']) ? $options['minimal'] : '1';
 $stop=false; //reset on new call
 
 if (!isset($route['parent_edge_code'])){$route['parent_edge_code']='';}
-	
+
 if ($minimal){
 	$patterns = array(
     '/^play-system-recording/i',
@@ -317,8 +313,8 @@ if ($minimal){
   # This only happens on the first call.  Every recursive call includes
   # a destination to look at.  For the first one, we get the destination from
   # the route object.
-	
-  if ($destination == '') {
+		
+	if ($destination == '') {
 		
 		$dpgraph->node("reset".$route['extension'], array(
 			'label' => "   "._('Reset'),
@@ -336,9 +332,6 @@ if ($minimal){
     // UPDATE: beginNode() creates a node and returns it instead of
     // returning the graph.  Similarly for edge() and beginEdge().
     $route['parent_node'] = $dpgraph->get("reset".$route['extension']);
-    
-		
-
 
     # One of thse should work to set the root node, but neither does.
     # See: https://rt.cpan.org/Public/Bug/Display.html?id=101437
@@ -369,10 +362,9 @@ if ($minimal){
 		
   } catch (Exception $e) {
     dpplog(7, "Adding node: $destination");
-    $node = $dpgraph->beginNode($destination);
-		//$node->attribute('margin', '.25,.055');
+		$node = $dpgraph->beginNode($destination);
   }
- 
+
   // Add an edge from our parent to this node, if there is not already one.
   // We do this even if the node already existed because this node might
   // have several paths to reach it.
@@ -394,6 +386,7 @@ if ($minimal){
 		} else {
 			
 			dpplog(9, "Making an edge from $ptxt -> $ntxt");
+		
 			$edge= $dpgraph->beginEdge(array($route['parent_node'], $node));
 			$edge->attribute('label', sanitizeLabels($route['parent_edge_label']));
 			$edge->attribute('labeltooltip',sanitizeLabels($ptxt));
@@ -406,8 +399,10 @@ if ($minimal){
 					$edge->attribute('labeltooltip',sanitizeLabels($route['parent_edge_labeltooltip']));
 					$edge->attribute('edgetooltip',sanitizeLabels($route['parent_edge_labeltooltip']));
 				}
-				
+				//reset ['parent_edge_code']
 				$route['parent_edge_code']='';
+			}else{
+				
 			}
 			
 			if (preg_match("/^( IVR Break| Queue Callback)./", $route['parent_edge_label'])){
@@ -415,12 +410,6 @@ if ($minimal){
 			}
 			if (preg_match("/^( Callback | Destination after)./", $route['parent_edge_label'])){
 				$edge->attribute('style', 'dotted');
-			}
-			
-			
-			if (preg_match("/^(recording)/", $route['parent_edge_code'])){
-				$edge->attribute('dir', 'back');
-				$route['parent_edge_code']='';
 			}
 			
 			//start from node
@@ -790,59 +779,33 @@ if ($minimal){
 		$extLang= $matches[3];
 		
 		if (isset($route['extensions'][$extnum])){
+			$extension = & $route['extensions'][$extnum];
 			
-			$extension = $route['extensions'][$extnum];
-			$extname= $extension['name'];
+			$extname= sanitizeLabels($extension['name']);
+			$label = _('Extension').": ".$extnum . " " . $extname;
+			$tooltip= buildExtTooltip($extnum,$route);
 			
-			if ($extension['tech']=='pjsip' || $extension['tech']=='sip' || $extension['tech']=='iax2'){
-				
-				$node->attribute('penwidth', '2');
-				if (!isset($route['extensions'][$extnum]['reg_status'])){
-					$status=isExtensionRegistered($extnum,$extension['tech']);
-					$route['extensions'][$extnum]['reg_status']=$status;
-				}
-				$registered=$route['extensions'][$extnum]['reg_status'];
-				if ($registered){$online=_('Yes');}else{$online=_('No');}
-				
-				$node->attribute('color', $registered ? 'green' : 'red');
-				
-				$regStatus="\n\n"._('Registration').": ".$online;
-				$regStatus.="\n"._('Tech').": ".strtoupper($extension['tech']);
-			}else{
-				$regStatus="\n\n"._('Tech').": ".ucfirst($extension['tech']);
+			$node->attribute('penwidth', '2');
+			if ($extension['tech']=='virtual'){
+					$node->attribute('color', 'grey');
+			}elseif (!empty($extension['dnd']) || (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU']))) {
+					// DND or any CF active
+					$node->attribute('color', '#FFB300');
+			} else {
+					// Registered vs offline
+					$node->attribute('color', !empty($extension['reg_status']) ? 'green' : 'red');
 			}
+
+			$label .= (isset($extension['mailbox']['label']) ? "\n" . $extension['mailbox']['label'] : '')
+       . (!empty($extension['mailbox']['emailLabel'])
+          ? "\n" . $extension['mailbox']['emailLabel'] : '');
 			
-			if (isset($extension['mailbox'])){
-				$extemail= $extension['mailbox']['email'];
-				if (!empty($extemail)){$extemail= str_replace(",",",\n",$extemail)."\n";}else{$extemail='';}
-				
-				$mailboxLabel="\n\n"._('Voicemail: Enabled');
-				$mailboxLabel.="\n"._('Email').": ".$extemail;
-				foreach ($extension['mailbox']['options'] as $m=>$mm){
-					$mailboxLabel.="\n".ucfirst($m).": ".ucfirst($mm);
-				}
-				
-			}else{
-				$extemail='';
-				$mailboxLabel="\n\n"._('Voicemail: Disabled');
-			}
-			
-			if (isset($extension['fmfm'])){
-				if ($extension['fmfm']['ddial']=='DIRECT'){
-					$confirm = ($extension['fmfm']['needsconf'] == 'CHECKED') ? _('Yes') : _('No');
-					$fmfmLabel="\n\nFMFM: "._('Enabled')."\n"._('Initial Ring Time').": ".secondsToTimes($extension['fmfm']['pre_ring'])."\n"._('Ring Time').": ".secondsToTimes($extension['fmfm']['grptime'])."\n"._('Follow-Me List').": ".$extension['fmfm']['grplist']."\n"._('Confirm Calls').": ".$confirm;
-				}else{
-					$fmfmLabel="\n\nFMFM:"._('Disabled');
-				}
-			}else{
-				$fmfmLabel='';
-			}
-			
-			$node->attribute('label', _('Extension').": ".$extnum." ".sanitizeLabels($extname)."\n".sanitizeLabels($extemail));
-			$node->attribute('tooltip', _('Extension').": ".$extnum."\n"._('Name').": ".sanitizeLabels($extname).$regStatus.$mailboxLabel.$fmfmLabel);
+			$node->attribute('label', $label);
+			$node->attribute('tooltip', _('Extension').": ".$extnum."\n"._('Name').": ".sanitizeLabels($extname).$tooltip);
 			$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$extnum));
 			$node->attribute('target', '_blank');
 			
+			//FMFM
 			if (isset($extension['fmfm']) && $fmfmOption){
 				if ($extension['fmfm']['ddial']=='DIRECT'){
 						$grplist = preg_split("/-/", $extension['fmfm']['grplist']);
@@ -864,6 +827,26 @@ if ($minimal){
 				}
 				
 			}
+			
+			//Asterisk CF, CFB, CFU
+			if (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU'])){
+				if ($extension['cf']['CF'] != '') {
+					$route['parent_edge_label']= " "._('Call Forward All');
+					$route['parent_node'] = $node;
+					dpp_follow_destinations($route, 'from-did-direct,'.$extension['cf']['CF'].',1,'.$extLang,'',$options);
+				}
+				if ($extension['cf']['CFB'] != '') {
+					$route['parent_edge_label']= " "._('Call Forward Busy');
+					$route['parent_node'] = $node;					
+					dpp_follow_destinations($route, 'from-did-direct,'.$extension['cf']['CFB'].',1,'.$extLang,'',$options);
+				}
+				if ($extension['cf']['CFU'] != '') {
+					$route['parent_edge_label']= " "._('Call Forward Unavailable');
+					$route['parent_node'] = $node;
+					dpp_follow_destinations($route, 'from-did-direct,'.$extension['cf']['CFU'].',1,'.$extLang,'',$options);
+				}
+			}
+			
 			
 		}else{
 			//phone numbers or remote extensions
@@ -982,15 +965,9 @@ if ($minimal){
 		$numcid = str_replace("&", "", $matches[2]);
 		$numLang= $matches[4];		
 	
-		$allowCheck = 0;
-		$checkAModule=\FreePBX::Modules()->checkStatus("allowlist");
-		if ($checkAModule){
-			if ($num=='ANY'){$allowNum='';}else{$allowNum=$num;}
-			$allowCheck = \FreePBX::Allowlist()->didIsSet($allowNum, $numcid);
-			$allowList = \FreePBX::Allowlist()->getAllowlist();
-		}
-
-		$blackCheck=\FreePBX::Modules()->checkStatus("blacklist");
+		
+		
+		
 		
 		if (empty($num)){$num='ANY';}
 		if (!empty($numcid)){
@@ -1000,6 +977,7 @@ if ($minimal){
 			$combNum=$num;
 			$numcidd=" / ANY";
 		}
+	
 		
 		$incoming = $route['incoming'][$combNum];
 		if (isset($incoming['language'])){$numLang=$incoming['language'];}
@@ -1030,15 +1008,19 @@ if ($minimal){
 		$node->attribute('fillcolor', 'darkseagreen');
 		$node->attribute('style', 'filled');
 		if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
+			$undoNode= stopNode($dpgraph,$destination);
+			$edge= $dpgraph->beginEdge(array($node, $undoNode));
+			$edge->attribute('style', 'dashed');
+			$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+			
+			return;
+		}
 		
-		if ($blackCheck && !$minimal){
+		if ($options['blacklist']){ //--blacklist
+			$blackCheck=\FreePBX::Modules()->checkStatus("blacklist");
+		}
+		
+		if ($options['blacklist'] && $blackCheck && !$minimal){
 			$blackList = \FreePBX::Blacklist()->getBlacklist();
 			$total=count($blackList);
 			if ($total > 1){
@@ -1077,7 +1059,19 @@ if ($minimal){
 			}																															
 		}
 		
-		if ($allowCheck && !empty($allowList)){
+		if ($options['allowlist']){ //--allowlist 
+			
+			$checkAModule=\FreePBX::Modules()->checkStatus("allowlist");
+			if ($checkAModule){
+				if ($num=='ANY'){$allowNum='';}else{$allowNum=$num;}
+				$allowCheck = \FreePBX::Allowlist()->didIsSet($allowNum, $numcid);
+				$allowList = \FreePBX::Allowlist()->getAllowlist();
+			}else{
+				$allowCheck = false;
+			}
+		}
+		
+		if ($options['allowlist'] && $allowCheck && !empty($allowList)){
 			$allowDest = \FreePBX::Allowlist()->destinationGet();
 
 			$tooltip="\n"._('Number: Description')."\n";
@@ -1094,7 +1088,6 @@ if ($minimal){
 				$i++;
 			}
 				
-				
 			$edgeLabel=" "._('Allowlist');
 			$route['parent_edge_code']='edgelink';
 			$route['parent_edge_label'] =" "._('Disallowed by Allowlist');
@@ -1109,7 +1102,7 @@ if ($minimal){
 			$edgeLabel=" "._('Always');
 		}
 		
-		if ($allowCheck && !empty($allowList)){
+		if ($options['allowlist'] && $allowCheck && !empty($allowList)){
 			$route['parent_edge_code']='edgelink';
 			$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
 			$route['parent_edge_target'] = '_blank';
@@ -1522,9 +1515,55 @@ if ($minimal){
 		}
 		
 		
-		if (isset($route['queues'][$qnum])){
-			$q = $route['queues'][$qnum];
+		if (isset($route['queues'][$qnum])) {
+			$q =& $route['queues'][$qnum];
 			
+			if ($dynmembers){ //options
+				// Dynamic Queue members
+				if (!isset($q['members']['dynamic'])){
+					$dynQuery='/usr/sbin/asterisk -rx "database show QPENALTY '.$qnum.'" | grep \'/agents/\' | cut -d\'/\' -f5';
+					exec($dynQuery, $dynmem);
+					
+					$q['members']['dynamic']=array();
+					$dynamicMembers = array();
+					
+					foreach ($dynmem as $enum){
+						list($ext, $pen) = explode(':', $enum);
+						$ext=trim($ext);
+						$pen=trim($pen);
+						$dynamicMembers[] = $ext.','.$pen;
+					}
+					addAndSortMembers($q['members']['dynamic'], $dynamicMembers);
+				}
+
+				//dynamic agents logged in?
+				if (!isset($q['loggedin'])){
+					$loggedinQuery="/usr/sbin/asterisk -rx \"queue show $qnum\" | grep '(dynamic)'";
+					exec($loggedinQuery, $loggedin);
+					
+					$q['loggedin'] = array();
+					
+					foreach ($loggedin as $logged){
+						if (preg_match('/Local\/(\d+)@from-queue/', $logged, $matches)) {
+								$q['loggedin'][]=$matches[1];
+						}
+					}
+				}
+			}
+
+			//paused ?
+			if (!isset($q['paused'])) {
+				$pauseQuery = "/usr/sbin/asterisk -rx \"queue show $qnum\" | grep '(paused)'";
+				exec($pauseQuery, $paused);
+			
+				$q['paused'] = array();
+
+				foreach ($paused as $pauses) {
+						if (preg_match('/Local\/(\d+)@from-queue/', $pauses, $matches)) {
+								$q['paused'][] = $matches[1];
+						}
+				}
+			}
 			
 			//is the parent a virtual queue?
 			if ($queueType=='ext-vqueues'){
@@ -1595,7 +1634,7 @@ if ($minimal){
 				$route['parent_node'] = $node;
 				dpp_follow_destinations($route, $failover.','.$qlang,'',$options);
 			
-			if (!empty($q['members'])){
+			if (!empty($q['members']) && !$minimal){
 				if ($options['queue_member_display']==1){ //--option "Single"
 					foreach ($q['members'] as $types=>$type) {
 						foreach ($type as $member){
@@ -1608,21 +1647,69 @@ if ($minimal){
 							}else{
 								$penalty='';
 							}
+							
 							$route['parent_node'] = $node;
-							if ($types=='static'){
-								$route['parent_edge_label'] = " "._('Static').$penalty;
-								$route['parent_edge_code'] = 'static';
-							}else{
-								$route['parent_edge_label'] = " "._('Dynamic').$penalty;
-								$route['parent_edge_code'] = 'dynamic';
+							if ($types === 'static') {
+									if (isset($route['extensions'][$member])) {
+											$extension = &$route['extensions'][$member];
+
+											// Hydrate extension once
+											$extension = prepareExtension($extension, $member);
+
+											// Flags for static members
+											$flags = [
+													'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
+													'loggedin' => true,   // always logged in
+													'dynamic'  => false   // static member
+											];
+
+											// Resolve status
+											$status = resolveExtensionStatus($extension, 'queue_edge', $flags);
+											
+											if ($status['icon'] !== '🟡' && $status['icon'] !== '⏸️') {
+													$status['icon'] = '';
+											}
+
+											// Edge label
+											$route['parent_edge_label'] = " " . $status['icon'] . _('Static') . $penalty;
+											$route['parent_edge_code']  = 'static';
+									} else {
+											// fallback if extension not found
+											$route['parent_edge_label'] = " " . _('Static') . $penalty;
+											$route['parent_edge_code']  = 'static';
+									}
+
+							} else {
+									// Dynamic member
+									if (isset($route['extensions'][$member])) {
+											$extension = &$route['extensions'][$member];
+
+											// Hydrate extension once
+											$extension = prepareExtension($extension, $member);
+
+											// Flags for dynamic members
+											$flags = [
+													'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
+													'loggedin' => in_array($member, $route['queues'][$qnum]['loggedin']),
+													'dynamic'  => true
+											];
+
+											// Resolve status
+											$status = resolveExtensionStatus($extension, 'queue_edge', $flags);
+
+											// Edge label
+											$route['parent_edge_label'] = " " . $status['icon'] . _('Dynamic') . $penalty;
+											$route['parent_edge_code']  = 'dynamic';
+									}
 							}
+
 							
 							switch ($combineQueueRing) {
 								case "2":
 									$go="from-did-direct,$member,1,$qlang";
 									break;
 								default:
-									$go="qmember$member";
+									$go = "qmember$member";
 							}
 							
 							dpp_follow_destinations($route, $go,'',$options);
@@ -1631,31 +1718,34 @@ if ($minimal){
 
 				}elseif ($options['queue_member_display']==2){ //--option "Combine"
 					$line=_('Queue')." ".$qnum." "._('Agents').":\n";
-					foreach ($q['members'] as $types=>$type) {
-						
+					foreach ($q['members'] as $types=>$members) {
 						if ($types=='static' && !empty($q['members']['static'])){
 							$line.="["._('Static')."]\n";
 						}elseif($types=='dynamic' && !empty($q['members']['dynamic']) && $dynmembers){
 							$line.="["._('Dynamic')."]\n";
 						}
 						
+						foreach ($members as $member) {
 						
-						foreach ($type as $member) {
 							$split=explode(',',$member);
 							$member=$split[0];
 							$pen=$split[1];
 							$penalty = ($options['queue_penalty'] == 1) ? ",$pen" : '';
 							
 							if (isset($route['extensions'][$member])) {
-									if (!isset($route['extensions'][$member]['reg_status'])) {
-											$status = isExtensionRegistered($member, $route['extensions'][$member]['tech']);
-											$route['extensions'][$member]['reg_status'] = $status;
-									}
+									$extension = &$route['extensions'][$member];
+									$extension = prepareExtension($extension, $member);
 
-									$isRegistered = $route['extensions'][$member]['reg_status'];
-									$regstatus = $isRegistered ? '🟢' : '🔴';
+									$flags = [
+											'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
+											'loggedin' => ($dynmembers && in_array($member, $route['queues'][$qnum]['loggedin'])),
+											'dynamic'  => ($types === 'dynamic')
+									];
 
-									$line .= $regstatus ." "._('Ext')." ".$member.$penalty." ".$route['extensions'][$member]['name']."\l";
+									$status = resolveExtensionStatus($extension, 'queue', $flags);
+
+									$line .= $status['icon']." Ext ".$member.$penalty." ".$extension['name']." ".$status['label']."\l";
+
 							} else {
 									$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
 							}
@@ -1670,7 +1760,7 @@ if ($minimal){
 							'target' => '_blank',
 							'shape' => 'rect',
 							'style' => 'filled',
-							'fillcolor' => 'mediumaquamarine'
+							'fillcolor' => $pastels[20]
 						)
 					);
 					$edge= $dpgraph->beginEdge(array($node, $memNode));
@@ -1750,35 +1840,60 @@ if ($minimal){
 		#
 		# Queue members (static and dynamic)
 		#
-	} elseif (preg_match("/^qmember(\d+)/", $destination, $matches)) {
+	} elseif (preg_match("/^qmember(.+)$/", $destination, $matches)) {
 		$qextension=$matches[1];
-		//$qpen=$matches[2];
-		$qlabel = isset($route['extensions'][$qextension]['name']) ? _('Ext')." ".$qextension."\n".$route['extensions'][$qextension]['name'] : $qextension;
-		$tooltip= isset($route['extensions'][$qextension]['name']) ? _('Extension').": ".$qextension."\n"._('Name').": ".$route['extensions'][$qextension]['name'] : $qextension;
-		//registration status
-		if (isset($route['extensions'][$qextension]) && ($route['extensions'][$qextension]['tech']=='pjsip' || $route['extensions'][$qextension]['tech']=='sip' || $route['extensions'][$qextension]['tech']=='iax2')){
-			$node->attribute('penwidth', '2');
-			if (!isset($route['extensions'][$qextension]['reg_status'])){
-				$status=isExtensionRegistered($qextension,$route['extensions'][$qextension]['tech']);
-				$route['extensions'][$qextension]['reg_status']=$status;
-			}
-			$registered=$route['extensions'][$qextension]['reg_status'];
-			if ($registered){$online=_('Yes');}else{$online=_('No');}
-			$node->attribute('color', $registered ? 'green' : 'red');
-
-			$tooltip.="\n\n"._('Registration').": ".$online;
-			$tooltip.="\n"._('Tech').": ".strtoupper($route['extensions'][$qextension]['tech']);
-		}elseif(isset($route['extensions'][$qextension])){
-			$tooltip.="\n\n"._('Tech').": ".ucfirst($route['extensions'][$qextension]['tech']);
+		$previousId=$route['parent_node']->getId();  //get qnum
+		
+		if (preg_match("/^ext-queues,(\d+),(\d+),(.+)/", $previousId, $matches)) {
+			$qnum=$matches[1];
+		}else{
+			$qnum='';
 		}
 		
-		$node->attribute('label', sanitizeLabels($qlabel));
-		$node->attribute('tooltip', sanitizeLabels($tooltip));
-		$node->attribute('style', 'filled');
-		if (!is_numeric($qlabel)){
-			$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$qextension));
-			$node->attribute('target', '_blank');
+		if (isset($route['extensions'][$qextension])) {
+				$extension = &$route['extensions'][$qextension];
+
+				$qlabel  = _('Ext')." ".$qextension."\n".sanitizeLabels($extension['name']);
+				$tooltip = _('Extension').": ".$qextension."\n"._('Name').": ".sanitizeLabels($extension['name']);
+
+				// Hydrate extension
+				$extension = prepareExtension($extension, $qextension);
+
+				// Flags for single node
+				$flags = [
+						'paused'   => false,  // single node can't be paused
+						'loggedin' => ($dynmembers && ($qnum!='' && in_array($qextension, $route['queues'][$qnum]['loggedin'])) ),
+						'dynamic'  => true
+				];
+
+				// Resolve status
+				$status = resolveExtensionStatus($extension, 'queue', $flags);
+
+				// Tooltip
+				$tooltip .= buildExtTooltip($qextension, $route);
+
+				// Node appearance
+				$node->attribute('penwidth', '2');
+				switch ($status['icon']) {
+						case '⚪': $node->attribute('color', 'grey'); break;      // virtual
+						case '🟡': $node->attribute('color', '#FFB300'); break;   // DND / CF
+						case '🔵': $node->attribute('color', 'blue'); break;      // dynamic logged in
+						case '🟢': $node->attribute('color', 'green'); break;     // registered
+						case '🔴': 
+						default:    $node->attribute('color', 'red'); break;      // offline
+				}
+
+				$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$qextension));
+				$node->attribute('target', '_blank');
+
+		} else {
+				$qlabel = $tooltip = $qextension;
 		}
+
+		
+		$node->attribute('label', $qlabel);
+		$node->attribute('tooltip', $tooltip);
+		$node->attribute('style', 'filled');
 		
 		if ($route['parent_edge_code'] == 'static') {
 			$node->attribute('fillcolor', $pastels[20]);
@@ -1878,56 +1993,56 @@ if ($minimal){
 			$grplist=$rg['grplist'];
 			$grplist = preg_split("/-/", $grplist);
 			
-			if ($options['ring_member_display']==1){ //--option "Single"
-				foreach ($grplist as $member) {
-					$route['parent_node'] = $node;
-					$route['parent_edge_label'] = '';
-					switch ($combineQueueRing) {
-							case "1":
-									$go="qmember$member";
-									break;
-							case "2":
-									$go="from-did-direct,$member,1,$rglang";
-									break;
-							default:
-									$go="rgmember$member";
-					}
-					dpp_follow_destinations($route,$go,'',$options);
-				} 
-			}elseif ($options['ring_member_display']==2){  //--option "Combine"
-				$line=_('Ring Group')." ".$rgnum." "._('List').":\n";
-				foreach ($grplist as $member){
-					if (isset($route['extensions'][$member])){
-						if (!isset($route['extensions'][$member]['reg_status'])) {
-								$status = isExtensionRegistered($member, $route['extensions'][$member]['tech']);
-								$route['extensions'][$member]['reg_status'] = $status;
+			if (!$minimal){
+				if ($options['ring_member_display']==1){ //--option "Single"
+					foreach ($grplist as $member) {
+						$route['parent_node'] = $node;
+						$route['parent_edge_label'] = '';
+						switch ($combineQueueRing) {
+								case "1":
+										$go = "qmember$member";
+										break;
+								case "2":
+										$go="from-did-direct,$member,1,$rglang";
+										break;
+								default:
+										$go="rgmember$member";
 						}
+						dpp_follow_destinations($route,$go,'',$options);
+					} 
+				}elseif ($options['ring_member_display']==2){  //--option "Combine"
+					$line=_('Ring Group')." ".$rgnum." "._('List').":\n";
+					foreach ($grplist as $member){
+						if (isset($route['extensions'][$member])){
+							$extension = &$route['extensions'][$member];
+							$extension = prepareExtension($extension, $member);
 
-						$isRegistered = $route['extensions'][$member]['reg_status'];
-						$regstatus = $isRegistered ? '🟢' : '🔴';
-									
-						$line.=$regstatus." "._('Ext')." ".$member." ".$route['extensions'][$member]['name']."\l";
-					}else{
-						$line.="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
+							// No paused/loggedin in ring groups
+							$status = resolveExtensionStatus($extension, 'ringgroup');
+
+							$line .= $status['icon']." Ext ".$member." ".$extension['name']." ".$status['label']."\l";
+						}else{
+							$line.="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
+						}
 					}
+					
+					$memNode= $dpgraph->beginNode('ringmembers'.$rgnum,
+						array(
+							'label' => $line,
+							'tooltip' => $line,
+							'URL' => $node->getAttribute('URL', ''),
+							'target' => '_blank',
+							'shape' => 'rect',
+							'style' => 'filled',
+							'fillcolor' => $pastels[2]
+						)
+					);
+					$edge= $dpgraph->beginEdge(array($node, $memNode));
+					$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+					
+				}else{
+					//do not display members --option "Hide"
 				}
-				
-				$memNode= $dpgraph->beginNode('ringmembers'.$rgnum,
-					array(
-						'label' => $line,
-						'tooltip' => $line,
-						'URL' => $node->getAttribute('URL', ''),
-						'target' => '_blank',
-						'shape' => 'rect',
-						'style' => 'filled',
-						'fillcolor' => $pastels[2]
-					)
-				);
-				$edge= $dpgraph->beginEdge(array($node, $memNode));
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-			}else{
-				//do not display members --option "Hide"
 			}
 				
 				# The destinations we need to follow are the no-answer destination
@@ -1948,35 +2063,49 @@ if ($minimal){
 		#
 } elseif (preg_match("/^rgmember([#\d]+)/", $destination, $matches)) {
 		$rgext = $matches[1];
-		$rglabel = isset($route['extensions'][$rgext]) ? _('Ext')." ".$rgext."\n".$route['extensions'][$rgext]['name'] : $rgext;
-		$tooltip = isset($route['extensions'][$rgext]) ? _('Ext').": ".$rgext."\n"._('Name').": ".$route['extensions'][$rgext]['name'] : $rgext;
+		
+		if (isset($route['extensions'][$rgext])) {
+				$extension = &$route['extensions'][$rgext];
 
-		//registration status
-		if (isset($route['extensions'][$rgext]) && ($route['extensions'][$rgext]['tech']=='pjsip' || $route['extensions'][$rgext]['tech']=='sip' || $route['extensions'][$rgext]['tech']=='iax2')){
-			$node->attribute('penwidth', '2');
-			if (!isset($route['extensions'][$rgext]['reg_status'])){
-				$status=isExtensionRegistered($rgext,$route['extensions'][$rgext]['tech']);
-				$route['extensions'][$rgext]['reg_status']=$status;
-			}
-			$registered=$route['extensions'][$rgext]['reg_status'];
-			if ($registered){$online=_('Yes');}else{$online=_('No');}
-			$node->attribute('color', $registered ? 'green' : 'red');
+				$rglabel  = _('Ext')." ".$rgext."\n".sanitizeLabels($extension['name']);
+				$tooltip  = _('Ext').": ".$rgext."\n"._('Name').": ".sanitizeLabels($extension['name']);
 
-			$tooltip.="\n\n"._('Registration').": ".$online;
-			$tooltip.="\n"._('Tech').": ".strtoupper($route['extensions'][$rgext]['tech']);
-		}elseif(isset($route['extensions'][$rgext])){
-			$tooltip.="\n\n"._('Tech').": ".ucfirst($route['extensions'][$rgext]['tech']);
+				// Hydrate extension
+				$extension = prepareExtension($extension, $rgext);
+
+				// Flags for ring group (no queue-specific statuses)
+				$flags = [
+						'paused'   => false,
+						'loggedin' => false,
+						'dynamic'  => false
+				];
+
+				// Resolve status
+				$status = resolveExtensionStatus($extension, 'ringgroup_node', $flags);
+
+				// Tooltip
+				$tooltip = buildExtTooltip($rgext, $route);
+
+				// Node appearance
+				$node->attribute('penwidth', '2');
+				switch ($status['icon']) {
+						case '⚪': $node->attribute('color', 'grey'); break;    // virtual
+						case '🟡': $node->attribute('color', '#FFB300'); break; // DND / CF
+						case '🟢': $node->attribute('color', 'green'); break;   // registered
+						case '🔴': 
+						default:    $node->attribute('color', 'red'); break;    // offline
+				}
+
+				$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$rgext));
+				$node->attribute('target', '_blank');
+
+		} else {
+				$rglabel = $tooltip = $rgext;
 		}
+
 		
-		
-		
-		
-		$node->attribute('label', sanitizeLabels($rglabel));
-		$node->attribute('tooltip', sanitizeLabels($tooltip));
-		if (!is_numeric($rglabel)){
-			$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$rgext));
-			$node->attribute('target', '_blank');
-		}
+		$node->attribute('label', $rglabel);
+		$node->attribute('tooltip', $tooltip);
 		$node->attribute('fillcolor', $pastels[2]);
 		$node->attribute('style', 'filled');
 		# end of ring group members
@@ -2185,16 +2314,17 @@ if ($minimal){
 			$vmemail= str_replace(",",",\n",$vmemail);
 			$tooltip="\n\n"._('Voicemail: Enabled');
 			$tooltip.="\n"._('Email').": ".$vmemail;
-			foreach ($voicemail['options'] as $m=>$mm){
-				$tooltip.="\n".ucfirst($m).": ".ucfirst($mm);
-			}
+			
 			
 			if ($vmtype=='u' || $vmtype=='b'){$speaker='🔊 ';}else{$speaker='';}
 			$inbox = countVmMessages($vmnum, $context, 'inbox');
 			$other   = countVmMessages($vmnum, $context, 'other');
 			$messages=_('INBOX').": ".$inbox."  "._('Other').": ".$other."  "._('Total').": ".($inbox + $other);
-			$tooltip.="\n"._('INBOX').": ".$inbox."\n"._('Other').": ".$other."\n"._('Total').": ".($inbox + $other);
+			$tooltip.="\n" . $messages . "\n";
 			
+			foreach ($voicemail['options'] as $m=>$mm){
+				$tooltip.="\n".ucfirst($m).": ".ucfirst($mm);
+			}
 			
 			$label=$speaker . $vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".$messages."\n".sanitizeLabels($vmemail);
 
@@ -2357,10 +2487,8 @@ if ($minimal){
 }
 
 # load gobs of data.  Save it in hashrefs indexed by ints
-function dpp_load_tables(&$dproute,$options) {
+function dpp_load_tables(&$dproute) {
 	global $db;
-	$dynmembers= isset($options['dynmembers']) ? $options['dynmembers'] : '0';
-	$fmfmOption= isset($options['fmfm']) ? $options['fmfm'] : '0';
 	
 	# Users
 	$users=\FreePBX::Core()->getAllUsersByDeviceType();
@@ -2369,7 +2497,8 @@ function dpp_load_tables(&$dproute,$options) {
 		$id = $user['extension'];
 		$dproute['extensions'][$id]= $user;
 		$mailbox=\FreePBX::Voicemail()->getMailbox($id);
-		$dproute['extensions'][$id]['mailbox']=$mailbox;	
+		$dproute['extensions'][$id]['mailbox']=$mailbox;
+		
   }
 	
 	
@@ -2588,7 +2717,6 @@ function dpp_load_tables(&$dproute,$options) {
 					$id = $q['extension'];
 					$dproute['queues'][$id] = $q;
 					$dproute['queues'][$id]['members']['static']=array();
-					$dproute['queues'][$id]['members']['dynamic']=array();
 				}
 		}elseif ($table == 'queues_details') {
         foreach($results as $qd) {
@@ -2600,7 +2728,6 @@ function dpp_load_tables(&$dproute,$options) {
 							$enum = $matches[1];
 							$pen= $matches[2];
 							$staticMembers[] = $enum.','.$pen;
-
 						}
 	
 						addAndSortMembers($dproute['queues'][$id]['members']['static'], $staticMembers);
@@ -2609,26 +2736,7 @@ function dpp_load_tables(&$dproute,$options) {
 						$dproute['queues'][$id]['data'][$qd['keyword']]=$qd['data'];
 					}
 				}
-				# Queue members (dynamic) //options
-				if ($dynmembers && !empty($dproute['queues'])){
-					foreach ($dproute['queues'] as $id=>$details){
-						$dynmem=array();
-						
-						$D='/usr/sbin/asterisk -rx "database show QPENALTY '.$id.'" | grep \'/agents/\' | cut -d\'/\' -f5';
-						exec($D, $dynmem);
-						
-						$dynamicMembers=array();
-						foreach ($dynmem as $enum){
-							
-							list($ext, $pen) = explode(':', $enum);
-							$ext=trim($ext);
-							$pen=trim($pen);
-							$dynamicMembers[] = $ext.','.$pen;
-
-						}
-						addAndSortMembers($dproute['queues'][$id]['members']['dynamic'], $dynamicMembers);
-					}
-				}
+				
     }elseif ($table == 'recordings') {
         foreach($results as $recordings) {
 					$id=$recordings['id'];
@@ -3346,3 +3454,253 @@ function addAndSortMembers(&$queueMembers, $newMembers) {
         return $enumA - $enumB;
     });
 }
+
+function loadRegistrations() {
+    static $registrations = null;
+
+    if ($registrations !== null) {
+        return $registrations; // already cached
+    }
+
+    $astman = \FreePBX::create()->astman;
+    $registrations = array();
+
+    // --- Handle PJSIP ---
+    $resp = $astman->send_request('Command', ['Command' => 'database show registrar contact']);
+    if (!empty($resp['data'])) {
+        $lines = explode("\n", $resp['data']);
+        foreach ($lines as $line) {
+            if (strpos($line, '{') !== false) {
+                $json = trim(substr($line, strpos($line, '{')));
+                $decoded = json_decode($json, true);
+
+                if ($decoded && !empty($decoded['endpoint']) && !empty($decoded['user_agent'])) {
+                    $endpoint = $decoded['endpoint'];
+                    if (!isset($registrations[$endpoint])) {
+                        $registrations[$endpoint] = array();
+                    }
+                    $registrations[$endpoint][] = $decoded['user_agent'];
+                }
+            }
+        }
+    }
+
+    // --- Handle SIP (chan_sip) ---
+    $resp = $astman->send_request('Command', ['Command' => 'sip show peers']);
+    if (!empty($resp['data'])) {
+        $lines = explode("\n", $resp['data']);
+        foreach ($lines as $line) {
+            if (preg_match('/^(\d+)\//', trim($line), $m)) {
+                $ext = $m[1];
+                $peerResp = $astman->send_request('Command', ['Command' => "sip show peer $ext"]);
+                if (!empty($peerResp['data']) && preg_match('/Useragent\s*:\s*(.+)/i', $peerResp['data'], $ua)) {
+                    if (!isset($registrations[$ext])) {
+                        $registrations[$ext] = array();
+                    }
+                    $registrations[$ext][] = trim($ua[1]);
+                }
+            }
+        }
+    }
+    return $registrations;
+}
+
+function getUserAgent($extension) {
+    $registrations = loadRegistrations();
+    $key = $extension;
+
+    if (isset($registrations[$key])) {
+        return $registrations[$key];
+    } else {
+        return array();
+    }
+}
+
+function buildExtTooltip($ext, &$route) {
+    static $tooltipCache = array();
+
+    // Return cached tooltip if exists
+    if (isset($tooltipCache[$ext])) {
+        return $tooltipCache[$ext];
+    }
+
+    $tooltip = '';
+
+    if (!isset($route['extensions'][$ext])) {
+        $tooltipCache[$ext] = $tooltip;
+        return $tooltip;
+    }
+
+    $extension = &$route['extensions'][$ext];
+
+    // Hydrate extension info (reg_status, dnd, cf, etc.)
+    $extension = prepareExtension($extension, $ext);
+
+    // Tech & Registration
+    $tooltip .= "\n\n" . _('Tech') . ": " . strtoupper($extension['tech']);
+    $tooltip .= "\n" . _('Registration') . ": " . ($extension['reg_status'] ? _('Yes') : _('No'));
+
+    // User Agent
+    $ua = getUserAgent($ext);
+    if (!empty($ua)) {
+        $tooltip .= "\n" . _('User Agent') . ":\n" . implode("\n", $ua) . "\n";
+    } else {
+        $tooltip .= "\n";
+    }
+
+    // DND & Call Forward
+    $tooltip .= "\n" . _('Do Not Disturb') . ": " . ($extension['dnd'] ? _('Enabled') : _('Disabled'));
+    $tooltip .= "\n" . _('Call Forward') . ": ";
+    if (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU'])) {
+        $tooltip .= _('Enabled');
+        foreach (array('CF','CFB','CFU') as $type) {
+            if (isset($extension['cf'][$type]) && !empty($extension['cf'][$type])) {
+                $tooltip .= "\n--$type: " . $extension['cf'][$type];
+            }
+        }
+    } else {
+        $tooltip .= _('Disabled');
+    }
+
+    // FMFM
+    if (isset($extension['fmfm'])) {
+        if ($extension['fmfm']['ddial'] === 'DIRECT') {
+            $confirm = (isset($extension['fmfm']['needsconf']) && $extension['fmfm']['needsconf'] === 'CHECKED') ? _('Yes') : _('No');
+            $tooltip .= "\n\nFMFM: " . _('Enabled') .
+                        "\n" . _('Initial Ring Time') . ": " . secondsToTimes($extension['fmfm']['pre_ring']) .
+                        "\n" . _('Ring Time') . ": " . secondsToTimes($extension['fmfm']['grptime']) .
+                        "\n" . _('Follow-Me List') . ": " . $extension['fmfm']['grplist'] .
+                        "\n" . _('Confirm Calls') . ": " . $confirm;
+        } else {
+            $tooltip .= "\n\nFMFM: " . _('Disabled');
+        }
+    }
+
+    // Voicemail
+		if (isset($extension['mailbox'])) {
+				$extemail = isset($extension['mailbox']['email']) ? $extension['mailbox']['email'] : '';
+				$context  = isset($extension['mailbox']['vmcontext']) ? $extension['mailbox']['vmcontext'] : '';
+
+				// Build message counts if not cached
+				if (!isset($extension['mailbox']['label'])) {
+						$inbox = countVmMessages($ext, $context, 'inbox');
+						$other = countVmMessages($ext, $context, 'other');
+
+						$extension['mailbox']['label'] = sprintf(
+								"%s: %d  %s: %d  %s: %d",
+								_('INBOX'),
+								$inbox,
+								_('Other'),
+								$other,
+								_('Total'),
+								$inbox + $other
+						);
+				}
+
+				// Build tooltip once
+				$tooltip .= "\n\n" . _('Voicemail: Enabled') . "\n" . _('Email') . ": ";
+
+				// Append email if present
+				if (!empty($extemail) && !isset($extension['mailbox']['emailLabel'])) {
+						$extension['mailbox']['emailLabel'] = sanitizeLabels($extemail);
+						$tooltip .= $extension['mailbox']['emailLabel'];
+				}
+
+				// Append options if any
+				if (!empty($extension['mailbox']['options'])) {
+						foreach ($extension['mailbox']['options'] as $m => $mm) {
+								$tooltip .= "\n" . ucfirst($m) . ": " . ucfirst($mm);
+						}
+				}
+
+				// Append message counts
+				$tooltip .= "\n" . $extension['mailbox']['label'];
+
+		} else {
+				$tooltip .= "\n\n" . _('Voicemail: Disabled');
+		}
+
+    // Cache and return
+    $tooltipCache[$ext] = $tooltip;
+    return $tooltip;
+}
+
+
+function prepareExtension(&$extension, $ext) {
+    if (!isset($extension['reg_status'])) {
+        $extension['reg_status'] = isExtensionRegistered($ext, $extension['tech']);
+    }
+
+    $freepbx = \FreePBX::create();
+
+		if (!isset($extension['dnd'])) {
+				$dnd = false;
+
+				// Check if the module object can be retrieved
+				if (is_object($freepbx->Donotdisturb)) {
+						$dndStatus = $freepbx->Donotdisturb()->getStatusByExtension($ext);
+						$dnd = ($dndStatus === 'YES');
+				}
+
+				$extension['dnd'] = $dnd;
+		}
+
+		if (!isset($extension['cf'])) {
+				$cf = [];
+
+				// Check if Callforward module is available
+				if (is_object($freepbx->Callforward)) {
+						$cf = $freepbx->Callforward()->getStatusesByExtension($ext);
+				}
+
+				$extension['cf'] = $cf;
+		}
+
+    return $extension;
+}
+
+function resolveExtensionStatus($extension, $context = 'queue', $flags = []) {
+	
+    // Always priority DND/CF
+    if ($extension['dnd'] || !empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU']) ) {
+        return ['icon' => '🟡', 'label' => _('DND/CF')];
+    }
+
+    if ($context === 'queue_edge') {
+        if (!empty($flags['paused'])) {
+            return ['icon' => '⏸️', 'label' => ''];
+        }
+
+        // Dynamic members
+        if (!empty($flags['dynamic'])) {
+            if (!empty($flags['loggedin'])) {
+                return ['icon' => '🔵', 'label' => ''];
+            }
+            // dynamic members that are offline show no icon
+            return ['icon' => '', 'label' => ''];
+        }
+    }
+
+    // Standard queue logic
+    if ($context === 'queue') {
+        if (!empty($flags['paused'])) {
+            return ['icon' => '⏸️', 'label' => _('Paused')];
+        }
+        if (!empty($flags['loggedin'])) {
+            return ['icon' => '🔵', 'label' => ''];
+        }
+    }
+
+    // virtual
+    if ($extension['tech']=='virtual'){
+        return ['icon' => '⚪', 'label' => ''];
+    }
+
+    // Fallback: online/offline
+    return [
+        'icon'  => $extension['reg_status'] ? '🟢' : '🔴',
+        'label' => ''
+    ];
+}
+
+

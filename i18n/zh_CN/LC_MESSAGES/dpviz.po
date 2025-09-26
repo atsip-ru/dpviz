@@ -27,9 +27,6 @@ msgstr "错误：找不到进入路由程序的"
 msgid "Reset"
 msgstr "重置"
 
-msgid "No name selected"
-msgstr "未选择名称"
-
 msgid "Always"
 msgstr "总是"
 
@@ -903,3 +900,69 @@ msgstr "其他"
 
 msgid "Total"
 msgstr "合计"
+
+msgid "No name selected"
+msgstr "未选择名称"
+
+msgid "Show Allowlist"
+msgstr "显示允许列表。"
+
+msgid "Show Blacklist"
+msgstr "显示黑名单"
+
+msgid "Displays the Allowlist information and destination."
+msgstr "显示允许列表信息和目的地。"
+
+msgid "Displays the Blacklist information and destination."
+msgstr "显示黑名单信息和目的地。"
+
+msgid "Allowlist module is not installed."
+msgstr "允许列表模块尚未安装。"
+
+msgid "Auto-play audio"
+msgstr "自动播放音频"
+
+msgid "Automatically play audio when a node with audio is selected."
+msgstr "自动在选中具有音频的节点时播放音频。"
+
+msgid "User Agent"
+msgstr "用户代理"
+
+msgid "Extensions"
+msgstr "扩展"
+
+msgid "Previous"
+msgstr "以前的"
+
+msgid "Next"
+msgstr "下一个"
+
+msgid "Call Forward All"
+msgstr "转发所有呼叫"
+
+msgid "Call Forward Busy"
+msgstr "忙碌转移电话"
+
+msgid "Call Forward Unavailable"
+msgstr "转接电话不可用"
+
+msgid "Do Not Disturb"
+msgstr "请勿打扰"
+
+msgid "Call Forward"
+msgstr "转接拨号"
+
+msgid "Paused"
+msgstr "暂停"
+
+msgid "DND/CF"
+msgstr "静音/呼叫等待"
+
+msgid "Dynamic agent logged into queue (blue border)"
+msgstr "动态代理已登录到队列（蓝色边框）"
+
+msgid "Paused queue member"
+msgstr "暂停的队列成员"
+
+msgid "DND or Call Forwarding enabled (yellow border)"
+msgstr "音频通道设置（绿色边框）"

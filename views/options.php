@@ -46,7 +46,7 @@ $options = \FreePBX::Dpviz()->getOptions();
 								<div class="col-md-3">
 									<button id="check-update-btn" class="btn btn-default"><?php echo _('Check for Updates'); ?></button>
 										<a href="https://github.com/madgen78/dpviz/" class="emoji" title="GitHub" target="_blank"><i class="fa fa-github"></i></a>
-										<a href="https://buymeacoffee.com/adamvolchko" class="emoji" style="text-decoration:none;" title="<?php echo _('Buy Me a Coffee'); ?>" target="_blank">☕</a>
+										<a href="https://buymeacoffee.com/adamvolchko" id="coffee" class="emoji" style="text-decoration:none;" title="<?php echo _('Buy Me a Coffee'); ?>" target="_blank">☕</a>
 										<?php
 											if (version_compare(get_framework_version(), '14.0.0', '>')) {
 													echo '<span id="openFeedbackModal" class="emoji" title="' . _('Give Feedback') . '">💬</span>';
@@ -62,6 +62,33 @@ $options = \FreePBX::Dpviz()->getOptions();
 					</div>
 				</div>
 				<form id="dpvizForm" action="ajax.php?module=dpviz&command=save_options" method="post">
+				<!--autoplay-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="autoplay"><?php echo _("Auto-play audio"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="autoplay"></i>
+									</div>
+									<div class="col-md-9 radioset">
+										<input type="radio" name="autoplay" id="autoplayyes" value="1" <?php echo ($options['autoplay']?"CHECKED":""); ?>>
+										<label for="autoplayyes"><?php echo _("Yes"); ?></label>
+										<input type="radio" name="autoplay" id="autoplayno" value="0" <?php echo ($options['autoplay']?"":"CHECKED"); ?>>
+										<label for="autoplayno"><?php echo _("No"); ?></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<span id="autoplay-help" class="help-block fpbx-help-block"><?php echo _("Automatically play audio when a node with audio is selected."); ?></span>
+						</div>
+					</div>
+				</div>
+				<!--END autoplay-->
 				<!--datetime-->
 				<div class="element-container">
 					<div class="row">
@@ -174,6 +201,68 @@ $options = \FreePBX::Dpviz()->getOptions();
 					</div>
 				</div>
 				<!--END combineQueueRing-->
+				
+				
+				<!--allowlist node-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="allowlist"><?php echo _("Show Allowlist"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="allowlist"></i>
+									</div>
+									<div class="col-md-9 radioset">
+											<?php if (\FreePBX::Modules()->checkStatus('allowlist')){ ?>
+													<input type="radio" name="allowlist" id="allowlistyes" value="1" <?php echo ($options['allowlist']?"CHECKED":""); ?>>
+													<label for="allowlistyes"><?php echo _("Yes"); ?></label>
+											<?php } ?>
+											<input type="radio" name="allowlist" id="allowlistno" value="0" <?php echo ($options['allowlist']?"":"CHECKED"); ?>>
+											<label for="allowlistno"><?php echo _("No"); ?></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<?php if (\FreePBX::Modules()->checkStatus('allowlist')){ ?>
+								<span id="allowlist-help" class="help-block fpbx-help-block"><?php echo _("Displays the Allowlist information and destination."); ?></span>
+							<?php }else{ ?>
+								<span id="allowlist-help" class="help-block fpbx-help-block"><?php echo _("Allowlist module is not installed."); ?></span>
+							<?php } ?>
+						</div>
+					</div>
+				</div>
+				<!--END allowlist-->
+				<!--blacklist node-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="blacklist"><?php echo _("Show Blacklist"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="blacklist"></i>
+									</div>
+									<div class="col-md-9 radioset">
+										<input type="radio" name="blacklist" id="blacklistyes" value="1" <?php echo ($options['blacklist']?"CHECKED":""); ?>>
+										<label for="blacklistyes"><?php echo _("Yes"); ?></label>
+										<input type="radio" name="blacklist" id="blacklistno" value="0" <?php echo ($options['blacklist']?"":"CHECKED"); ?>>
+										<label for="blacklistno"><?php echo _("No"); ?></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<span id="blacklist-help" class="help-block fpbx-help-block"><?php echo _("Displays the Blacklist information and destination."); ?></span>
+						</div>
+					</div>
+				</div>
+				<!--END blacklist-->
 				<!--queue_member_display-->
 				<div class="element-container">
 					<div class="row">

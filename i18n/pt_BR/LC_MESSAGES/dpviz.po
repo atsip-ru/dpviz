@@ -27,9 +27,6 @@ msgstr "Erro: Não foi possível encontrar a rota de entrada para"
 msgid "Reset"
 msgstr "Reiniciar"
 
-msgid "No name selected"
-msgstr "Nenhum nome selecionado"
-
 msgid "Always"
 msgstr "Sempre"
 
@@ -917,3 +914,69 @@ msgstr "Outro"
 
 msgid "Total"
 msgstr "Total:"
+
+msgid "No name selected"
+msgstr "Nome não selecionado"
+
+msgid "Show Allowlist"
+msgstr "Mostrar Lista de Permissões"
+
+msgid "Show Blacklist"
+msgstr "Exibir Lista Negra"
+
+msgid "Displays the Allowlist information and destination."
+msgstr "Exibe as informações da Allowlist e o destino."
+
+msgid "Displays the Blacklist information and destination."
+msgstr "Exibe a informação da Lista Negra e o destino."
+
+msgid "Allowlist module is not installed."
+msgstr "O módulo de permitir lista não está instalado."
+
+msgid "Auto-play audio"
+msgstr "Reproduzir áudio automático"
+
+msgid "Automatically play audio when a node with audio is selected."
+msgstr "Reproduza automaticamente áudio quando um nó com áudio é selecionado."
+
+msgid "User Agent"
+msgstr "Agente de Usuário"
+
+msgid "Extensions"
+msgstr "Extensões"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Next"
+msgstr "Próximo"
+
+msgid "Call Forward All"
+msgstr "Redirecionar Todas as Chamadas"
+
+msgid "Call Forward Busy"
+msgstr "Chamada Redirecionada Quando Ocupado"
+
+msgid "Call Forward Unavailable"
+msgstr "Chamada Redirecionada Inválida"
+
+msgid "Do Not Disturb"
+msgstr "Não Distúrbio"
+
+msgid "Call Forward"
+msgstr "Redirecionamento de Ligacao"
+
+msgid "Paused"
+msgstr "Pausado"
+
+msgid "DND/CF"
+msgstr "DND/CF"
+
+msgid "Dynamic agent logged into queue (blue border)"
+msgstr "Agente dinâmico conectado à fila (borde azul)"
+
+msgid "Paused queue member"
+msgstr "Membro da fila pausado"
+
+msgid "DND or Call Forwarding enabled (yellow border)"
+msgstr "DND ou Reencaminhamento de Chamadas habilitados (margem amarela)"

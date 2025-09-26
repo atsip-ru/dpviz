@@ -34,6 +34,11 @@
 				🧩 <?php echo _('Extension Node Status'); ?>
 				<ul>
 						<li>🟢 <?php echo _('Registered extension (green border)'); ?></li>
+						<ul>
+							<li>🔵 <?php echo _('Dynamic agent logged into queue (blue border)'); ?></li>
+							<li>⏸️ <?php echo _('Paused queue member'); ?></li>
+						</ul>
+						<li>🟡 <?php echo _('DND or Call Forwarding enabled (yellow border)'); ?></li>
 						<li>🔴 <?php echo _('Unregistered extension (red border)'); ?></li>
 						<li>⚪ <?php echo _('Virtual or non-extension node (no border)'); ?></li>
 				</ul>

@@ -3,22 +3,25 @@ html, body {
 	margin: 0;
 	padding: 0;
 }
+
 #vizContainer {
   width: 100%;
   min-height: 70vh;
 }
-
 
 #vizGraph {
   width: 100%;
   min-height: 70vh;
 	overflow: hidden;
 	position: relative;
-	cursor: grab;
 }
 
-#vizGraph:active {
-  cursor: grabbing;    /* while dragging */
+#vizGraph.panzoom-enabled {
+  cursor: grab;
+}
+
+#vizGraph.panzoom-enabled:active {
+  cursor: grabbing;
 }
 
 #vizGraph.panning * {
@@ -44,10 +47,13 @@ svg:not(:root) {
 	
 }
 
+a:hover {
+  text-decoration: none;
+}
+
 #graph0 {
 	border: none;
 }
-
 
 .divider {
 	height: 1px;
