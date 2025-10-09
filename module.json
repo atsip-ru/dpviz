@@ -2,13 +2,13 @@
     "rawname": "dpviz",
     "repo": "unsupported",
     "name": "Dial Plan Vizualizer",
-    "version": "1.0.27",
+    "version": "1.0.28",
     "publisher": "AdamV",
     "license": "GPLv3+",
     "licenselink": "http://www.gnu.org/licenses/gpl-3.0.txt",
-    "changelog": "Added dynamic queue member login status. Added DND / CF / queue pause detection. Added options for Allowlist and Blacklist modules, and Auto-play audio. Added user agents. Added next and previous buttons. Added Extensions in dropdown.",
+    "changelog": "Improved graph rendering performance. Refreshed shapes with rounded corners. Improved tooltip styling. Grouped duplicate IVR destinations.",
     "category": "Reports",
     "description": "Graphical display of the dial plan for any Inbound Route",
-    "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.27.tar.gz"
+    "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.28.tar.gz"
 }
 
