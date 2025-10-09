@@ -27,10 +27,6 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         return $this->sendAction('uninstall');
     }
 		
-		public function update() {
-        return $this->sendAction('update');
-    }
-
     public function getOptions() {
         $sql = "SELECT * FROM dpviz LIMIT 1";
         $sth = $this->db->prepare($sql);
@@ -38,7 +34,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         return $sth->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay) {
+    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, $displaydestinations) {
         $sql = "UPDATE dpviz SET
             `panzoom` = :panzoom,
             `horizontal` = :horizontal,
@@ -53,7 +49,9 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						`queue_penalty` = :queue_penalty,
 						`allowlist` = :allowlist,
 						`blacklist` = :blacklist,
-						`autoplay` = :autoplay
+						`autoplay` = :autoplay,
+						`displaydestinations` = :displaydestinations
+						
             WHERE `id` = 1";
 
         $insert = array(
@@ -71,6 +69,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						':allowlist' => $allowlist,
 						':blacklist' => $blacklist,
 						':autoplay' => $autoplay,
+						':displaydestinations' => $displaydestinations
         );
 
         $stmt = $this->db->prepare($sql);
@@ -94,10 +93,11 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 				$allowlist = isset($request['allowlist']) ? $request['allowlist'] : '';
 				$blacklist = isset($request['blacklist']) ? $request['blacklist'] : '';
 				$autoplay = isset($request['autoplay']) ? $request['autoplay'] : '';
+				$displaydestinations = isset($request['displaydestinations']) ? $request['displaydestinations'] : '';
 
         switch ($action) {
             case 'edit':
-                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay);
+                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, $displaydestinations);
                 break;
             default:
                 break;
@@ -139,8 +139,9 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								$allowlist = isset($_POST['allowlist']) ? $_POST['allowlist'] : '';
 								$blacklist = isset($_POST['blacklist']) ? $_POST['blacklist'] : '';
 								$autoplay = isset($_POST['autoplay']) ? $_POST['autoplay'] : '';
+								$displaydestinations = isset($_POST['displaydestinations']) ? $_POST['displaydestinations'] : '';
 
-                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay);
+                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, $displaydestinations);
                 echo json_encode(array('success' => $success));
                 exit;
 

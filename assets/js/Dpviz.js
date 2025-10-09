@@ -33,7 +33,9 @@ $(document).ready(function() {
 
 });
 
-//Save Setting, then show Dial Plan tab.
+// store the initial value when page loads
+var originalDisplayDest = $('input[name="displaydestinations"]:checked').val() || null;
+
 $('#dpvizForm').submit(function(event) {
 	event.preventDefault(); 
 
@@ -67,8 +69,13 @@ $('#dpvizForm').submit(function(event) {
 				}
 				saveButton.innerHTML = originalContent;
 				$('.nav-tabs li[data-name="dpbox"] a').tab('show'); // Switch tab
+
+				// ✅ Only reload if user actually changed displaydestinations
+				var newDisplayDest = $('input[name="displaydestinations"]:checked').val();
+				if (newDisplayDest !== originalDisplayDest) {
+					location.reload();
+				}
 			}, 1250);
-			
 		},
 		error: function(error) {
 			alert('Form submission failed: ' + error.statusText);
@@ -76,6 +83,8 @@ $('#dpvizForm').submit(function(event) {
 		}
 	});
 });
+
+
 
 //reload button
 $('#reloadButton').click(function() {
@@ -137,27 +146,23 @@ function generateVisualization(ext, jump, skips) {
 					//.replace(/\\n/g, '\n')
 				.replace(/\\l/g, '\l')
 					;
-				
-
-				viz.renderSVGElement(dot)
-					.then(function(element) {
+					
+					viz.renderSVGElement(dot).then(element => {
+						vizGraph.innerHTML = '';
+						vizGraph.appendChild(element);
 						svgContainer = element;
 						isFocused = false;
 						isSanitized = false;
-						
-            vizGraph.appendChild(element);
-						spinner.style.display = "none";  //hide spinner
-
+						spinner.style.display = 'none';
 						checkPanZoom();
+						wireGraphvizTooltips(vizGraph);						
 						
 						// Ctrl/Command + shift + click handler for Graphviz nodes
 						element.querySelectorAll('g.node').forEach(node => {
-							
 							node.addEventListener('click', function (e) {
-								const titleElement = node.querySelector('title');
-								if (!titleElement) return;
-
-								const titleText = titleElement.textContent || titleElement.innerText || "";
+								// 🔑 no more titleElement check here
+								const titleText = node.dataset.gvtitle || "";
+								if (!titleText) return;
 
 								// Patterns that trigger recording modal
 								const recordingPatterns = [
@@ -386,6 +391,7 @@ function generateVisualization(ext, jump, skips) {
           })
           .catch(error => {
             console.error('Viz.js render error:', error);
+						console.log(dot);
           });
       } else {
         console.error('No gtext found in response.');
@@ -999,6 +1005,11 @@ function initPanZoom(containerId) {
   const dragThreshold = 3;
   let moved = false;
 
+  // inertia state
+  let velocityX = 0, velocityY = 0;
+  let lastX = 0, lastY = 0;
+  let inertiaFrame = null;
+
   function updateTransform() {
     svgElement.style.transform =
       `translate(${panX}px, ${panY}px) scale(${scale})`;
@@ -1009,11 +1020,17 @@ function initPanZoom(containerId) {
     e.preventDefault();
     isPanning = true;
     moved = false;
-    startX = e.clientX;
-    startY = e.clientY;
+    startX = lastX = e.clientX;
+    startY = lastY = e.clientY;
     panStartX = panX;
     panStartY = panY;
-    // temporarily allow pointer events on SVG
+
+    // stop inertia if still running
+    if (inertiaFrame) {
+      cancelAnimationFrame(inertiaFrame);
+      inertiaFrame = null;
+    }
+
     svgElement.style.pointerEvents = 'auto';
   }
 
@@ -1025,7 +1042,6 @@ function initPanZoom(containerId) {
 
     if (!moved && Math.hypot(dx, dy) > dragThreshold) {
       moved = true;
-      // disable pointer events on SVG to block accidental clicks while dragging
       svgElement.style.pointerEvents = 'none';
     }
 
@@ -1033,13 +1049,44 @@ function initPanZoom(containerId) {
       panX = panStartX + dx;
       panY = panStartY + dy;
       updateTransform();
+
+      // track velocity
+      velocityX = e.clientX - lastX;
+      velocityY = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
     }
   }
 
   function onMouseUp() {
     isPanning = false;
-    // re-enable pointer events after drag ends
     svgElement.style.pointerEvents = 'auto';
+
+    if (moved) {
+      applyInertia();
+    }
+  }
+
+  function applyInertia() {
+    const friction = 0.85;    // lower = quicker stop, closer to 1 = longer glide
+    const minVelocity = 0.55; // stop when slower than this
+
+    function step() {
+      velocityX *= friction;
+      velocityY *= friction;
+
+      panX += velocityX;
+      panY += velocityY;
+      updateTransform();
+
+      if (Math.abs(velocityX) > minVelocity || Math.abs(velocityY) > minVelocity) {
+        inertiaFrame = requestAnimationFrame(step);
+      } else {
+        inertiaFrame = null;
+      }
+    }
+
+    inertiaFrame = requestAnimationFrame(step);
   }
 
   function onWheel(e) {
@@ -1049,28 +1096,25 @@ function initPanZoom(containerId) {
     const mouseY = e.clientY - rect.top;
     const zoomIntensity = 0.2;
 
-    // Calculate new scale
     let newScale = e.deltaY < 0
-        ? scale * (1 + zoomIntensity)  // zoom in
-        : scale * (1 - zoomIntensity); // zoom out
+        ? scale * (1 + zoomIntensity)
+        : scale * (1 - zoomIntensity);
 
-    // Clamp the scale
-    newScale = Math.max(0.3, Math.min(5, newScale)); // min 0.5, max 3
+    newScale = Math.max(0.3, Math.min(10, newScale));
 
-    // Adjust pan to keep zoom centered on mouse
     panX = mouseX - (mouseX - panX) * (newScale / scale);
     panY = mouseY - (mouseY - panY) * (newScale / scale);
     scale = newScale;
 
     updateTransform();
-}
-
+  }
 
   viewport.addEventListener("mousedown", onMouseDown);
   document.addEventListener("mousemove", onMouseMove);
   document.addEventListener("mouseup", onMouseUp);
   viewport.addEventListener("wheel", onWheel);
 }
+
 
 //feedback form
 const modal = document.getElementById('feedbackModal');
@@ -1117,3 +1161,141 @@ document.getElementById('feedbackForm').addEventListener('submit', (e) => {
     modal.style.display = 'none';
     form.reset();
 });
+
+
+
+function wireGraphvizTooltips(container) {
+  const svg = container.querySelector('svg');
+  if (!svg) return;
+
+  // Tooltip DIV
+  let tip = document.getElementById('gv-tooltip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'gv-tooltip';
+    Object.assign(tip.style, {
+      position: 'absolute',
+      zIndex: '9999',
+      pointerEvents: 'none',
+      background: '#222',
+      color: '#fff',
+      padding: '6px 10px',
+      borderRadius: '8px',
+      fontSize: '13px',
+      whiteSpace: 'pre',
+			fontFamily: 'monospace',
+      opacity: 0,
+      transition: 'opacity .12s'
+    });
+    container.style.position = 'relative';
+    container.appendChild(tip);
+  }
+
+  const normalize = s => (s || '').replace(/&#10;|\\n/g, '\n');
+  const titleMap = new WeakMap();
+
+  // Capture <title>/<gvtitle> → parent, then remove
+  svg.querySelectorAll('title, gvtitle').forEach(tn => {
+  const parent = tn.parentNode;
+  const val = (tn.textContent || '').trim();
+
+  // 🚫 skip root graph titles (graph0, graph1, etc)
+  if (parent && parent.classList.contains('graph')) {
+    tn.remove();
+    return;
+  }
+
+  if (parent && val !== '') {
+    // ✅ store for tooltips
+    if (!titleMap.has(parent)) {
+      titleMap.set(parent, normalize(val));
+    }
+    // ✅ also keep for modal logic
+    if (!parent.dataset.gvtitle) {
+      parent.dataset.gvtitle = normalize(val);
+    }
+  }
+
+  // Remove native <title> to prevent browser tooltips
+  tn.remove();
+});
+
+
+  // Capture data-gvtitle/xlink:title/title attributes
+  svg.querySelectorAll('*').forEach(el => {
+    const t = el.getAttribute('data-gvtitle') ||
+              (el.getAttributeNS && el.getAttributeNS('http://www.w3.org/1999/xlink','title')) ||
+              el.getAttribute('xlink:title') ||
+              el.getAttribute('title');
+    if (t && t.trim() !== '' && !titleMap.has(el)) {
+      titleMap.set(el, normalize(t));
+    }
+    // strip native attributes
+    el.removeAttribute('title');
+    el.removeAttribute('xlink:title');
+    try { el.removeAttributeNS('http://www.w3.org/1999/xlink', 'title'); } catch(_) {}
+  });
+
+  const show = (e, text) => {
+    const rect = container.getBoundingClientRect();
+    tip.textContent = text;
+    tip.style.left = `${e.clientX - rect.left + 12}px`;
+    tip.style.top  = `${e.clientY - rect.top  + 12}px`;
+    tip.style.opacity = 1;
+  };
+  const hide = () => { tip.style.opacity = 0; };
+
+  function findHost(target) {
+    return target.closest('a, g.node, g.edge, g.cluster') || target.closest('g') || null;
+  }
+
+  function getLabelText(el) {
+    const texts = el.querySelectorAll('text');
+    if (!texts.length) return '';
+    let parts = [];
+    texts.forEach(t => {
+      if (t.childNodes.length > 1) {
+        let segs = [];
+        t.childNodes.forEach(n => {
+          if (n.textContent && n.textContent.trim() !== '') {
+            segs.push(n.textContent.trim());
+          }
+        });
+        if (segs.length) parts.push(segs.join('\n'));
+      } else if (t.textContent.trim() !== '') {
+        parts.push(t.textContent.trim());
+      }
+    });
+    return parts.join('\n');
+  }
+
+  function getTooltipText(host) {
+    if (!host) return '';
+
+    // 🚫 ignore root graph groups
+    if (host.classList.contains('graph')) return '';
+
+    // ✅ First: prefer captured xlink/title
+    let el = host;
+    while (el && el !== svg) {
+      const t = titleMap.get(el);
+      if (t && t.trim() !== '') return t;
+      el = el.parentNode;
+    }
+
+    // Fallback: visible label text
+    const labelText = getLabelText(host);
+    if (labelText) return labelText;
+
+    return '';
+  }
+
+  svg.addEventListener('mousemove', e => {
+    const host = findHost(e.target);
+    const text = getTooltipText(host);
+    if (!text) return hide();
+    show(e, text);
+  }, { passive: true });
+
+  svg.addEventListener('mouseleave', hide, { passive: true });
+}

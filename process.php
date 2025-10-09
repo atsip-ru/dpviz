@@ -27,6 +27,7 @@ require_once 'graphviz/src/Alom/Graphviz/AttributeBag.php';
 require_once 'graphviz/src/Alom/Graphviz/Graph.php';
 require_once 'graphviz/src/Alom/Graphviz/Digraph.php';
 require_once 'graphviz/src/Alom/Graphviz/AttributeSet.php';
+require_once 'process.inc.php';
 
 //options
 $options=\FreePBX::Dpviz()->getOptions();
@@ -38,206 +39,162 @@ try{
 	$options['lang'] = "en";
 }
 
+$currentLocale = setlocale(LC_MESSAGES, 0);
+$currentLocale = preg_replace('/\..*$/', '', $currentLocale);
+$options['locale']=$currentLocale;
+
 $options['hideall']=0;
 $options['skip'] = isset($input['skip']) ? $input['skip'] : array();
 $datetime = isset($options['datetime']) ? $options['datetime'] : '1';
 
-function dpp_load_incoming_routes() {
-  global $db;
-	
-  $sql = "select * from incoming order by extension";
-  $results = $db->getAll($sql, DB_FETCHMODE_ASSOC);
-  if (DB::IsError($results)) {
-    die_freepbx($results->getMessage()."<br><br>Error selecting from incoming");       
-  }
-	
-	$routes = array();
-  // Store the routes in a hash indexed by the inbound number
-  if (is_array($results)) {
-    foreach ($results as $route) {
-      $num = $route['extension'];
-			if (!empty($route['cid'])){
-				$cid = '&'.$route['cidnum'];
-			}else{
-				$cid='';
-			}
-			if (empty($num) && empty($cid)){$exten='ANY';}else{$exten=$num.$cid;}
-      $routes[$exten] = $route;
-    }
-  }
-	
-	return $routes;
-}
-
-function dpp_find_route($routes, $num) {
-
-  $match = array();
-  $pattern = '/[^ANY_xX+0-9\[\]]/';   # remove all non-digits
-  $num =  preg_replace($pattern, '', $num);
-
-  // "extension" is the key for the routes hash
-  foreach ($routes as $ext => $route) {
-    if ($ext == $num) {
-      $match = $routes[$num];
-    }
-  }
-  return $match;
-}
-
-
-$inroutes=dpp_load_incoming_routes();
-
-
 $dproute['extension']= $ext;
-//print_r($options);
-	if (empty($dproute)) {
-		$header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."</h2></div>";
+if (empty($dproute)) {
+$header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."</h2></div>";
+}else{
+	dpp_load_tables($dproute);   # adds data for time conditions, IVRs, etc.
+
+	if (!empty($jump)){
+		dpp_follow_destinations($dproute, '', $jump, $options); #starts with destination
 	}else{
-		dpp_load_tables($dproute,$options);   # adds data for time conditions, IVRs, etc.
-		
-		
-		
-		if (!empty($jump)){
-			dpp_follow_destinations($dproute, '', $jump, $options); #starts with destination
-		}else{
-			dpp_follow_destinations($dproute, $ext, '', $options); #starts with empty destination
-		}
-		
-		
-		
-		/*  puts a box next to the first node.*/
-		/*
-		$dproute['dpgraph']->node('In Use By', array(
-			'label' => "In Use By:\nline 2\lLine3\lLine3\lLine3\l",
-			'shape' => 'box',
-			'style' => 'filled',
-			'fillcolor' => 'darkseagreen',
-			'rank'=>'source'
-		));
-	*/
-		
-		if (!empty($skip) && empty($jump)){
-			$dproute['dpgraph']->node('reset', array(
-				'label' => "   "._('Reset'),
-				'tooltip' => _('Reset'),
-				'shape' => 'larrow',
-				'URL' => '#',
-				'fontcolor' => '#000',
-				'fontsize' => '18pt',
-				'fillcolor' => '#F0F0F0',
-				'style' => 'filled'
-			));
-		}
-		
-		$gtext = $dproute['dpgraph']->render();
-		$gtext=json_encode($gtext);
-		$version= \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND").' '.get_framework_version();
-		$modinfo = \FreePBX::Modules()->getInfo('dpviz');
-    $dpvizVersion = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['rawname'] .' '. $modinfo['dpviz']['version'] : '0.0.0';
-
-		$header = '
-			<h2 style="display: flex; justify-content: space-between; align-items: center; margin: 0;">
-					<span id="headerSelected"></span>
-					<span id="version" style="color: #DCDCDC; font-weight: normal; font-size: 0.5em; display: none; flex-direction: column; align-items: flex-end;">
-							<span>'.$version.'</span>
-							<span style="text-align: right; width: 100%;">'.$dpvizVersion.'</span>
-					</span>
-			</h2>';
-		if ($datetime==1){$header.= "<h6>".date('Y-m-d H:i:s')."</h6>";}
-		$header .= '
-<input type="hidden" id="processed" value="yes">
-<input type="hidden" id="ext" value="' . htmlspecialchars($ext, ENT_QUOTES) . '">
-<input type="hidden" id="jump" value="' . htmlspecialchars($jump, ENT_QUOTES) . '">
-<input type="hidden" id="skip" value=\'' . json_encode($skip) . '\'>
-
-<script>
-function updateHeaderSelected() {
-    let name = sessionStorage.getItem("selectedName");
-    const headerSelected = document.getElementById("headerSelected");
-    if (headerSelected) {
-        headerSelected.textContent = name || "'._('No name selected').'";
-    }
-}
-updateHeaderSelected();
-
-function exportImage(scale = 2) {
-    const container = document.querySelector("#vizContainer");
-    if (!container) return alert("Container not found!");
-
-    // Clone the container so we can manipulate without affecting the UI
-    const clone = container.cloneNode(true);
-
-    // Reset SVG transform in the clone
-    const svg = clone.querySelector("svg");
-    if (svg) svg.style.transform = "none";
-
-    // Put the clone offscreen so it\'s not visible
-    clone.style.position = "absolute";
-    clone.style.left = "-99999px";
-    document.body.appendChild(clone);
-
-    // Render with html2canvas
-    html2canvas(clone, {
-        scale: scale,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff"
-    }).then(canvas => {
-        const input = document.getElementById("filenameInput");
-        const filename = (input?.value.trim() || "export") + ".png";
-
-        const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png");
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Remove clone
-        document.body.removeChild(clone);
-    });
-}
-
-
-
-// Export cleaned SVG
-function handleSVGExport() {
-    const svgElement = document.querySelector("#vizContainer svg");
-    if (!svgElement) {
-        alert("SVG not found!");
-        return;
-    }
-
-    const input = document.getElementById("filenameInput");
-    const filename = (input?.value.trim() || "graph") + ".svg";
-    exportCleanedSVG(svgElement, filename);
-}
-
-function exportCleanedSVG(svgElement, filename) {
-    const clonedSVG = svgElement.cloneNode(true);
-
-    // Remove all <a> elements from SVG
-    clonedSVG.querySelectorAll("a").forEach(link => {
-        const parent = link.parentNode;
-        while (link.firstChild) parent.insertBefore(link.firstChild, link);
-        parent.removeChild(link);
-    });
-
-    const svgData = new XMLSerializer().serializeToString(clonedSVG);
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename.endsWith(".svg") ? filename : filename + ".svg";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-</script>';
-
+		dpp_follow_destinations($dproute, $ext, '', $options); #starts with empty destination
 	}
+
+	/*  puts a box next to the first node.*/
+	/*
+	$dproute['dpgraph']->node('In Use By', array(
+		'label' => "In Use By:\nline 2\lLine3\lLine3\lLine3\l",
+		'shape' => 'box',
+		'style' => 'filled',
+		'fillcolor' => 'darkseagreen',
+		'rank'=>'source'
+	));
+	*/
+
+	if (!empty($skip) && empty($jump)){
+		$dproute['dpgraph']->node('reset', array(
+			'label' => "   "._('Reset'),
+			'tooltip' => _('Reset'),
+			'shape' => 'larrow',
+			'URL' => '#',
+			'fontcolor' => '#000',
+			'fontsize' => '18pt',
+			'fillcolor' => '#F0F0F0',
+			'style' => 'filled'
+		));
+	}
+
+	$gtext = $dproute['dpgraph']->render();
+
+
+	$gtext=json_encode($gtext);
+	$version= \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND").' '.get_framework_version();
+	$modinfo = \FreePBX::Modules()->getInfo('dpviz');
+	$dpvizVersion = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['rawname'] .' '. $modinfo['dpviz']['version'] : '0.0.0';
+
+	$header = '
+		<h2 style="display: flex; justify-content: space-between; align-items: center; margin: 0;">
+				<span id="headerSelected"></span>
+				<span id="version" style="color: #DCDCDC; font-weight: normal; font-size: 0.5em; display: none; flex-direction: column; align-items: flex-end;">
+						<span>'.$version.'</span>
+						<span style="text-align: right; width: 100%;">'.$dpvizVersion.'</span>
+				</span>
+		</h2>';
+	if ($datetime==1){$header.= "<h6>".date('Y-m-d H:i:s')."</h6>";}
+	$header .= '
+	<input type="hidden" id="processed" value="yes">
+	<input type="hidden" id="ext" value="' . htmlspecialchars($ext, ENT_QUOTES) . '">
+	<input type="hidden" id="jump" value="' . htmlspecialchars($jump, ENT_QUOTES) . '">
+	<input type="hidden" id="skip" value=\'' . json_encode($skip) . '\'>
+
+	<script>
+	
+	function updateHeaderSelected() {
+			let name = sessionStorage.getItem("selectedName");
+			const headerSelected = document.getElementById("headerSelected");
+			if (headerSelected) {
+					headerSelected.textContent = name || "'._('No name selected').'";
+			}
+	}
+	updateHeaderSelected();
+
+	function exportImage(scale = 2) {
+			const container = document.querySelector("#vizContainer");
+			if (!container) return alert("Container not found!");
+
+			// Clone the container so we can manipulate without affecting the UI
+			const clone = container.cloneNode(true);
+
+			// Reset SVG transform in the clone
+			const svg = clone.querySelector("svg");
+			if (svg) svg.style.transform = "none";
+
+			// Put the clone offscreen so it\'s not visible
+			clone.style.position = "absolute";
+			clone.style.left = "-99999px";
+			document.body.appendChild(clone);
+
+			// Render with html2canvas
+			html2canvas(clone, {
+					scale: scale,
+					useCORS: true,
+					allowTaint: true,
+					backgroundColor: "#ffffff"
+			}).then(canvas => {
+					const input = document.getElementById("filenameInput");
+					const filename = (input?.value.trim() || "export") + ".png";
+
+					const link = document.createElement("a");
+					link.href = canvas.toDataURL("image/png");
+					link.download = filename;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					// Remove clone
+					document.body.removeChild(clone);
+			});
+	}
+
+
+
+	// Export cleaned SVG
+	function handleSVGExport() {
+			const svgElement = document.querySelector("#vizContainer svg");
+			if (!svgElement) {
+					alert("SVG not found!");
+					return;
+			}
+
+			const input = document.getElementById("filenameInput");
+			const filename = (input?.value.trim() || "graph") + ".svg";
+			exportCleanedSVG(svgElement, filename);
+	}
+
+	function exportCleanedSVG(svgElement, filename) {
+			const clonedSVG = svgElement.cloneNode(true);
+
+			// Remove all <a> elements from SVG
+			clonedSVG.querySelectorAll("a").forEach(link => {
+					const parent = link.parentNode;
+					while (link.firstChild) parent.insertBefore(link.firstChild, link);
+					parent.removeChild(link);
+			});
+
+			const svgData = new XMLSerializer().serializeToString(clonedSVG);
+			const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+			const url = URL.createObjectURL(blob);
+
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = filename.endsWith(".svg") ? filename : filename + ".svg";
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+	}
+	</script>';
+
+}
 
 #
 # This is a recursive function.  It digs through various nodes
@@ -250,34 +207,34 @@ function exportCleanedSVG(svgElement, filename) {
 
 
 function dpp_follow_destinations (&$route, $destination, $optional, $options) {
-$horizontal = isset($options['horizontal']) ? $options['horizontal'] : '0';
-$direction=($horizontal== 1) ? 'LR' : 'TB';
-$dynmembers= isset($options['dynmembers']) ? $options['dynmembers'] : '0';
-$combineQueueRing= isset($options['combineQueueRing']) ? $options['combineQueueRing'] : '0';
-$extOptional= isset($options['extOptional']) ? $options['extOptional'] : '0';
-$fmfmOption= isset($options['fmfm']) ? $options['fmfm'] : '0';
-$langOption= isset($options['lang']) ? $options['lang'] : 'en';
-$minimal= isset($options['minimal']) ? $options['minimal'] : '1';
-$stop=false; //reset on new call
+	$horizontal = isset($options['horizontal']) ? $options['horizontal'] : '0';
+	$direction=($horizontal== 1) ? 'LR' : 'TB';
+	$dynmembers= isset($options['dynmembers']) ? $options['dynmembers'] : '0';
+	$combineQueueRing= isset($options['combineQueueRing']) ? $options['combineQueueRing'] : '0';
+	$extOptional= isset($options['extOptional']) ? $options['extOptional'] : '0';
+	$fmfmOption= isset($options['fmfm']) ? $options['fmfm'] : '0';
+	$langOption= isset($options['lang']) ? $options['lang'] : 'en';
+	$minimal= isset($options['minimal']) ? $options['minimal'] : '1';
+	$stop=false; //reset on new call
 
-if (!isset($route['parent_edge_code'])){$route['parent_edge_code']='';}
+	if (!isset($route['parent_edge_code'])){$route['parent_edge_code']='';}
 
-if ($minimal){
-	$patterns = array(
-    '/^play-system-recording/i',
-    '/^from-did-direct/i',
-    '/^qmember/i',
-		'/^rgmember/i',
-		'/^ext-local/i',
-	);
-	
-	foreach ($patterns as $pattern) {
+	if ($minimal){
+		$patterns = array(
+			'/^play-system-recording/i',
+			'/^from-did-direct/i',
+			'/^qmember/i',
+			'/^rgmember/i',
+			'/^ext-local/i',
+		);
+		
+		foreach ($patterns as $pattern) {
 			if (preg_match($pattern, $destination)) {
 					return;
 			}
+		}
 	}
-}
- 
+
 	 
   $pastels = array(
 			"#7979FF", "#86BCFF", "#8ADCFF", "#3DE4FC", "#5FFEF7", "#33FDC0",
@@ -399,10 +356,7 @@ if ($minimal){
 					$edge->attribute('labeltooltip',sanitizeLabels($route['parent_edge_labeltooltip']));
 					$edge->attribute('edgetooltip',sanitizeLabels($route['parent_edge_labeltooltip']));
 				}
-				//reset ['parent_edge_code']
-				$route['parent_edge_code']='';
-			}else{
-				
+				$route['parent_edge_code']=''; //reset each time
 			}
 			
 			if (preg_match("/^( IVR Break| Queue Callback)./", $route['parent_edge_label'])){
@@ -434,359 +388,27 @@ if ($minimal){
   }
 
 	# Now look at the destination and figure out where to dig deeper.
-
-		#
-		# Announcements
-		#
-  if (preg_match("/^app-announcement-(\d+),s,(\d+),(.+)/", $destination, $matches)) {
-		$module='Announcement';
-		$annum = $matches[1];
-		$another = $matches[2];
-		$anlang = $matches[3];
-		
-		if (isset($route['announcements'][$annum])){
-			$an = $route['announcements'][$annum];
-			$recID=$an['recording_id'];
-		
-			if (isset($route['recordings'][$recID])){
-				$recording= $route['recordings'][$recID];
-				$recordingId=$recording['id'];
-				$featureCode= getFeatureNum($recordingId,$route);
-				$announcement= "\n🔊 "._('Recording').": ". sanitizeLabels($recording['displayname']) ." (" . $anlang . ")\n"._('Feature Code').": ".$featureCode;
-			}else{
-				$announcement="\n"._('Recording').": "._('None');
-			}
-		
-			$label=sanitizeLabels($an['description']).$announcement;
-			$tooltip='';
-			makeNode($module,$annum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			if ($an['post_dest'] != '') {
-				$route['parent_edge_label'] = " "._('Continue');
-				$route['parent_node'] = $node;
-				dpp_follow_destinations($route, $an['post_dest'].','.$anlang,'',$options);
-			}
-			
-		}else{
-			notFound($module,$destination,$node);
-		}
-		# end of announcements
-
-		#
-		# Blackhole
-		#
-  } elseif (preg_match("/^app-blackhole,(hangup|congestion|busy|zapateller|musiconhold|ring|no-service),(\d+)/", $destination, $matches)) {
-		$blackholetype = $matches[1];
-		
-		$translatedMap = array(
-			'musiconhold' => _('Music On Hold'),
-			'ring'        => _('Play Ringtones'),
-			'no-service'  => _('Play No Service Message'),
-			'busy'        => _('Busy'),
-			'hangup'      => _('Hang Up'),
-			'congestion'  => _('Congestion'),
-			'zapateller'  => 'Zapateller',
-		);
-		
-		$blackholeother = $matches[2];
-		$previousURL=$route['parent_node']->getAttribute('URL', '');
-
-		$node->attribute('label', _('Terminate Call').': '.$translatedMap[$blackholetype]);
-		$node->attribute('tooltip', _('Terminate Call').': '.$translatedMap[$blackholetype]);
-		$node->attribute('URL', $previousURL);
-    $node->attribute('target', '_blank');
-		$node->attribute('shape', 'invhouse');
-		$node->attribute('fillcolor', 'orangered');
-		$node->attribute('style', 'filled');
-		
-		#end of Blackhole
-
-		#
-		# Call Flow Control (daynight)
-		#
-  } elseif (preg_match("/^app-daynight,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Call Flow";
-    $daynightnum = $matches[1];
-    $daynightother = $matches[2];
-		$daynightLang=$matches[3];
-		
-
-		if (isset($route['daynight'][$daynightnum])){
-			$daynight = array_reverse($route['daynight'][$daynightnum]);
-			//array_reverse($daynight);
-			
-			
-			#feature code exist?
-			if ( isset($route['featurecodes']['*28'.$daynightnum]) ){
-				#custom feature code?
-				if ($route['featurecodes']['*28'.$daynightnum]['customcode']!=''){$featurenum=$route['featurecodes']['*28'.$daynightnum]['customcode'];}else{$featurenum=$route['featurecodes']['*28'.$daynightnum]['defaultcode'];}
-				#is it enabled?
-				if ($route['featurecodes']['*28'.$daynightnum]['enabled']=='1'){$code=$featurenum;}else{$code=$featurenum." (disabled)";}
-			}else{
-				$code='';
-			}
-			
-			#check current status and set path to active
-			$C ='/usr/sbin/asterisk -rx "database show DAYNIGHT/C'.$daynightnum.'" | cut -d \':\' -f2 | tr -d \' \' | head -1';
-			exec($C, $current_daynight);
-			$dactive = $nactive = "";
-			if ($current_daynight[0]=='DAY'){$dactive="("._('Active').")";}else{$nactive="("._('Active').")";}
-			
-			
-
-			foreach ($daynight as $d){
-				if (isset($d['dmode']) && $d['dmode'] == 'night' && !$stop) {
-					$route['parent_edge_label'] = " "._('Night Mode') . ' '.$nactive;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $d['dest'].','.$daynightLang,'',$options);
-				}elseif (isset($d['dmode']) && $d['dmode'] == 'day' && !$stop) {
-					$route['parent_edge_label'] = " "._('Day Mode') . ' '.$dactive;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $d['dest'].','.$daynightLang,'',$options);
-				}elseif ($d['dmode']=="fc_description"){
-					$label=sanitizeLabels($d['dest']) ."\n"._('Feature Code').": ".$code;
-				}
-			}
-			$tooltip='';
-			makeNode($module,$daynightnum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Call Flow Control (daynight)
-
-		#
-		# Callback
-		#
-  } elseif (preg_match("/^callback,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Callback";
-		$callbackId = $matches[1];
-		$callrecOther = $matches[2];
-		$callbackLang= $matches[3];
-		if (isset($route['callback'][$callbackId])){
-			$callback = $route['callback'][$callbackId];
-			
-			$label=sanitizeLabels($callback['description']);
-			$tooltip=sanitizeLabels($callback['description'])."\n"._('Callback Number').": ".$callback['callbacknum']."\n"._('Delay Before Callback').": ".$callback['sleep']."\n"._('Caller ID').": ".$callback['callerid']."\n"._('Timeout').": ".$callback['timeout'];
-			
-			
-			makeNode($module,$callbackId,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			$route['parent_edge_label']= _('Destination after Callback');
-			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $callback['destination'].','.$callbackLang,'',$options);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Call Recording
-		#
-		
-		#
-		# Call Recording
-		#
-  } elseif (preg_match("/^ext-callrecording,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Call Recording";
-		$callrecID = $matches[1];
-		$callrecOther = $matches[2];
-		$callLang= $matches[3];
-		if (isset($route['callrecording'][$callrecID])){
-			$callRec = $route['callrecording'][$callrecID];
-			$callMode= ucfirst($callRec['callrecording_mode']);
-			$callMode = str_replace("Dontcare", _('Don\'t Care'), $callMode);
-			$label=sanitizeLabels($callRec['description'])."\n"._('Mode').": ".$callMode;
-			$tooltip='';
-			
-			makeNode($module,$callrecID,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			$route['parent_edge_label']= " "._('Continue');
-			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $callRec['dest'].','.$callLang,'',$options);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Call Recording
-		#
-		
-		# Conferences (meetme)
-		#
-  } elseif (preg_match("/^ext-meetme,(\d+),(\d+)/", $destination, $matches)) {
-		$module="Conferences";
-		$meetmenum = $matches[1];
-		$meetmeother = $matches[2];
-		if (isset($route['meetme'][$meetmenum])){
-			$meetme = $route['meetme'][$meetmenum];
-			$label = $meetme['exten']."\n".sanitizeLabels($meetme['description']);
-			$tooltip='';
-			makeNode($module,$meetmenum,$label,$tooltip,$node);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Conferences (meetme)
-
-		#
-		# Directory
-		#
-  } elseif (preg_match("/^directory,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Directory";
-		$directorynum = $matches[1];
-		$directoryother = $matches[2];
-		$directoryLang = $matches[3];
-		if (isset($route['directory'][$directorynum])){
-			$directory = $route['directory'][$directorynum];
-			$label=sanitizeLabels($directory['dirname']);
-			$tooltip='';
-			makeNode($module,$directorynum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			if ($directory['invalid_destination']!=''){
-				 $route['parent_edge_label']= " "._('Invalid Input');
-				 $route['parent_node'] = $node;
-				 dpp_follow_destinations($route, $directory['invalid_destination'].','.$directoryLang,'',$options);
-			}
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Directory
-
-		#
-		# DISA
-		#
-  } elseif (preg_match("/^disa,(\d+),(\d+)/", $destination, $matches)) {
-		$module="DISA";
-		$disanum = $matches[1];
-		$disaother = $matches[2];
-		if (isset($route['disa'][$disanum])){
-			$disa = $route['disa'][$disanum];
-			$label=sanitizeLabels($disa['displayname']);
-			$tooltip='';
-			makeNode($module,$disanum,$label,$tooltip,$node);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of DISA
-
-		#
-		# Dynamic Routes
-		#
-  } elseif (preg_match("/^dynroute-(\d+),([a-z]),(\d+),(.+)/", $destination, $matches)) {
-		$module="Dyn Route";
-		$dynnum = $matches[1];
-		$dynLang = $matches[4];
-		if (isset($route['dynroute'][$dynnum])){
-			$dynrt = $route['dynroute'][$dynnum];
-			
-			$recID=$dynrt['announcement_id'];
-			if (isset($route['recordings'][$recID])){
-				$recording= $route['recordings'][$recID];
-				$dynRecName= $recording['displayname'];
-				$recordingId=$recording['id'];
-				$featureCode= getFeatureNum($recordingId,$route);
-				$dynRecName= "🔊 "._('Announcement')." (".$dynLang."): ".sanitizeLabels($dynRecName)."\n"._('Feature Code').": ".$featureCode;
-			}else{
-				$dynRecName=_('Announcement').': '._('None');
-			}
-			
-			$label=sanitizeLabels($dynrt['name'])."\n".$dynRecName;
-			$tooltip='';
-			makeNode($module,$dynnum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			if (!empty($dynrt['routes'])){
-				ksort($dynrt['routes']);
-				foreach ($dynrt['routes'] as $selid => $ent) {
-					$desc = isset($ent['description']) ? $ent['description'] : '';
-					
-					$route['parent_edge_label']= " "._('Match').": ".sanitizeLabels($ent['selection'])."\n".$desc;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $ent['dest'].','.$dynLang,'',$options);
-				}
-			}
-			
-			//are the invalid and default destinations the same?
-			if ($dynrt['invalid_dest'] != '' && $dynrt['invalid_dest']==$dynrt['default_dest']){
-				 $route['parent_edge_label']= " ".sprintf(_('Invalid Input, Default (%s) secs'), $dynrt['timeout']);
-				 $route['parent_node'] = $node;
-				 dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
-			}else{
-				if ($dynrt['invalid_dest'] != '') {
-					$route['parent_node'] = $node;
-					$route['parent_edge_label']= " "._('Invalid Input');
-					dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
-				}
-				if ($dynrt['default_dest'] != '') {
-					$route['parent_node'] = $node;
-					$route['parent_edge_label']= " ". sprintf(_('Default (%s) secs'), $dynrt['timeout']);
-					dpp_follow_destinations($route, $dynrt['default_dest'].','.$dynLang,'',$options);
-				}
-			}
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Dynamic Routes
-
+	
 		#
 		# Extension (from-did-direct)
 		#
-  } elseif (preg_match("/^from-did-direct,([#\d]+),(\d+),(.+)/", $destination, $matches)) {
+  if (preg_match("/^from-did-direct,([#\d]+),(\d+),(.+)/", $destination, $matches)) {
 	
 		$extnum = $matches[1];
 		$extLang= $matches[3];
 		
+		if (!isset($route['extensions'][$extnum])){
+			loadExtension($route, $extnum);
+		}
+	
 		if (isset($route['extensions'][$extnum])){
 			$extension = & $route['extensions'][$extnum];
-			
-			$extname= sanitizeLabels($extension['name']);
+			$extname= sanitizeLabels($extension['user']['name']);
 			$label = _('Extension').": ".$extnum . " " . $extname;
 			$tooltip= buildExtTooltip($extnum,$route);
 			
 			$node->attribute('penwidth', '2');
-			if ($extension['tech']=='virtual'){
+			if (isset($extension['tech']) && $extension['tech']=='virtual'){
 					$node->attribute('color', 'grey');
 			}elseif (!empty($extension['dnd']) || (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU']))) {
 					// DND or any CF active
@@ -796,12 +418,19 @@ if ($minimal){
 					$node->attribute('color', !empty($extension['reg_status']) ? 'green' : 'red');
 			}
 
-			$label .= (isset($extension['mailbox']['label']) ? "\n" . $extension['mailbox']['label'] : '')
-       . (!empty($extension['mailbox']['emailLabel'])
-          ? "\n" . $extension['mailbox']['emailLabel'] : '');
+			$label .= (isset($extension['mailbox']['label']) 
+              ? "\n" . $extension['mailbox']['label'] 
+              : '');
+
+			if (!empty($extension['mailbox']['email'])) {
+					$emails = explode(',', $extension['mailbox']['email']);
+					foreach ($emails as $e) {
+							$label .= "\n" . sanitizeLabels(trim($e));
+					}
+			}
 			
 			$node->attribute('label', $label);
-			$node->attribute('tooltip', _('Extension').": ".$extnum."\n"._('Name').": ".sanitizeLabels($extname).$tooltip);
+			$node->attribute('tooltip', _('Extension').": ".$extnum."\n"._('Name').": ".$extname.$tooltip);
 			$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$extnum));
 			$node->attribute('target', '_blank');
 			
@@ -856,7 +485,7 @@ if ($minimal){
 
 		$node->attribute('shape', 'rect');
 		$node->attribute('fillcolor', $pastels[15]);
-		$node->attribute('style', 'filled');
+		$node->attribute('style', 'rounded,filled');
 		
 		//Optional Destinations
 		if ($extOptional && (!empty($extension['noanswer_dest']) || !empty($extension['busy_dest']) || !empty($extension['chanunavail_dest'])) ) {
@@ -938,488 +567,55 @@ if ($minimal){
 		#end of Extension (from-did-direct)
 
 		#
-		# Feature Codes
+		# Voicemail
 		#
-  } elseif (preg_match("/^ext-featurecodes,(\*?\d+),(\d+)/", $destination, $matches)) {
-		$module="Feature Code";
-		$featurenum = $matches[1];
-		$featureother = $matches[2];
-		if (isset($route['featurecodes'][$featurenum])){
-			$feature = $route['featurecodes'][$featurenum];
-			if ($feature['customcode']!=''){$featurenum=$feature['customcode'];}
-			$label=sanitizeLabels($feature['description'])." <".$featurenum.">";
-			$tooltip='';
-			makeNode($module,'',$label,$tooltip,$node);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Feature Codes
+  } elseif (preg_match("/^ext-local,vm([b,i,s,u])(\d+),(\d+)/", $destination, $matches)) {
+		$module='Voicemail';
+		$vmtype= $matches[1];
+		$vmnum = $matches[2];
+		$vmother = $matches[3];
+		
+		$vm_array=array('b'=> _('Busy Message'),'i'=> _('Instructions Only'),'s'=> _('No Message'),'u'=> _('Unavailable Message') );
+		// Make sure extension is loaded/hydrated
+		$tooltip=_('Voicemail').': '.$vmnum;
+		$tooltip .= buildExtTooltip($vmnum, $route);
 
-		#
-		# Inbound Routes
-		#
-  } elseif (preg_match("/^from-trunk,((?:[^\[&,]+(?:\[[^\]]+\])?))(&[^,]*)?,(\d+),(.+)/", $destination, $matches)) {
-	
-		$num = $matches[1];
-		
-		$numcid = str_replace("&", "", $matches[2]);
-		$numLang= $matches[4];		
-	
-		
-		
-		
-		
-		if (empty($num)){$num='ANY';}
-		if (!empty($numcid)){
-			$combNum=$num.'&'.$numcid;
-			$numcidd=" / " . formatPhoneNumbers($numcid);
-		}else{
-			$combNum=$num;
-			$numcidd=" / ANY";
-		}
-	
-		
-		$incoming = $route['incoming'][$combNum];
-		if (isset($incoming['language'])){$numLang=$incoming['language'];}
-		
-		$didLabel = ($num == "ANY") ? "ANY" : formatPhoneNumbers($num);
-		$didLabel.= $numcidd."\n".$incoming['description'];
-		if ($num=='ANY'){
-			$didLink='/';
-		}else{
-			$didLink=$num.'/'.$numcid;
-		}
-		
-		$didTooltip=$num.$numcidd."\n";
-		$didTooltip.= !empty($incoming['cidnum']) ? _('Caller ID Number').": " . $incoming['cidnum']."\n" : "";
-		$didTooltip.= !empty($incoming['description']) ? _('Description').": " . $incoming['description']."\n" : "";
-		$didTooltip.= !empty($incoming['alertinfo']) ? _('Alert Info').": " . $incoming['alertinfo']."\n" : "";
-		$didTooltip.= !empty($incoming['grppre']) ? _('CID Prefix').": " . $incoming['grppre']."\n" : "";
-		$didTooltip.= !empty($incoming['mohclass']) ? _('Music on hold class').": " . $incoming['mohclass']."\n" : "";
-		$didTooltip.= !empty($incoming['language']) ? _('Language').": " . $incoming['language']."\n" : "";
-		
-		$node->attribute('label', sanitizeLabels($didLabel));
-		$node->attribute('tooltip',sanitizeLabels($didTooltip));
-		$node->attribute('width', 2);
-    $node->attribute('margin','.13');
-		$node->attribute('URL', htmlentities('/admin/config.php?display=did&view=form&extdisplay='.urlencode($didLink)));
-		$node->attribute('target', '_blank');
-		$node->attribute('shape', 'cds');
-		$node->attribute('fillcolor', 'darkseagreen');
-		$node->attribute('style', 'filled');
-		if ($stop){
-			$undoNode= stopNode($dpgraph,$destination);
-			$edge= $dpgraph->beginEdge(array($node, $undoNode));
-			$edge->attribute('style', 'dashed');
-			$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-			
-			return;
-		}
-		
-		if ($options['blacklist']){ //--blacklist
-			$blackCheck=\FreePBX::Modules()->checkStatus("blacklist");
-		}
-		
-		if ($options['blacklist'] && $blackCheck && !$minimal){
-			$blackList = \FreePBX::Blacklist()->getBlacklist();
-			$total=count($blackList);
-			if ($total > 1){
-				$blackDest = \FreePBX::Blacklist()->destinationGet();
-				$blockUnknown = \FreePBX::Blacklist()->blockunknownGet();
-				$block = $blockUnknown ? _('Yes') : _('No');
-				$tooltip="\n"._('Block Unknown/Blocked Caller ID').": ".$block;
-				$tooltip.="\n\n"._('Number: Description')."\n";
-				
-				$i=0;
-				
-				foreach ($blackList as $b){
-					if ($b['number']=='dest'){continue;}
-					if ($b['description']==1){$b['description']='';}
-					$tooltip.=$b['number'].": ".sanitizeLabels($b['description'])."\n";
-					
-					if ($i >= 25 && $i < $total - 1){
-						$tooltip.="...\n". ($total - 25) ." "._('additional entries');
-						break;
-					}
-					$i++;
+		if ($tooltip !== '' && isset($route['extensions'][$vmnum])) {
+				// Retrieve extension data that was hydrated inside buildExtTooltip
+				$extension = $route['extensions'][$vmnum];
+
+				// Speaker icon if applicable
+				$speaker = ($vmtype == 'u' || $vmtype == 'b') ? '🔊 ' : '';
+
+				// Extension name
+				$extname = '';
+				if (!empty($extension['name'])) {
+						$extname = sanitizeLabels($extension['name']);
 				}
-				
-				$edgeLabel=" "._('Blacklist');
-				$route['parent_edge_code']='edgelink';
-				$route['parent_edge_label'] = " "._('Disallowed by Blacklist');
-				$route['parent_edge_url'] = htmlentities('/admin/config.php?display=blacklist');
-				$route['parent_edge_target'] = '_blank';
-				$route['parent_edge_labeltooltip']=" "._('Click to edit Blacklist')."\n".$tooltip;
-				$route['parent_node'] = $node;
-				if ($blackDest){
-					dpp_follow_destinations($route, $blackDest.','.$numLang,'',$options);
-				}else{
-					dpp_follow_destinations($route, 'blacklistnotset','',$options);
+
+				// Message counts (already cached by hydrateExtension)
+				$msgLabel = '';
+				if (isset($extension['mailbox']['label'])) {
+						$msgLabel = "\n" . $extension['mailbox']['label'];
 				}
-			}																															
-		}
-		
-		if ($options['allowlist']){ //--allowlist 
-			
-			$checkAModule=\FreePBX::Modules()->checkStatus("allowlist");
-			if ($checkAModule){
-				if ($num=='ANY'){$allowNum='';}else{$allowNum=$num;}
-				$allowCheck = \FreePBX::Allowlist()->didIsSet($allowNum, $numcid);
-				$allowList = \FreePBX::Allowlist()->getAllowlist();
-			}else{
-				$allowCheck = false;
-			}
-		}
-		
-		if ($options['allowlist'] && $allowCheck && !empty($allowList)){
-			$allowDest = \FreePBX::Allowlist()->destinationGet();
 
-			$tooltip="\n"._('Number: Description')."\n";
-			$i=0;
-			$total=count($allowList);
-			foreach ($allowList as $a){
-				if ($a['description']==1){$a['description']='';}
-				$tooltip.=$a['number'].": ".sanitizeLabels($a['description'])."\n";
-				
-				if ($i >= 25 && $i < $total - 1){
-					$tooltip.="...\n ". ($total - 25) ." "._('additional entries');
-					break;
+				// Email if present
+				$extemail = '';
+				if (!empty($extension['mailbox']['email'])) {
+						$extemail = "\n" . sanitizeLabels($extension['mailbox']['email']);
+						$extemail = str_replace(",", ",\n", $extemail);
 				}
-				$i++;
-			}
-				
-			$edgeLabel=" "._('Allowlist');
-			$route['parent_edge_code']='edgelink';
-			$route['parent_edge_label'] =" "._('Disallowed by Allowlist');
-			$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
-			$route['parent_edge_target'] = '_blank';
-			$route['parent_edge_labeltooltip']=" "._('Click to edit Allowlist')."\n";
-			
-			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $allowDest.','.$numLang,'',$options);
-		
-		}else{
-			$edgeLabel=" "._('Always');
+
+				// Final label
+				$label = $speaker . $vmnum . " " . $extname . " (" . $vm_array[$vmtype] . ")" . $msgLabel . $extemail;
+
+				makeNode($module, $vmnum, $label, $tooltip, $node);
+
+		} else {
+				notFound($module, $destination, $node);
 		}
-		
-		if ($options['allowlist'] && $allowCheck && !empty($allowList)){
-			$route['parent_edge_code']='edgelink';
-			$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
-			$route['parent_edge_target'] = '_blank';
-			$route['parent_edge_labeltooltip']=" "._('Click to edit Allowlist')."\n".$tooltip;
-		}
-		
-		$route['parent_edge_label']= $edgeLabel;
-		$route['parent_node'] = $node;
-		dpp_follow_destinations($route, $incoming['destination'].','.$numLang,'',$options);
-		#end of Inbound Routes
+		#end of Voicemail	
 
-		#
-		# IVRs
-		#
-	} elseif (preg_match("/^ivr-(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
-		$module="IVR";
-    $inum = $matches[1];
-    $iflag = $matches[2];
-    $iother = $matches[3];
-		$ilang= $matches[4];
-
-		if (isset($route['ivrs'][$inum])){
-			$ivr = $route['ivrs'][$inum];
-			$recID= $ivr['announcement'];
-			
-			if (isset($route['recordings'][$recID])){
-				$recording= $route['recordings'][$recID];
-				$ivrRecName= $recording['displayname'];
-				$recordingId=$recording['id'];
-				$featureCode= getFeatureNum($recordingId,$route);
-				$ivrRecName= "🔊 "._('Announcement')." (".$ilang."): ".sanitizeLabels($ivrRecName)."\n"._('Feature Code').": ".$featureCode;
-			}else{
-				$ivrRecName=_('Announcement').': '._('None');
-			}
-			
-			$label=sanitizeLabels($ivr['name'])."\n".$ivrRecName;
-			if ($ivr['directdial']=='ext-local'){
-				$ddial="Enabled";
-			}elseif (is_numeric($ivr['directdial'])){
-				$ddial=$route['directory'][$ivr['directdial']]['dirname'];
-			}else{
-				$ddial=$ivr['directdial'];
-			}
-			if ($ivr['retvm']==''){
-				$retvm="No";
-			}else{
-				$retvm="Yes";
-			}
-			$tooltip="IVR "._('DTMF Options')."\n"._('Enable Direct Dial').": ".$ddial."\n"._('Timeout').": ".secondsToTimes($ivr['timeout_time'])."\n"._('Invalid Retries').": ".$ivr['invalid_loops']."\n"._('Invalid Retry Recording').": ".findRecording($route,$ivr['invalid_retry_recording'])."\n"._('Invalid Recording').": ".findRecording($route,$ivr['invalid_recording'])."\n"._('Timeout Retries').": ".$ivr['timeout_loops']."\n"._('Timeout Retry Recording').": ".findRecording($route,$ivr['timeout_retry_recording'])."\n"._('Timeout Recording').": ".findRecording($route,$ivr['timeout_recording'])."\n"._('Return to IVR after VM').": ".$retvm."\n";
-			
-			makeNode($module,$inum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			# The destinations we need to follow are the invalid_destination,
-			# timeout_destination, and the selection targets
-			
-			#now go through the selections
-			if (!empty($ivr['entries'])){
-				ksort($ivr['entries']);
-				foreach ($ivr['entries'] as $selid => $ent) {
-					
-					$route['parent_edge_label']= " ".sprintf(_('Selection %s'), $ent['selection']);
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $ent['dest'].','.$ilang,'',$options);
-				}
-			}
-			
-			#are the invalid and timeout destinations the same?
-			if ($ivr['invalid_destination']==$ivr['timeout_destination']){
-				if (!empty($ivr['invalid_destination'])){
-					$route['parent_edge_label']= " ".sprintf(_('Invalid Input, Timeout (%s secs)'), $ivr['timeout_time']);
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $ivr['invalid_destination'].','.$ilang,'',$options);
-				}
-			}else{
-					if ($ivr['invalid_destination'] != '') {
-						$route['parent_edge_label']= " "._('Invalid Input');
-						$route['parent_node'] = $node;
-						dpp_follow_destinations($route, $ivr['invalid_destination'].','.$ilang,'',$options);
-					}
-					if ($ivr['timeout_destination'] != '') {
-						$route['parent_edge_label']= " ".sprintf(_('Timeout (%s secs)'), $ivr['timeout_time']);
-						$route['parent_node'] = $node;
-						dpp_follow_destinations($route, $ivr['timeout_destination'].','.$ilang,'',$options);
-					}
-			}
-		}else{
-			notFound($module,$destination,$node);
-		}		
-		# end of IVRs
-
-		#
-		# Languages
-		#
-  } elseif (preg_match("/^app-languages,(\d+),(\d+)/", $destination, $matches)) {
-		$module="Languages";
-		$langnum = $matches[1];
-		$langother = $matches[2];
-		if (isset($route['languages'][$langnum])){
-			$langArray = $route['languages'][$langnum];
-			$label=sanitizeLabels($langArray['description']);
-			$tooltip='';
-			makeNode($module,$langnum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			if ($langArray['dest'] != '') {
-				$route['parent_edge_label'] =" "._('Continue');
-				$route['parent_node'] = $node;
-				dpp_follow_destinations($route, $langArray['dest'].','.$langArray['lang_code'],'',$options);
-			}
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Languages
-
-		#
-		# MISC Applications
-		#
-  } elseif (preg_match("/^miscapps,(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Misc Apps";
-		$miscappsnum = $matches[1];
-		$miscappsLang = $matches[4];
-		
-		if (isset($route['miscapps'][$miscappsnum])){
-			$miscapps = $route['miscapps'][$miscappsnum];
-			$miscappsDialplan= shell_exec('/usr/sbin/asterisk -rx "dialplan show app-miscapps" | grep "'.$miscapps['ext'].'"');
-			$enabled = empty($miscappsDialplan) ? '(disabled)' : '';
-			
-			$label=sanitizeLabels($miscapps['description']).' ('.$miscapps['ext'].') '.$enabled;
-			$tooltip='';
-			makeNode($module,$miscappsnum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			if ($miscapps['dest'] != '') {
-				$route['parent_edge_label'] =" "._('Continue');
-				$route['parent_node'] = $node;
-				dpp_follow_destinations($route, $miscapps['dest'].','.$miscappsLang, '',$options);
-			}
-		
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of MISC Applications
-
-		#
-		# MISC Destinations
-		#
-  } elseif (preg_match("/^ext-miscdests,(\d+),(\d+)/", $destination, $matches)) {
-		$module="Misc Dests";
-		$miscdestnum = $matches[1];
-		$miscdestother = $matches[2];
-
-		if (isset($route['miscdest'][$miscdestnum])){
-			$miscdest = $route['miscdest'][$miscdestnum];
-			$label=sanitizeLabels($miscdest['description']).' ('.$miscdest['destdial'].')';
-			$tooltip='';
-			makeNode($module,$miscdestnum,$label,$tooltip,$node);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of MISC Destinations
-
-		#
-		# Page Group
-		#
-  } elseif (preg_match("/^app-pagegroups,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Paging";
-		$pagenum = $matches[1];
-		$pageLang = $matches[3];
-		
-		if (isset($route['paging'][$pagenum])){
-			$paging=$route['paging'][$pagenum];
-			
-			$recID=$paging['announcement'];
-			if (isset($route['recordings'][$recID])){
-				$recording= $route['recordings'][$recID];
-				$pageRecName= $recording['displayname'];
-				$recordingId=$recording['id'];
-				$featureCode= getFeatureNum($recordingId,$route);
-				$pageRecName= "\n🔊 "._('Announcement')." (".$pageLang."): ".sanitizeLabels($pageRecName)."\n"._('Feature Code').": ".$featureCode;
-			}else{
-				$pageRecName="\n"._('Announcement').": ".ucfirst($recID);
-			}
-			
-			$busyArray=array(_('Skip'),_('Force'),_('Whisper'));
-			$duplexArray=array(_('No'),_('Yes'));
-			$label=$paging['page_group']." ".sanitizeLabels($paging['description']).$pageRecName;
-			$tooltip=_('Page Group').": ".$paging['page_group']."\n"._('Description').": ".sanitizeLabels($paging['description'])."\n".$pageRecName."\n"._('Busy Extensions').": ".$busyArray[$paging['force_page']]."\n"._('Duplex').": ".$duplexArray[$paging['duplex']];
-			makeNode($module,$pagenum,$label,$tooltip,$node);
-			
-			if (!empty($paging['members']) && !$minimal){
-				$line="Page Group ".$pagenum." "._('members').":\n";
-				foreach ($paging['members'] as $member) {
-					if (isset($route['extensions'][$member])) {
-							if (!isset($route['extensions'][$member]['reg_status'])) {
-									$status = isExtensionRegistered($member, $route['extensions'][$member]['tech']);
-									$route['extensions'][$member]['reg_status'] = $status;
-							}
-
-							$isRegistered = $route['extensions'][$member]['reg_status'];
-							$regstatus = $isRegistered ? '🟢' : '🔴';
-
-							$line .= $regstatus ." "._('Ext')." ".$member." ".$route['extensions'][$member]['name']."\l";
-					} else {
-							$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
-					}
-				}
-				
-				$memNode= $dpgraph->beginNode('pagemem'.$pagenum,
-					array(
-						'label' => $line,
-						'tooltip' => $node->getAttribute('label'),
-						'URL' => $node->getAttribute('URL', ''),
-						'target' => '_blank',
-						'shape' => 'rect',
-						'style' => 'filled',
-						'fillcolor' => '#87CEFA'
-					)
-				);
-				$edge= $dpgraph->beginEdge(array($node, $memNode));
-			}
-			
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Page Group
-		
-		#
-		# Phonebook
-		#
-  } elseif (preg_match("/^app-pbdirectory,pbdirectory,1,(.+)/", $destination, $matches)) {
-		$module="Phonebook";
-		$label="Asterisk";
-		$tooltip="";
-		makeNode($module,'',$label,$tooltip,$node);
-		#end of Phonebook
-		
-		# Play Recording
-		#
-  } elseif (preg_match("/^play-system-recording,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="System Recording";
-		$recID = $matches[1];
-		$recOther = $matches[2];
-		$recLang = $matches[3];
-		
-		if (isset($route['recordings'][$recID])){
-			$rec=$route['recordings'][$recID];
-			$playName=$rec['displayname'];
-			$featureCode= getFeatureNum($recID,$route);
-			$playName= $playName."\nFeature Code: ".$featureCode;
-			
-			$label = "🔊 ". _('Recording') . " (" . $recLang . "): " . sanitizeLabels($playName);
-
-			$node->attribute('label', $label);
-			$node->attribute('tooltip', $node->getAttribute('label'));
-			$node->attribute('URL', '#');
-			$node->attribute('shape', 'rect');
-			$node->attribute('fillcolor', $pastels[16]);
-			$node->attribute('style', 'filled');
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Play Recording
-		
-		#
-		# Queue Priorities
-		#
-  }elseif (preg_match("/^app-queueprio,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Queue Priorities";
-		$queueprioID = $matches[1];
-		$queueprioIDOther = $matches[2];
-		$queuepriorLang= $matches[3];
-		
-		if (isset($route['queueprio'][$queueprioID])){
-			$queueprio = $route['queueprio'][$queueprioID];
-			$label=sanitizeLabels($queueprio['description']."\n"._('Priority').": ".$queueprio['queue_priority']);
-			$tooltip='';
-			makeNode($module,$queueprioID,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			if ($queueprio['dest'] != '') {
-				$route['parent_edge_label'] =" "._('Continue');
-				$route['parent_node'] = $node;
-				dpp_follow_destinations($route, $queueprio['dest'].','.$queuepriorLang, '',$options);
-			}
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Queue Priorities
-		
 		#
 		# Queues and Virtual Queues
 		#
@@ -1434,10 +630,10 @@ if ($minimal){
 		if ($queueType=='ext-vqueues'){
 			
 			$module="Virtual Queues";
-			$vqnum=$num;
-			if (isset($route['vqueues'][$vqnum])){
-				
-				$vq= $route['vqueues'][$vqnum];
+			$vqnum = $num;
+			$vq    = lazyLoadRow($route, 'vqueues', $vqnum);
+
+			if (!empty($vq)) {
 
 				$tooltipitems='';
 				$label=sanitizeLabels($vq['name']) ."\n";
@@ -1512,57 +708,34 @@ if ($minimal){
 		}else{
 			$module="Queues";
 			$qnum=$num;
+			
+			
 		}
 		
-		
-		if (isset($route['queues'][$qnum])) {
+		$q = lazyLoadRow($route, 'queues', $qnum);
+		if ($q) {
 			$q =& $route['queues'][$qnum];
 			
 			if ($dynmembers){ //options
 				// Dynamic Queue members
 				if (!isset($q['members']['dynamic'])){
-					$dynQuery='/usr/sbin/asterisk -rx "database show QPENALTY '.$qnum.'" | grep \'/agents/\' | cut -d\'/\' -f5';
-					exec($dynQuery, $dynmem);
+					$dynmem = runAstmanCommand("database show QPENALTY $qnum");
 					
-					$q['members']['dynamic']=array();
-					$dynamicMembers = array();
-					
-					foreach ($dynmem as $enum){
-						list($ext, $pen) = explode(':', $enum);
-						$ext=trim($ext);
-						$pen=trim($pen);
-						$dynamicMembers[] = $ext.','.$pen;
-					}
+					$dynamicMembers = parsePenaltyAgents($dynmem);
+					$q['members']['dynamic'] = [];
 					addAndSortMembers($q['members']['dynamic'], $dynamicMembers);
+					
 				}
 
 				//dynamic agents logged in?
 				if (!isset($q['loggedin'])){
-					$loggedinQuery="/usr/sbin/asterisk -rx \"queue show $qnum\" | grep '(dynamic)'";
-					exec($loggedinQuery, $loggedin);
-					
-					$q['loggedin'] = array();
-					
-					foreach ($loggedin as $logged){
-						if (preg_match('/Local\/(\d+)@from-queue/', $logged, $matches)) {
-								$q['loggedin'][]=$matches[1];
-						}
-					}
+					$q['loggedin'] = getLoggedInAgents($qnum);
 				}
 			}
 
 			//paused ?
 			if (!isset($q['paused'])) {
-				$pauseQuery = "/usr/sbin/asterisk -rx \"queue show $qnum\" | grep '(paused)'";
-				exec($pauseQuery, $paused);
-			
-				$q['paused'] = array();
-
-				foreach ($paused as $pauses) {
-						if (preg_match('/Local\/(\d+)@from-queue/', $pauses, $matches)) {
-								$q['paused'][] = $matches[1];
-						}
-				}
+				$q['paused'] = getPausedAgents($qnum);
 			}
 			
 			//is the parent a virtual queue?
@@ -1604,16 +777,29 @@ if ($minimal){
 			}
 
 			if ($q['data']['periodic-announce-frequency']==0){$repeat='Disabled';$edgeRepeat='';}else{$repeat=secondsToTimes($q['data']['periodic-announce-frequency']);$edgeRepeat=" (every ".$repeat.")";}
-			if ($q['ivr_id']!='none'){
-				$breakoutname = isset($route['ivrs'][$q['ivr_id']]['name']) ? $route['ivrs'][$q['ivr_id']]['name'] : "none";
-				$periodic="["._('Periodic Announcements')."]\nIVR Break Out Menu: ".$breakoutname."\n"._('Repeat Frequency').": ".$repeat;
-			}elseif (isset($q['callback_id']) && $q['callback_id']!='none'){
-				$breakoutname = isset($route['queuecallback'][$q['callback_id']]) ? $route['queuecallback'][$q['callback_id']]['name'] : "none";
-				$periodic="["._('Periodic Announcements')."\n"._('Queue Callback').": ".$breakoutname."\n"._('Repeat Frequency').": ".$repeat;
-			}else{
-				$periodic="["._('Periodic Announcements')."]\n"._('Disabled')."\n";
+			if (!empty($q['ivr_id']) && $q['ivr_id'] != 'none') {
+
+					// ensure breakout IVR is loaded
+					$ivr = lazyLoadRow($route, 'ivrs', $q['ivr_id']);
+
+					$breakoutname = ($ivr && isset($ivr['name'])) ? $ivr['name'] : "none";
+					$periodic  = "["._('Periodic Announcements')."]\n";
+					$periodic .= "IVR Break Out Menu: ".$breakoutname."\n";
+					$periodic .= _('Repeat Frequency').": ".$repeat;
+
+			} elseif (!empty($q['callback_id']) && $q['callback_id'] != 'none') {
+
+					// ensure queuecallback is loaded
+					$cb = lazyLoadRow($route, 'queuecallback', $q['callback_id']);
+
+					$breakoutname = ($cb && isset($cb['name'])) ? $cb['name'] : "none";
+					$periodic  = "["._('Periodic Announcements')."]\n";
+					$periodic .= _('Queue Callback').": ".$breakoutname."\n";
+					$periodic .= _('Repeat Frequency').": ".$repeat;
+
+			} else {
+					$periodic = "["._('Periodic Announcements')."]\n"._('Disabled')."\n";
 			}
-			
 			
 			$tooltip="["._('General Settings')."]\n"._('CID Prefix').": ".$cidPrefix."\n"._('Strategy').": ".$q['data']['strategy']."\n"._('Agent Restrictions').": ".$restrict[$q['use_queue_context']]."\n"._('Autofill').": ".ucfirst($q['data']['autofill'])."\n"._('Skip Busy Agents').": ".$skipbusy[$q['cwignore']]."\n"._('Music On Hold Class').": ".$music." (".$mohclass[$q['ringing']].")\n"._('Call Recording').": ".$q['data']['recording']."\n"._('Mark calls answered elsewhere').": ".$noyes[$q['data']['answered_elsewhere']].
 			"\n\n["._('Timing & Agent Options')."]\n"._('Max Wait Time').": ".$maxwait."\n"._('Agent Timeout').": ".secondsToTimes($q['data']['timeout'])."\n"._('Agent Retry').": ".secondsToTimes($q['data']['retry'])."\n"._('Wrap Up Time').": ".secondsToTimes($q['data']['wrapuptime']).
@@ -1650,22 +836,24 @@ if ($minimal){
 							
 							$route['parent_node'] = $node;
 							if ($types === 'static') {
+									if (!isset($route['extensions'][$member])) {
+											// Try lazy load
+											hydrateExtension($route, $member);
+									}
+
 									if (isset($route['extensions'][$member])) {
 											$extension = &$route['extensions'][$member];
 
-											// Hydrate extension once
-											$extension = prepareExtension($extension, $member);
-
 											// Flags for static members
-											$flags = [
+											$flags = array(
 													'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
 													'loggedin' => true,   // always logged in
 													'dynamic'  => false   // static member
-											];
+											);
 
 											// Resolve status
 											$status = resolveExtensionStatus($extension, 'queue_edge', $flags);
-											
+
 											if ($status['icon'] !== '🟡' && $status['icon'] !== '⏸️') {
 													$status['icon'] = '';
 											}
@@ -1673,19 +861,23 @@ if ($minimal){
 											// Edge label
 											$route['parent_edge_label'] = " " . $status['icon'] . _('Static') . $penalty;
 											$route['parent_edge_code']  = 'static';
+
 									} else {
-											// fallback if extension not found
+											// fallback if extension truly not found
 											$route['parent_edge_label'] = " " . _('Static') . $penalty;
 											$route['parent_edge_code']  = 'static';
 									}
 
 							} else {
 									// Dynamic member
+									
+									if (!isset($route['extensions'][$member])) {
+											// Try lazy load
+											hydrateExtension($route, $member);
+									}
+									
 									if (isset($route['extensions'][$member])) {
 											$extension = &$route['extensions'][$member];
-
-											// Hydrate extension once
-											$extension = prepareExtension($extension, $member);
 
 											// Flags for dynamic members
 											$flags = [
@@ -1732,23 +924,24 @@ if ($minimal){
 							$pen=$split[1];
 							$penalty = ($options['queue_penalty'] == 1) ? ",$pen" : '';
 							
-							if (isset($route['extensions'][$member])) {
-									$extension = &$route['extensions'][$member];
-									$extension = prepareExtension($extension, $member);
+							// Make sure extension is loaded/hydrated
+							$extension = hydrateExtension($route, $member);
 
-									$flags = [
+							if ($extension) {
+									$flags = array(
 											'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
 											'loggedin' => ($dynmembers && in_array($member, $route['queues'][$qnum]['loggedin'])),
 											'dynamic'  => ($types === 'dynamic')
-									];
+									);
 
 									$status = resolveExtensionStatus($extension, 'queue', $flags);
 
-									$line .= $status['icon']." Ext ".$member.$penalty." ".$extension['name']." ".$status['label']."\l";
+									$line .= $status['icon']." Ext ".$member.$penalty." ".sanitizeLabels($extension['name'])." ".$status['label']."\l";
 
 							} else {
 									$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
 							}
+
 						}
 					}
 					
@@ -1759,7 +952,7 @@ if ($minimal){
 							'URL' => $node->getAttribute('URL', '').'#qagentlist',
 							'target' => '_blank',
 							'shape' => 'rect',
-							'style' => 'filled',
+							'style' => 'rounded,filled',
 							'fillcolor' => $pastels[20]
 						)
 					);
@@ -1772,8 +965,9 @@ if ($minimal){
 			}
 			
 			#Queue Plus Options
+			lazyLoadRow($route, 'vqplus_queue_config', $q['extension']);
 			if (!empty($q['vqplus'])){
-				//$vq=$q['vqplus'];
+				$vq=$q['vqplus'];
 				if (!empty($vq['cdest'])){
 					$route['parent_node'] = $node;
 					$route['parent_edge_label'] = " "._('Caller Post Hangup');
@@ -1812,25 +1006,41 @@ if ($minimal){
 			}
 			
 			#Breakout Menus
-			if (is_numeric($q['ivr_id'])){
-				if (isset($route['ivrs'][$q['ivr_id']])){
-					$route['parent_edge_label'] = " IVR Break Out".$edgeRepeat;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, 'ivr-'.$q['ivr_id'].',s,1,'.$qlang,'',$options);
-				}else{
-					notFound('IVR Break Out',$destination,$node);
-				}
+			if (is_numeric($q['ivr_id'])) {
+					$ivr = lazyLoadRow($route, 'ivrs', $q['ivr_id']);
+					if ($ivr) {
+							$route['parent_edge_label'] = " IVR Break Out" . $edgeRepeat;
+							$route['parent_node'] = $node;
+
+							dpp_follow_destinations(
+									$route,
+									'ivr-' . $q['ivr_id'] . ',s,1,' . $qlang,
+									'',
+									$options
+							);
+					} else {
+							notFound('IVR Break Out', $destination, $node);
+					}
 			}
-			if (isset($q['callback_id']) && is_numeric($q['callback_id'])){
-				if (isset($route['queuecallback'][$q['callback_id']])){
-					$callback=$route['queuecallback'][$q['callback_id']];
-					
-					$route['parent_edge_label'] = " Queue Callback ".$callback['cbstarttime']." - ".$callback['cbendtime']."\l".$edgeRepeat;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, 'queuecallback-'.$q['callback_id'].',request,1,'.$qlang,'',$options);
-				}else{
-					notFound('Queue Callback',$destination,$node);
-				}
+
+			if (isset($q['callback_id']) && is_numeric($q['callback_id'])) {
+					$cb = lazyLoadRow($route, 'queuecallback', $q['callback_id']);
+					if ($cb) {
+							$cbstart = isset($cb['cbstarttime']) ? $cb['cbstarttime'] : '';
+							$cbend   = isset($cb['cbendtime'])   ? $cb['cbendtime']   : '';
+
+							$route['parent_edge_label'] = " Queue Callback " . $cbstart . " - " . $cbend . "\l" . $edgeRepeat;
+							$route['parent_node'] = $node;
+
+							dpp_follow_destinations(
+									$route,
+									'queuecallback-' . $q['callback_id'] . ',request,1,' . $qlang,
+									'',
+									$options
+							);
+					} else {
+							notFound('Queue Callback', $destination, $node);
+					}
 			}
 		}else{
 			notFound($module,$destination,$node);
@@ -1850,26 +1060,24 @@ if ($minimal){
 			$qnum='';
 		}
 		
-		if (isset($route['extensions'][$qextension])) {
-				$extension = &$route['extensions'][$qextension];
+		// Make sure extension is loaded
+		$extension = hydrateExtension($route, $qextension);
 
+		if ($extension) {
 				$qlabel  = _('Ext')." ".$qextension."\n".sanitizeLabels($extension['name']);
 				$tooltip = _('Extension').": ".$qextension."\n"._('Name').": ".sanitizeLabels($extension['name']);
 
-				// Hydrate extension
-				$extension = prepareExtension($extension, $qextension);
-
 				// Flags for single node
-				$flags = [
+				$flags = array(
 						'paused'   => false,  // single node can't be paused
-						'loggedin' => ($dynmembers && ($qnum!='' && in_array($qextension, $route['queues'][$qnum]['loggedin'])) ),
+						'loggedin' => ($dynmembers && ($qnum!='' && in_array($qextension, $route['queues'][$qnum]['loggedin']))),
 						'dynamic'  => true
-				];
+				);
 
 				// Resolve status
 				$status = resolveExtensionStatus($extension, 'queue', $flags);
 
-				// Tooltip
+				// Tooltip (append detailed info)
 				$tooltip .= buildExtTooltip($qextension, $route);
 
 				// Node appearance
@@ -1879,21 +1087,23 @@ if ($minimal){
 						case '🟡': $node->attribute('color', '#FFB300'); break;   // DND / CF
 						case '🔵': $node->attribute('color', 'blue'); break;      // dynamic logged in
 						case '🟢': $node->attribute('color', 'green'); break;     // registered
-						case '🔴': 
-						default:    $node->attribute('color', 'red'); break;      // offline
+						case '🔴':
+						default:  $node->attribute('color', 'red'); break;        // offline
 				}
 
 				$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$qextension));
 				$node->attribute('target', '_blank');
 
 		} else {
-				$qlabel = $tooltip = $qextension;
+				// fallback if extension couldn't be loaded at all
+				$qlabel  = $qextension;
+				$tooltip = $qextension;
 		}
-
 		
 		$node->attribute('label', $qlabel);
 		$node->attribute('tooltip', $tooltip);
-		$node->attribute('style', 'filled');
+		$node->attribute('shape', 'rect');
+		$node->attribute('style', 'rounded,filled');
 		
 		if ($route['parent_edge_code'] == 'static') {
 			$node->attribute('fillcolor', $pastels[20]);
@@ -1904,82 +1114,47 @@ if ($minimal){
 		#end of Queue members (static and dynamic)
 		
 		#
-		# Queue Callback
-		#
-	} elseif (preg_match("/^queuecallback-(\d+),(.+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Queue Callback";
-		$qcallbackId=$matches[1];
-		$qcallbackLang=$matches[4];
- 
-		if (isset($route['queuecallback'][$qcallbackId])){
-			$module="Queue Callback";
-			$qcallback=$route['queuecallback'][$qcallbackId];
-			$recID=$qcallback['announcement'];
-			
-			if (empty($qcallback['cbqueue'])){
-				$queue= $route['parent_node']->getId();
-			}elseif (substr($qcallback['cbqueue'], 0, 1) === 'q') {
-				$queue = "ext-queues,".substr($qcallback['cbqueue'], 1).",1,".$qcallbackLang;
-			}else{
-				$queue = "ext-vqueues,".substr($qcallback['cbqueue'], 1).",1,".$qcallbackLang;
-			}
-			
-			if (isset($route['recordings'][$recID])){
-				$recording= $route['recordings'][$recID];
-				$qcbRecName= $recording['displayname'];
-				$recordingId=$recording['id'];
-				$featureCode= getFeatureNum($recordingId,$route);
-				$qcbRecName= "🔊 "._('Announcement')." (".$qcallbackLang."): ".sanitizeLabels($qcbRecName)."\n"._('Feature Code').": ".$featureCode;
-			}else{
-				$qcbRecName=_('Announcement').': '._('Default');
-			}
-			
-			$label=sanitizeLabels($qcallback['name'])."\n".$qcbRecName;
-			$tooltip = "Caller ID: ".$qcallback['cid']."\n"._('Timeout').": ".secondsToTimes($qcallback['timeout'])."\n"._('Retries').": ".$qcallback['retries']."\n"._('Retry Delay').": ".secondsToTimes($qcallback['retrydelay']);
-			
-			makeNode($module,$qcallbackId,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-			
-			$route['parent_node'] = $node;
-			$route['parent_edge_label'] = " "._('Callback Queue');
-			dpp_follow_destinations($route,$queue,'',$options);
-			
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Queue Callback
-
-		#
 		# Ring Groups
 		#
-  } elseif (preg_match("/^ext-group,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Ring Groups";
-    $rgnum = $matches[1];
-		$rglang = $matches[3];
-		if (isset($route['ringgroups'][$rgnum])){
-			$rg = $route['ringgroups'][$rgnum];
+  } elseif (preg_match("/^(ext-group),(\d+),(\d+),(.+)/", $destination, $matches)) {
+    $module     = "Ring Groups";
+    $routetable = $matches[1];
+    $rgnum      = $matches[2];
+    $rglang     = $matches[4];
+
+    // Lazy load only that one group
+    $rg = lazyLoadRow($route, $routetable, $rgnum);
+
+    if ($rg) {
+			
 			$recID= $rg['annmsg_id'];
 			
-			if (isset($route['recordings'][$recID])){
-				$recording= $route['recordings'][$recID];
-				$rgRecName= $recording['displayname'];
-				$recordingId=$recording['id'];
-				$featureCode= getFeatureNum($recordingId,$route);
-				$rgRecName= "\n🔊 "._('Announcement')." (".$rglang."): ".sanitizeLabels($rgRecName)."\n"._('Feature Code').": ".$featureCode;
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$rgRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$rgRecName= "\n🔊 "._('Announcement')." (".$rglang."): ".sanitizeLabels($rgRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$rgRecName='';
+				}
 			}else{
 				$rgRecName='';
 			}
 			
 			$label=$rgnum.' '.sanitizeLabels($rg['description']).$rgRecName;
 			if ($rg['needsconf']!=''){$conf='Yes';}else{$conf="No";}
-			$tooltip="Strategy: ".$rg['strategy']."\n"._('Ring Time').": ".secondsToTimes($rg['grptime'])."\n"._('Music On Hold').": ".$rg['ringing']."\n"._('CID Prefix').": ".$rg['grppre']."\n"._('Confirm Calls').": ".$conf."\n"._('Call Recording').": ".$rg['recording']."\n";
+			$tooltip=
+				_('Description') . ": " . sanitizeLabels($rg['description']) . "\n"
+				. _('Strategy') . ": " . $rg['strategy'] . "\n"
+				.	_('Ring Time') . ": " . secondsToTimes($rg['grptime']) . "\n"
+				. _('Music On Hold') . ": " . $rg['ringing'] . "\n"
+				. _('CID Prefix') . ": " . sanitizeLabels($rg['grppre']) . "\n"
+				. _('Confirm Calls') . ": " . $conf . "\n"
+				. _('Call Recording') . ": " . $rg['recording'] . "\n"
+			;
 			makeNode($module,$rgnum,$label,$tooltip,$node);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
@@ -2013,17 +1188,19 @@ if ($minimal){
 				}elseif ($options['ring_member_display']==2){  //--option "Combine"
 					$line=_('Ring Group')." ".$rgnum." "._('List').":\n";
 					foreach ($grplist as $member){
-						if (isset($route['extensions'][$member])){
-							$extension = &$route['extensions'][$member];
-							$extension = prepareExtension($extension, $member);
+						// Make sure extension is loaded/hydrated
+						$extension = hydrateExtension($route, $member);
 
-							// No paused/loggedin in ring groups
-							$status = resolveExtensionStatus($extension, 'ringgroup');
+						if ($extension) {
+								// No paused/loggedin in ring groups
+								$status = resolveExtensionStatus($extension, 'ringgroup');
 
-							$line .= $status['icon']." Ext ".$member." ".$extension['name']." ".$status['label']."\l";
-						}else{
-							$line.="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
+								$line .= $status['icon']." Ext ".$member." ".sanitizeLabels($extension['name'])." ".$status['label']."\l";
+
+						} else {
+								$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
 						}
+
 					}
 					
 					$memNode= $dpgraph->beginNode('ringmembers'.$rgnum,
@@ -2033,7 +1210,7 @@ if ($minimal){
 							'URL' => $node->getAttribute('URL', ''),
 							'target' => '_blank',
 							'shape' => 'rect',
-							'style' => 'filled',
+							'style' => 'rounded,filled',
 							'fillcolor' => $pastels[2]
 						)
 					);
@@ -2061,30 +1238,28 @@ if ($minimal){
 		#
 		# Ring Group Members
 		#
-} elseif (preg_match("/^rgmember([#\d]+)/", $destination, $matches)) {
+	} elseif (preg_match("/^rgmember([#\d]+)/", $destination, $matches)) {
 		$rgext = $matches[1];
 		
-		if (isset($route['extensions'][$rgext])) {
-				$extension = &$route['extensions'][$rgext];
+		// Make sure extension is loaded/hydrated
+		$extension = hydrateExtension($route, $rgext);
 
-				$rglabel  = _('Ext')." ".$rgext."\n".sanitizeLabels($extension['name']);
-				$tooltip  = _('Ext').": ".$rgext."\n"._('Name').": ".sanitizeLabels($extension['name']);
-
-				// Hydrate extension
-				$extension = prepareExtension($extension, $rgext);
+		if ($extension) {
+				$rglabel = _('Ext')." ".$rgext."\n".sanitizeLabels($extension['name']);
+				$tooltip = _('Ext').": ".$rgext."\n"._('Name').": ".sanitizeLabels($extension['name']);
 
 				// Flags for ring group (no queue-specific statuses)
-				$flags = [
+				$flags = array(
 						'paused'   => false,
 						'loggedin' => false,
 						'dynamic'  => false
-				];
+				);
 
 				// Resolve status
 				$status = resolveExtensionStatus($extension, 'ringgroup_node', $flags);
 
-				// Tooltip
-				$tooltip = buildExtTooltip($rgext, $route);
+				// Tooltip (append detailed info)
+				$tooltip .= buildExtTooltip($rgext, $route);
 
 				// Node appearance
 				$node->attribute('penwidth', '2');
@@ -2092,8 +1267,8 @@ if ($minimal){
 						case '⚪': $node->attribute('color', 'grey'); break;    // virtual
 						case '🟡': $node->attribute('color', '#FFB300'); break; // DND / CF
 						case '🟢': $node->attribute('color', 'green'); break;   // registered
-						case '🔴': 
-						default:    $node->attribute('color', 'red'); break;    // offline
+						case '🔴':
+						default:  $node->attribute('color', 'red'); break;      // offline
 				}
 
 				$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$rgext));
@@ -2102,13 +1277,1127 @@ if ($minimal){
 		} else {
 				$rglabel = $tooltip = $rgext;
 		}
-
 		
 		$node->attribute('label', $rglabel);
 		$node->attribute('tooltip', $tooltip);
 		$node->attribute('fillcolor', $pastels[2]);
-		$node->attribute('style', 'filled');
+		$node->attribute('shape', 'rect');
+		$node->attribute('style', 'rounded,filled');
 		# end of ring group members
+
+		#
+		# IVRs
+		#
+	} elseif (preg_match("/^ivr-(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
+    $module   = "IVR";
+    $routetable = "ivrs";
+    $inum     = $matches[1];  // ivr id
+    $iflag    = $matches[2];
+    $iother   = $matches[3];
+    $ilang    = $matches[4];
+
+    // Lazy load just this IVR
+    $ivr = lazyLoadRow($route, $routetable, $inum);
+
+    if ($ivr) {
+			$recID= $ivr['announcement'];
+			
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$ivrRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$ivrRecName= "🔊 "._('Announcement')." (".$ilang."): ".sanitizeLabels($ivrRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$ivrRecName=_('Announcement').': '._('None');
+				}
+			}else{
+				$ivrRecName=_('Announcement').': '._('None');
+			}
+			
+			$label=sanitizeLabels($ivr['name'])."\n".$ivrRecName;
+			
+			/**** TODO? Add entries to main node. Maybe let destinations follow through.*/
+
+			
+			// global (or pass by ref) array for later processing
+			$unresolvedDestinations = [];
+			if (!empty($ivr['entries'])){
+				$printedAny = false;
+				
+				foreach ($ivr['entries'] as $selid => $ent) {
+						$ivrLabel = getLabel($ent['dest'], $route, $unresolvedDestinations, $selid);
+						if ($ivrLabel === false) {
+								continue; // skip printing unresolved
+						}
+						
+						if (!$printedAny) {
+								$label .= "\n\n"; // only once, and only if something resolves
+								$printedAny = true;
+						}
+						$label.= sprintf(_("Selection %s"), $selid) .": {$ivrLabel}\l";
+				}
+			}
+			
+			// Handle invalid
+			if (!empty($ivr['invalid_destination'])) {
+					$ivrLabel = getLabel($ivr['invalid_destination'], $route, $unresolvedDestinations, 'i');
+					if ($ivrLabel !== false) {
+							$label .= "Invalid: {$ivrLabel}\\l";
+					}
+			}
+
+			// Handle timeout
+			if (!empty($ivr['timeout_destination'])) {
+					$ivrLabel = getLabel($ivr['timeout_destination'], $route, $unresolvedDestinations, 't');
+					if ($ivrLabel !== false) {
+							$label .= "Timeout: {$ivrLabel}\\l";
+					}
+			}
+			
+			
+			if ($ivr['directdial']=='ext-local'){
+				$ddial="Enabled";
+			}elseif (is_numeric($ivr['directdial'])){
+				$dirId = (int)$ivr['directdial'];
+				$directory = lazyLoadRow($route, 'directory', $dirId);
+
+				if ($directory && isset($directory['dirname'])) {
+						$ddial = $directory['dirname'];
+				} else {
+						$ddial = ''; // or _("Unknown Directory")
+				}
+			}else{
+				$ddial=$ivr['directdial'];
+			}
+			$retvm = ($ivr['retvm'] === '') ? _("No") : _("Yes");
+			$tooltip=
+				 _('Name') . ": " .  sanitizeLabels($ivr['name']) . "\n"
+				. _('Description') . ": " .  sanitizeLabels($ivr['description']) . "\n"
+				. _('Enable Direct Dial') . ": " . $ddial . "\n"
+				. _('Timeout') . ": " . secondsToTimes($ivr['timeout_time']) . "\n"
+				. _('Invalid Retries') . ": " . $ivr['invalid_loops'] . "\n"
+				. _('Invalid Retry Recording') . ": "	 .  findRecording($route,$ivr['invalid_retry_recording']) . "\n"
+				. _('Invalid Recording') . ": " . findRecording($route,$ivr['invalid_recording']) . "\n"
+				. _('Timeout Retries') . ": " . $ivr['timeout_loops'] . "\n"
+				. _('Timeout Retry Recording') . ": "  .  findRecording($route,$ivr['timeout_retry_recording']) . "\n"
+				. _('Timeout Recording') . ": " . findRecording($route,$ivr['timeout_recording']) . "\n"
+				. _('Return to IVR after VM') . ": " . $retvm . "\n"
+			;
+			
+			makeNode($module,$inum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			# The destinations we need to follow are the invalid_destination,
+			# timeout_destination, and the selection targets
+			
+			#now go through the selections
+			// --- Group IVR routes ---
+			
+			$grouped = array();
+
+			if (!empty($unresolvedDestinations)) {
+					foreach ($unresolvedDestinations as $ent) {
+							$dest = $ent['dest'] . ',' . $ilang;
+							$sel  = $ent['selection'];
+
+							if ($sel === 'i') {
+									$grouped[$dest][] = _('Invalid Input');
+							} elseif ($sel === 't') {
+									$grouped[$dest][] = sprintf(_('Timeout (%s secs)'), $ivr['timeout_time']);
+							} else {
+									$grouped[$dest][] = sprintf(_('Selection %s'), $sel);
+							}
+					}
+			}
+
+			foreach ($grouped as $dest => $labels) {
+					$label = implode(",\n", $labels);
+					$route['parent_edge_label'] = " " . $label;
+					$route['parent_node'] = $node;
+					dpp_follow_destinations($route, $dest, '', $options);
+			}
+
+		}else{
+			notFound($module,$destination,$node);
+		}		
+		# end of IVRs
+
+		#
+		# Inbound Routes
+		#
+  } elseif (preg_match("/^from-trunk,((?:[^\[&,]+(?:\[[^\]]+\])?))(&[^,]*)?,(\d+),(.+)/", $destination, $matches)) {
+		$module   = "Incoming";
+		$num = $matches[1];
+		
+		$numcid = str_replace("&", "", $matches[2]);
+		$numLang= $matches[4];		
+		
+		if (empty($num)){$num='ANY';}
+		
+		$incoming = lazyLoadRow($incoming, 'incoming', $num, $numcid);
+		
+		$currentLocale = setlocale(LC_MESSAGES, 0);
+		$currentLocale = preg_replace('/\..*$/', '', $currentLocale);
+		
+		if ($incoming) {
+			// Success — $incoming is the row from DB
+			if (!empty($numcid)) {
+					$numcidd = " / " . formatPhoneNumbers($numcid,$currentLocale);
+			} else {
+					$numcidd = " / ANY";
+			}
+		
+			if (isset($incoming['language'])){$numLang=$incoming['language'];}
+			
+			$didLabel = ($num == "ANY") ? "ANY" : formatPhoneNumbers($num,$currentLocale);
+			$didLabel.= $numcidd."\n".$incoming['description'];
+			if ($num=='ANY'){
+				$didLink='/';
+			}else{
+				$didLink=$num.'/'.$numcid;
+			}
+			
+			$didTooltip=$num.$numcidd."\n";
+			$didTooltip.= !empty($incoming['cidnum']) ? _('Caller ID Number').": " . $incoming['cidnum']."\n" : "";
+			$didTooltip.= !empty($incoming['description']) ? _('Description').": " . $incoming['description']."\n" : "";
+			$didTooltip.= !empty($incoming['alertinfo']) ? _('Alert Info').": " . $incoming['alertinfo']."\n" : "";
+			$didTooltip.= !empty($incoming['grppre']) ? _('CID Prefix').": " . $incoming['grppre']."\n" : "";
+			$didTooltip.= !empty($incoming['mohclass']) ? _('Music on hold class').": " . $incoming['mohclass']."\n" : "";
+			$didTooltip.= !empty($incoming['language']) ? _('Language').": " . $incoming['language']."\n" : "";
+			
+			$node->attribute('label', sanitizeLabels($didLabel));
+			$node->attribute('tooltip',sanitizeLabels($didTooltip));
+			$node->attribute('width', 2);
+			$node->attribute('margin','.13');
+			$node->attribute('URL', htmlentities('/admin/config.php?display=did&view=form&extdisplay='.urlencode($didLink)));
+			$node->attribute('target', '_blank');
+			$node->attribute('shape', 'rect');
+			$node->attribute('fillcolor', 'darkseagreen');
+			$node->attribute('style', 'rounded,filled');
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			if ($options['blacklist']){ //--blacklist
+				$blackCheck=\FreePBX::Modules()->checkStatus("blacklist");
+			}
+			
+			if ($options['blacklist'] && $blackCheck && !$minimal){
+				$blackList = \FreePBX::Blacklist()->getBlacklist();
+				$total=count($blackList);
+				if ($total > 1){
+					$blackDest = \FreePBX::Blacklist()->destinationGet();
+					$blockUnknown = \FreePBX::Blacklist()->blockunknownGet();
+					$block = $blockUnknown ? _('Yes') : _('No');
+					$tooltip="\n"._('Block Unknown/Blocked Caller ID').": ".$block;
+					$tooltip.="\n\n"._('Number: Description')."\n";
+					
+					$i=0;
+					
+					foreach ($blackList as $b){
+						if ($b['number']=='dest'){continue;}
+						if ($b['description']==1){$b['description']='';}
+						$tooltip.=$b['number'].": ".sanitizeLabels($b['description'])."\n";
+						
+						if ($i >= 25 && $i < $total - 1){
+							$tooltip.="...\n". ($total - 25) ." "._('additional entries');
+							break;
+						}
+						$i++;
+					}
+					
+					$edgeLabel=" "._('Blacklist');
+					$route['parent_edge_code']='edgelink';
+					$route['parent_edge_label'] = " "._('Disallowed by Blacklist');
+					$route['parent_edge_url'] = htmlentities('/admin/config.php?display=blacklist');
+					$route['parent_edge_target'] = '_blank';
+					$route['parent_edge_labeltooltip']=" "._('Click to edit Blacklist')."\n".$tooltip;
+					$route['parent_node'] = $node;
+					if ($blackDest){
+						dpp_follow_destinations($route, $blackDest.','.$numLang,'',$options);
+					}else{
+						dpp_follow_destinations($route, 'blacklistnotset','',$options);
+					}
+				}																															
+			}
+			
+			if ($options['allowlist']){ //--allowlist 
+				
+				$checkAModule=\FreePBX::Modules()->checkStatus("allowlist");
+				if ($checkAModule){
+					if ($num=='ANY'){$allowNum='';}else{$allowNum=$num;}
+					$allowCheck = \FreePBX::Allowlist()->didIsSet($allowNum, $numcid);
+					$allowList = \FreePBX::Allowlist()->getAllowlist();
+				}else{
+					$allowCheck = false;
+				}
+			}
+			
+			if ($options['allowlist'] && $allowCheck && !empty($allowList)){
+				$allowDest = \FreePBX::Allowlist()->destinationGet();
+
+				$tooltip="\n"._('Number: Description')."\n";
+				$i=0;
+				$total=count($allowList);
+				foreach ($allowList as $a){
+					if ($a['description']==1){$a['description']='';}
+					$tooltip.=$a['number'].": ".sanitizeLabels($a['description'])."\n";
+					
+					if ($i >= 25 && $i < $total - 1){
+						$tooltip.="...\n ". ($total - 25) ." "._('additional entries');
+						break;
+					}
+					$i++;
+				}
+					
+				$edgeLabel=" "._('Allowlist');
+				$route['parent_edge_code']='edgelink';
+				$route['parent_edge_label'] =" "._('Disallowed by Allowlist');
+				$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
+				$route['parent_edge_target'] = '_blank';
+				$route['parent_edge_labeltooltip']=" "._('Click to edit Allowlist')."\n";
+				
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $allowDest.','.$numLang,'',$options);
+			
+			}else{
+				$edgeLabel=" "._('Always');
+			}
+			
+			if ($options['allowlist'] && $allowCheck && !empty($allowList)){
+				$route['parent_edge_code']='edgelink';
+				$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
+				$route['parent_edge_target'] = '_blank';
+				$route['parent_edge_labeltooltip']=" "._('Click to edit Allowlist')."\n".$tooltip;
+			}
+			
+			$route['parent_edge_label']= $edgeLabel;
+			$route['parent_node'] = $node;
+			dpp_follow_destinations($route, $incoming['destination'].','.$numLang,'',$options);
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Inbound Routes
+
+		#
+		# Announcements
+		#
+  }elseif (preg_match("/^app-announcement-(\d+),s,(\d+),(.+)/", $destination, $matches)) {
+    $module  = 'Announcement';
+    $annum   = $matches[1];   // announcement id
+    $another = $matches[2];   // sequence or "s" step
+    $anlang  = $matches[3];   // language
+
+    // Lazy load the announcement row
+    $an = lazyLoadRow($route, 'announcements', $annum);
+		
+    if ($an) {
+			$recID=$an['recording_id'];
+		
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$announcement= "\n🔊 "._('Recording').": ". sanitizeLabels($recording['displayname']) ." (" . $anlang . ")\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$announcement="\n"._('Recording').": "._('None');
+				}
+			}else{
+				$announcement="\n"._('Recording').": "._('None');
+			}
+		
+			$label=sanitizeLabels($an['description']).$announcement;
+			$tooltip='';
+			makeNode($module,$annum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			if ($an['post_dest'] != '') {
+				$route['parent_edge_label'] = " "._('Continue');
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $an['post_dest'].','.$anlang,'',$options);
+			}
+			
+		}else{
+			notFound($module,$destination,$node);
+		}
+		# end of announcements
+
+		#
+		# Time Conditions
+		#
+  }elseif (preg_match("/^timeconditions,(\d+),(\d+),(.+)/", $destination, $matches)) {
+    $module   = "Time Conditions";
+    $routetable = "timeconditions";
+    $tcnum    = $matches[1];
+    $tcother  = $matches[2];
+    $tcLang   = $matches[3];
+
+    // Lazy load only this timecondition
+    $tc = lazyLoadRow($route, $routetable, $tcnum);
+
+    if ($tc) {
+			if (!isset($tc['mode'])){$tc['mode']='time-group';}
+			
+			$tcTooltip=$tc['displayname']."\n"._('Mode').": ".$tc['mode']."\n";
+			if (!empty($tc['timezone'])){
+				$tcTooltip.= ($tc['timezone'] !== 'default') ? _('Timezone').": " . $tc['timezone'] : '';
+			}
+			$label=sanitizeLabels($tc['displayname']);
+			$tooltip=sanitizeLabels($tcTooltip);
+			
+			makeNode($module,$tcnum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+
+			//TC modes
+			if ($tc['mode'] === 'time-group') {
+				$tg = lazyLoadRow($route, 'timegroups', $tc['time']);
+				$tgnum  = $tg['id'];
+				$tgname = sanitizeLabels($tg['description']);
+				$tgtime = !empty($tg['time']) ? $tg['time'] : "No times defined";
+				$tgLabel= $tgname."\n".$tgtime;
+				$tgLink = '/admin/config.php?display=timegroups&view=form&extdisplay='.$tgnum;
+				$tgTooltip= $tgLabel;
+			} elseif ($tc['mode'] === 'calendar-group') {
+				if (!empty($tc['calendar_id'])) {
+						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_id']);
+						if (!empty($cal)) {
+								$tgLabel = $cal['name'];
+								$tgLink  = '/admin/config.php?display=calendar&action=view&type=calendar&id='.$tc['calendar_id'];
+								$tz      = !empty($cal['timezone']) ? $cal['timezone'] : '';
+								$tgTooltip = _('Name').": ".$cal['name']."\n"
+													 . _('Description').": ".$cal['description']."\n"
+													 . _('Type').": ".$cal['type']."\n"
+													 . _('Timezone').": ".$tz;
+						}
+				} elseif (!empty($tc['calendar_group_id'])) {
+						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_group_id']);
+						if (!empty($cal)) {
+								$tgLabel = $cal['name'];
+								$tgLink  = '/admin/config.php?display=calendargroups&action=edit&id='.$tc['calendar_group_id'];
+
+								$calNames = _('Calendars').": ";
+								if (!empty($cal['calendars'])) {
+										foreach ($cal['calendars'] as $c) {
+												$cinfo = lazyLoadRow($route, 'calendar', $c);
+												$calNames .= $cinfo['name']."\n";
+										}
+								}
+
+								$cats = !empty($cal['categories']) ? count($cal['categories']) : _('All');
+								$categories = 'Categories= '.$cats;
+
+								$eves = !empty($cal['events']) ? count($cal['events']) : _('All');
+								$events = _('Events').": ".$eves;
+
+								$expand = !empty($cal['expand']) ? 'true' : 'false';
+
+								$tgTooltip = _('Name').": ".$cal['name']."\n"
+													 . $calNames."\n"
+													 . $categories."\n"
+													 . $events."\n"
+													 . _('Expand').": ".$expand;
+						}
+				}
+			}
+			
+			# Now set the current node to be the parent and recurse on both the true and false branches
+			$route['parent_edge_label'] = " "._('Match').": ".$tgLabel;
+			$route['parent_edge_url'] = htmlentities($tgLink);
+			$route['parent_edge_target'] = '_blank';
+			$route['parent_edge_code']='edgelink';
+			$route['parent_edge_labeltooltip']=" "._('Match').": ".$tgTooltip;
+			$route['parent_node'] = $node;
+			dpp_follow_destinations($route, $tc['truegoto'].','.$tcLang,'',$options);
+			
+			
+			$route['parent_edge_code']='edgelink';
+			$route['parent_edge_label'] = " "._('No Match');
+			$route['parent_edge_url'] = htmlentities($tgLink);
+			$route['parent_edge_target'] = '_blank';
+			$route['parent_edge_labeltooltip']=" "._('No Match').": ".$tgTooltip;
+			$route['parent_node'] = $node;
+			dpp_follow_destinations($route, $tc['falsegoto'].','.$tcLang,'',$options);
+			
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Time Conditions
+
+		#
+		# Dynamic Routes
+		#
+  } elseif (preg_match("/^dynroute-(\d+),([a-z]),(\d+),(.+)/", $destination, $matches)) {
+		$module="Dyn Route";
+		$dynnum = $matches[1];
+		$dynLang = $matches[4];
+		
+		$dynrt = lazyLoadRow($route, 'dynroute', $dynnum);
+
+		if (!empty($dynrt)) {
+			
+			$recID=$dynrt['announcement_id'];
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$dynRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$dynRecName= "🔊 "._('Announcement')." (".$dynLang."): ".sanitizeLabels($dynRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$dynRecName=_('Announcement').': '._('None');
+				}
+			}else{
+				$dynRecName=_('Announcement').': '._('None');
+			}
+			
+			$label=sanitizeLabels($dynrt['name'])."\n".$dynRecName;
+			$tooltip='';
+			makeNode($module,$dynnum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			if (!empty($dynrt['routes'])){
+				ksort($dynrt['routes']);
+				foreach ($dynrt['routes'] as $selid => $ent) {
+					$desc = isset($ent['description']) ? $ent['description'] : '';
+					
+					$route['parent_edge_label']= " "._('Match').": ".sanitizeLabels($ent['selection'])."\n".$desc;
+					$route['parent_node'] = $node;
+					dpp_follow_destinations($route, $ent['dest'].','.$dynLang,'',$options);
+				}
+			}
+			
+			//are the invalid and default destinations the same?
+			if ($dynrt['invalid_dest'] != '' && $dynrt['invalid_dest']==$dynrt['default_dest']){
+				 $route['parent_edge_label']= " ".sprintf(_('Invalid Input, Default (%s) secs'), $dynrt['timeout']);
+				 $route['parent_node'] = $node;
+				 dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
+			}else{
+				if ($dynrt['invalid_dest'] != '') {
+					$route['parent_node'] = $node;
+					$route['parent_edge_label']= " "._('Invalid Input');
+					dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
+				}
+				if ($dynrt['default_dest'] != '') {
+					$route['parent_node'] = $node;
+					$route['parent_edge_label']= " ". sprintf(_('Default (%s) secs'), $dynrt['timeout']);
+					dpp_follow_destinations($route, $dynrt['default_dest'].','.$dynLang,'',$options);
+				}
+			}
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Dynamic Routes
+
+		#
+		# MISC Destinations
+		#
+  } elseif (preg_match("/^ext-miscdests,(\d+),(\d+)/", $destination, $matches)) {
+		$module="Misc Dests";
+		$miscdestnum = $matches[1];
+		$miscdestother = $matches[2];
+
+		$miscdest = lazyLoadRow($route, 'miscdest', $miscdestnum);
+
+		if (!empty($miscdest)) {
+			$label=sanitizeLabels($miscdest['description']).' ('.$miscdest['destdial'].')';
+			$tooltip='';
+			makeNode($module,$miscdestnum,$label,$tooltip,$node);
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of MISC Destinations
+
+		#
+		# Blackhole
+		#
+  } elseif (preg_match("/^app-blackhole,(hangup|congestion|busy|zapateller|musiconhold|ring|no-service),(\d+)/", $destination, $matches)) {
+		$blackholetype = $matches[1];
+		
+		$translatedMap = array(
+			'musiconhold' => _('Music On Hold'),
+			'ring'        => _('Play Ringtones'),
+			'no-service'  => _('Play No Service Message'),
+			'busy'        => _('Busy'),
+			'hangup'      => _('Hang Up'),
+			'congestion'  => _('Congestion'),
+			'zapateller'  => 'Zapateller',
+		);
+		
+		$blackholeother = $matches[2];
+		$previousURL=$route['parent_node']->getAttribute('URL', '');
+
+		$node->attribute('label', _('Terminate Call').': '.$translatedMap[$blackholetype]);
+		$node->attribute('tooltip', _('Terminate Call').': '.$translatedMap[$blackholetype]);
+		$node->attribute('URL', $previousURL);
+    $node->attribute('target', '_blank');
+		$node->attribute('shape', 'rect');
+		$node->attribute('fillcolor', 'orangered');
+		$node->attribute('style', 'rounded, filled');
+		
+		#end of Blackhole
+
+		#
+		# Call Flow Control (daynight)
+		#
+  } elseif (preg_match("/^app-daynight,(\d+),(\d+),(.+)/", $destination, $matches)) {
+    $module = "Call Flow";
+    $daynightnum   = $matches[1];
+    $daynightother = $matches[2];
+    $daynightLang  = $matches[3];
+
+    // Lazy load the call flow record
+    $daynight = lazyLoadRow($route, 'daynight', $daynightnum);
+
+    if ($daynight) {
+			$daynight = array_reverse($daynight);
+			
+			#feature code exist?
+			$fcKey   = '*28' . $daynightnum;
+			$feature = lazyLoadRow($route, 'featurecodes', $fcKey);
+
+			if ($feature) {
+					// Use custom if set, otherwise default
+					$featurenum = !empty($feature['customcode'])
+							? $feature['customcode']
+							: $feature['defaultcode'];
+
+					// Append (disabled) if not enabled
+					if ($feature['enabled'] == '1') {
+							$code = $featurenum;
+					} else {
+							$code = $featurenum . ' (' . _('Disabled') . ')';
+					}
+			} else {
+					$code = '';
+			}
+			$tooltip='';
+			#check current status and set path to active
+			list($dactive, $nactive) = getDayNightStatus($daynightnum);
+			
+			$daynightList = array();
+
+			foreach ($daynight as $d) {
+					switch ($d['dmode']) {
+							case 'fc_description':
+									$label = sanitizeLabels($d['dest']) . "\n" . _('Feature Code') . ": " . $code;
+									break;
+
+							case 'night':
+									$daynightList[] = array(
+											'label'  => _('Night Mode'),
+											'dest'   => $d['dest'],
+											'active' => $nactive
+									);
+									break;
+
+							case 'day':
+									$daynightList[] = array(
+											'label'  => _('Day Mode'),
+											'dest'   => $d['dest'],
+											'active' => $dactive
+									);
+									break;
+					}
+			}
+
+			makeNode($module,$daynightnum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+
+			foreach ($daynightList as $dl){
+				$route['parent_edge_label'] = " ". $dl['label'] . ' ' . $dl['active'];
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $dl['dest'].','.$daynightLang,'',$options);
+			}
+
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Call Flow Control (daynight)
+
+		#
+		# Callback
+		#
+  } elseif (preg_match("/^callback,(\d+),(\d+),(.+)/", $destination, $matches)) {
+    $module = "Callback";
+    $callbackId   = $matches[1];
+    $callrecOther = $matches[2];
+    $callbackLang = $matches[3];
+
+    $callback = lazyLoadRow($route, 'callback', $callbackId);
+
+    if ($callback) {
+			
+			$label=sanitizeLabels($callback['description']);
+			$tooltip=sanitizeLabels($callback['description'])."\n".
+				_('Callback Number').": ".$callback['callbacknum']."\n".
+				_('Delay Before Callback').": ".$callback['sleep']."\n".
+				_('Caller ID').": ".sanitizeLabels($callback['callerid'])."\n".
+				_('Timeout').": ".$callback['timeout'];
+			
+			
+			makeNode($module,$callbackId,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			$route['parent_edge_label']= _('Destination after Callback');
+			$route['parent_node'] = $node;
+			dpp_follow_destinations($route, $callback['destination'].','.$callbackLang,'',$options);
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Call Recording
+		#
+		
+		#
+		# Call Recording
+		#
+  } elseif (preg_match("/^ext-callrecording,(\d+),(\d+),(.+)/", $destination, $matches)) {
+    $module = "Call Recording";
+    $callrecID    = $matches[1];
+    $callrecOther = $matches[2];
+    $callLang     = $matches[3];
+
+    $callRec = lazyLoadRow($route, 'callrecording', $callrecID);
+
+    if ($callRec) {
+			$callMode= ucfirst($callRec['callrecording_mode']);
+			$callMode = str_replace("Dontcare", _('Don\'t Care'), $callMode);
+			$label=sanitizeLabels($callRec['description'])."\n"._('Mode').": ".$callMode;
+			$tooltip='';
+			
+			makeNode($module,$callrecID,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			$route['parent_edge_label']= " "._('Continue');
+			$route['parent_node'] = $node;
+			dpp_follow_destinations($route, $callRec['dest'].','.$callLang,'',$options);
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Call Recording
+		#
+		
+		# Conferences (meetme)
+		#
+  } elseif (preg_match("/^ext-meetme,(\d+),(\d+)/", $destination, $matches)) {
+		$module="Conferences";
+		$meetmenum = $matches[1];
+		$meetmeother = $matches[2];
+		
+		$meetme = lazyLoadRow($route, 'meetme', $meetmenum);
+
+    if ($meetme) {
+			$label = $meetme['exten']."\n".sanitizeLabels($meetme['description']);
+			$tooltip='';
+			makeNode($module,$meetmenum,$label,$tooltip,$node);
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Conferences (meetme)
+
+		#
+		# Directory
+		#
+  } elseif (preg_match("/^directory,(\d+),(\d+),(.+)/", $destination, $matches)) {
+		$module="Directory";
+		$directorynum = $matches[1];
+		$directoryother = $matches[2];
+		$directoryLang = $matches[3];
+		
+		$directory = lazyLoadRow($route, 'directory', $directorynum);
+
+    if ($directory) {
+			$label=sanitizeLabels($directory['dirname']);
+			$tooltip='';
+			makeNode($module,$directorynum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			if ($directory['invalid_destination']!=''){
+				 $route['parent_edge_label']= " "._('Invalid Input');
+				 $route['parent_node'] = $node;
+				 dpp_follow_destinations($route, $directory['invalid_destination'].','.$directoryLang,'',$options);
+			}
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Directory
+
+		#
+		# DISA
+		#
+  } elseif (preg_match("/^disa,(\d+),(\d+)/", $destination, $matches)) {
+    $module    = "DISA";
+    $disanum   = $matches[1];
+    $disaother = $matches[2];
+
+    // Lazy load DISA row
+    $disa = lazyLoadRow($route, 'disa', $disanum);
+
+    if ($disa) {
+			$label=sanitizeLabels($disa['displayname']);
+			$tooltip='';
+			makeNode($module,$disanum,$label,$tooltip,$node);
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of DISA
+
+		#
+		# Feature Codes
+		#
+  } elseif (preg_match("/^ext-featurecodes,(\*?\d+),(\d+)/", $destination, $matches)) {
+    $module       = "Feature Code";
+    $featurenum   = $matches[1]; // dialed number, e.g. *29123
+    $featureother = $matches[2];
+
+    // Try lazy load first
+    $feature = lazyLoadRow($route, 'featurecodes', $featurenum);
+
+    if ($feature) {
+        // Always display the *effective* number (custom if set)
+        $displaynum = !empty($feature['customcode']) ? $feature['customcode'] : $feature['defaultcode'];
+        $label      = sanitizeLabels($feature['description']) . " <" . $displaynum . ">";
+        $tooltip    = '';
+
+        makeNode($module, '', $label, $tooltip, $node);
+    } else {
+        notFound($module, $destination, $node);
+    }
+		#end of Feature Codes
+
+		#
+		# Languages
+		#
+  } elseif (preg_match("/^app-languages,(\d+),(\d+)/", $destination, $matches)) {
+		$module="Languages";
+		$langnum = $matches[1];
+		$langother = $matches[2];
+		$langArray = lazyLoadRow($route, 'languages', $langnum);
+
+		if (!empty($langArray)) {
+			$label=sanitizeLabels($langArray['description']);
+			$tooltip='';
+			makeNode($module,$langnum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			if ($langArray['dest'] != '') {
+				$route['parent_edge_label'] =" "._('Continue');
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $langArray['dest'].','.$langArray['lang_code'],'',$options);
+			}
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Languages
+
+		#
+		# MISC Applications
+		#
+  } elseif (preg_match("/^miscapps,(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
+		$module="Misc Apps";
+		$miscappsnum = $matches[1];
+		$miscappsLang = $matches[4];
+		
+		$miscapps = lazyLoadRow($route, 'miscapps', $miscappsnum);
+
+		if (!empty($miscapps)) {
+			$enabled = isMiscAppEnabled($miscapps['ext']) ? '' : '(disabled)';
+			
+			$label=sanitizeLabels($miscapps['description']).' ('.$miscapps['ext'].') '.$enabled;
+			$tooltip='';
+			makeNode($module,$miscappsnum,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			if ($miscapps['dest'] != '') {
+				$route['parent_edge_label'] =" "._('Continue');
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $miscapps['dest'].','.$miscappsLang, '',$options);
+			}
+		
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of MISC Applications
+
+		#
+		# Page Group
+		#
+  } elseif (preg_match("/^app-pagegroups,(\d+),(\d+),(.+)/", $destination, $matches)) {
+		$module="Paging";
+		$pagenum = $matches[1];
+		$pageLang = $matches[3];
+		
+		$paging = lazyLoadRow($route, 'paging', $pagenum);
+
+		if (!empty($paging)) {
+			$recID=$paging['announcement'];
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$pageRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$pageRecName= "\n🔊 "._('Announcement')." (".$pageLang."): ".sanitizeLabels($pageRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$pageRecName="\n"._('Announcement').": ".ucfirst($recID);
+				}
+			}else{
+				$pageRecName="\n"._('Announcement').": ".ucfirst($recID);
+			}
+			
+			$busyArray=array(_('Skip'),_('Force'),_('Whisper'));
+			$duplexArray=array(_('No'),_('Yes'));
+			$label=$paging['page_group']." ".sanitizeLabels($paging['description']).$pageRecName;
+			$tooltip=_('Page Group').": ".$paging['page_group']."\n"._('Description').": ".sanitizeLabels($paging['description'])."\n".$pageRecName."\n"._('Busy Extensions').": ".$busyArray[$paging['force_page']]."\n"._('Duplex').": ".$duplexArray[$paging['duplex']];
+			makeNode($module,$pagenum,$label,$tooltip,$node);
+			
+			if (!empty($paging['members']) && !$minimal){
+				$line="Page Group ".$pagenum." "._('members').":\n";
+				foreach ($paging['members'] as $member) {
+					// Make sure extension is loaded/hydrated
+					$extension = hydrateExtension($route, $member);
+
+					if ($extension) {
+							$isRegistered = !empty($extension['reg_status']);
+							$regstatus    = $isRegistered ? '🟢' : '🔴';
+
+							$line .= $regstatus." "._('Ext')." ".$member." ".sanitizeLabels($extension['name'])."\l";
+
+					} else {
+							$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
+					}
+
+				}
+				
+				$memNode= $dpgraph->beginNode('pagemem'.$pagenum,
+					array(
+						'label' => $line,
+						'tooltip' => $line,
+						'URL' => $node->getAttribute('URL', ''),
+						'target' => '_blank',
+						'shape' => 'rect',
+						'style' => 'rounded,filled',
+						'fillcolor' => '#87CEFA'
+					)
+				);
+				$edge= $dpgraph->beginEdge(array($node, $memNode));
+			}
+			
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Page Group
+		
+		#
+		# Phonebook
+		#
+  } elseif (preg_match("/^app-pbdirectory,pbdirectory,1,(.+)/", $destination, $matches)) {
+		$module="Phonebook";
+		$label="Asterisk";
+		$tooltip="";
+		makeNode($module,'',$label,$tooltip,$node);
+		#end of Phonebook
+		
+		# Play Recording
+		#
+  } elseif (preg_match("/^play-system-recording,(\d+),(\d+),(.+)/", $destination, $matches)) {
+		$module="System Recording";
+		$recID = $matches[1];
+		$recOther = $matches[2];
+		$recLang = $matches[3];
+		
+		$recording = lazyLoadRow($route, 'recordings', $recID);
+
+		if ($recording) {
+			$playName=$recording['displayname'];
+			$featureCode= getFeatureNum($recID,$route);
+			$playName= $playName."\nFeature Code: ".$featureCode;
+			
+			$label = "🔊 ". _('Recording') . " (" . $recLang . "): " . sanitizeLabels($playName);
+
+			$node->attribute('label', $label);
+			$node->attribute('tooltip', $node->getAttribute('label'));
+			$node->attribute('URL', '#');
+			$node->attribute('shape', 'rect');
+			$node->attribute('fillcolor', $pastels[16]);
+			$node->attribute('style', 'rounded,filled');
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Play Recording
+		
+		#
+		# Queue Priorities
+		#
+  }elseif (preg_match("/^app-queueprio,(\d+),(\d+),(.+)/", $destination, $matches)) {
+		$module="Queue Priorities";
+		$queueprioID = $matches[1];
+		$queueprioIDOther = $matches[2];
+		$queuepriorLang= $matches[3];
+		
+		$queueprio = lazyLoadRow($route, 'queueprio', $queueprioID);
+
+		if (!empty($queueprio)) {
+			$label=sanitizeLabels($queueprio['description']."\n"._('Priority').": ".$queueprio['queue_priority']);
+			$tooltip='';
+			makeNode($module,$queueprioID,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			if ($queueprio['dest'] != '') {
+				$route['parent_edge_label'] =" "._('Continue');
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $queueprio['dest'].','.$queuepriorLang, '',$options);
+			}
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Queue Priorities
+		
+		#
+		# Queue Callback
+		#
+	}  elseif (preg_match("/^queuecallback-(\d+),(.+),(\d+),(.+)/", $destination, $matches)) {
+    $module       = "Queue Callback";
+    $qcallbackId  = $matches[1];
+    $qcallbackLang= $matches[4];
+
+    // Lazy load this callback
+    $qcallback = lazyLoadRow($route, 'queuecallback', $qcallbackId);
+
+    if ($qcallback) {
+			$recID=$qcallback['announcement'];
+			
+			if (empty($qcallback['cbqueue'])){
+				$queue= $route['parent_node']->getId();
+			}elseif (substr($qcallback['cbqueue'], 0, 1) === 'q') {
+				$queue = "ext-queues,".substr($qcallback['cbqueue'], 1).",1,".$qcallbackLang;
+			}else{
+				$queue = "ext-vqueues,".substr($qcallback['cbqueue'], 1).",1,".$qcallbackLang;
+			}
+			
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$qcbRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$qcbRecName= "🔊 "._('Announcement')." (".$qcallbackLang."): ".sanitizeLabels($qcbRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$qcbRecName=_('Announcement').': '._('Default');
+				}
+			}else{
+				$qcbRecName=_('Announcement').': '._('Default');
+			}
+			
+			$label=sanitizeLabels($qcallback['name'])."\n".$qcbRecName;
+			$tooltip = "Caller ID: ".$qcallback['cid']."\n"._('Timeout').": ".secondsToTimes($qcallback['timeout'])."\n"._('Retries').": ".$qcallback['retries']."\n"._('Retry Delay').": ".secondsToTimes($qcallback['retrydelay']);
+			
+			makeNode($module,$qcallbackId,$label,$tooltip,$node);
+			if ($stop){
+				$undoNode= stopNode($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $undoNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+				return;
+			}
+			
+			$route['parent_node'] = $node;
+			$route['parent_edge_label'] = " "._('Callback Queue');
+			dpp_follow_destinations($route,$queue,'',$options);
+			
+		}else{
+			notFound($module,$destination,$node);
+		}
+		#end of Queue Callback
 
 		#
 		# Set CID
@@ -2119,8 +2408,9 @@ if ($minimal){
 		$cidother = $matches[2];
 		$cidLang = $matches[3];
 		
-		if (isset($route['setcid'][$cidnum])){
-			$cid = $route['setcid'][$cidnum];
+		$cid = lazyLoadRow($route, 'setcid', $cidnum);
+
+		if (!empty($cid)) {
 			$label= sanitizeLabels($cid['description'])." ".sanitizeLabels("\nName= ".preg_replace('/\${CALLERID\(name\)}/i', '<name>', $cid['cid_name'])."\nNumber= ".preg_replace('/\${CALLERID\(num\)}/i', '<number>', $cid['cid_num']));
 			$tooltip='';
 			makeNode($module,$cidnum,$label,$tooltip,$node);
@@ -2151,8 +2441,9 @@ if ($minimal){
 		$ttsnum = $matches[1];
 		$ttsother = $matches[2];
 		$ttsLang= $matches[3];
-		if (isset($route['tts'][$ttsnum])){
-			$tts = $route['tts'][$ttsnum];
+		$tts = lazyLoadRow($route, 'tts', $ttsnum);
+
+		if (!empty($tts)) {
 			$label= sanitizeLabels($tts['name']);
 			$tooltip = _('Engine').": ".$tts['engine']."\n"._('Description').": ".$tts['text'];
 			makeNode($module,$ttsnum,$label,$tooltip,$node);
@@ -2176,100 +2467,6 @@ if ($minimal){
 		#end of TTS
 		
 		#
-		# Time Conditions
-		#
-  } elseif (preg_match("/^timeconditions,(\d+),(\d+),(.+)/", $destination, $matches)) {
-		$module="Time Conditions";
-    $tcnum = $matches[1];
-    $tcother = $matches[2];
-		$tcLang= $matches[3];
-		
-		if (isset($route['timeconditions'][$tcnum])){
-			$tc = $route['timeconditions'][$tcnum];
-			if (!isset($tc['mode'])){$tc['mode']='time-group';}
-			
-			$tcTooltip=$tc['displayname']."\n"._('Mode').": ".$tc['mode']."\n";
-			if (!empty($tc['timezone'])){
-				$tcTooltip.= ($tc['timezone'] !== 'default') ? _('Timezone').": " . $tc['timezone'] : '';
-			}
-			$label=sanitizeLabels($tc['displayname']);
-			$tooltip=sanitizeLabels($tcTooltip);
-			
-			makeNode($module,$tcnum,$label,$tooltip,$node);
-			if ($stop){
-				$undoNode= stopNode($dpgraph,$destination);
-				$edge= $dpgraph->beginEdge(array($node, $undoNode));
-				$edge->attribute('style', 'dashed');
-				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-				
-				return;
-			}
-
-			//TC modes
-			if ($tc['mode'] === 'time-group') {
-				$tg=$route['timegroups'][$tc['time']];
-				$tgnum = $tg['id'];
-				$tgname = $tg['description'];
-				$tgtime = !empty($tg['time']) ? $tg['time'] : "No times defined";
-				$tgLabel= $tgname."\n".$tgtime;
-				$tgLink = '/admin/config.php?display=timegroups&view=form&extdisplay='.$tgnum;
-				$tgTooltip= $tgLabel;
-			} elseif ($tc['mode'] === 'calendar-group') {
-				if (!empty($route['calendar'][$tc['calendar_id']])){
-					$cal= $route['calendar'][$tc['calendar_id']];
-					$tgLabel=$cal['name'];
-					$tgLink = '/admin/config.php?display=calendar&action=view&type=calendar&id='.$tc['calendar_id'];
-					if (!empty($cal['timezone'])){
-						$tz=$cal['timezone'];
-					}else{
-						$tz='';
-					}
-					$tgTooltip=_('Name').": ".$cal['name']."\n"._('Description').": ".$cal['description']."\n"._('Type').": ".$cal['type']."\n"._('Timezone').": ".$tz;
-					
-				}elseif (!empty($route['calendar'][$tc['calendar_group_id']])){
-					$cal= $route['calendar'][$tc['calendar_group_id']];
-					$tgLabel=$cal['name'];
-					$tgLink = '/admin/config.php?display=calendargroups&action=edit&id='.$tc['calendar_group_id'];
-					$calNames=_('Calendars').": ";
-					if (!empty($cal['calendars'])){
-						foreach ($cal['calendars'] as $c){
-							$calNames.=$route['calendar'][$c]['name']."\n";
-						}
-					}
-					
-					$cats = !empty($cal['categories']) ? count($cal['categories']) : _('All');
-					$categories='Categories= '.$cats;
-					$eves = !empty($cal['events']) ? count($cal['events']) : _('All');
-					$events=_('Events').": ".$eves;
-					$expand = $cal['expand'] ? 'true' : 'false';
-					$tgTooltip=_('Name').": ".$cal['name']."\n".$calNames."\n".$categories."\n".$events."\n"._('Expand').": ".$expand;
-				}
-			}
-			
-			# Now set the current node to be the parent and recurse on both the true and false branches
-			$route['parent_edge_label'] = " "._('Match').": ".$tgLabel;
-			$route['parent_edge_url'] = htmlentities($tgLink);
-			$route['parent_edge_target'] = '_blank';
-			$route['parent_edge_code']='edgelink';
-			$route['parent_edge_labeltooltip']=" "._('Match').": ".$tgTooltip;
-			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $tc['truegoto'].','.$tcLang,'',$options);
-			
-			
-			$route['parent_edge_code']='edgelink';
-			$route['parent_edge_label'] = " "._('No Match');
-			$route['parent_edge_url'] = htmlentities($tgLink);
-			$route['parent_edge_target'] = '_blank';
-			$route['parent_edge_labeltooltip']=" "._('No Match')."\n".$tgTooltip;
-			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $tc['falsegoto'].','.$tcLang,'',$options);
-			
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Time Conditions
- 
-		#
 		# Trunks
 		#
   } elseif (preg_match("/^ext-trunk,(\d+),(\d+),(.+)/", $destination, $matches)) {
@@ -2278,8 +2475,9 @@ if ($minimal){
 		$trunkOther = $matches[2];
 		$trunkLang = $matches[3];
 		
-		if (isset($route['trunks'][$trunkId])){
-			$trunk= $route['trunks'][$trunkId];
+		$trunk = lazyLoadRow($route, 'trunks', $trunkId);
+
+		if (!empty($trunk)) {
 			$status = ($trunk['disabled'] == 'off') ? "Enabled" : "Disabled";
 			$continue = ($trunk['continue'] == 'on') ? _('Yes') : _('No');
 			$busy=$trunk['continue'];
@@ -2297,44 +2495,6 @@ if ($minimal){
 		#end of Trunks
 
 		#
-		# Voicemail
-		#
-  } elseif (preg_match("/^ext-local,vm([b,i,s,u])(\d+),(\d+)/", $destination, $matches)) {
-		$module='Voicemail';
-		$vmtype= $matches[1];
-		$vmnum = $matches[2];
-		$vmother = $matches[3];
-		
-		$vm_array=array('b'=> _('Busy Message'),'i'=> _('Instructions Only'),'s'=> _('No Message'),'u'=> _('Unavailable Message') );
-		if (isset($route['extensions'][$vmnum]['mailbox'])){
-			$voicemail=$route['extensions'][$vmnum]['mailbox'];
-			$vmname= $voicemail['name'];
-			$vmemail= $voicemail['email'];
-			$context= $voicemail['vmcontext'];
-			$vmemail= str_replace(",",",\n",$vmemail);
-			$tooltip="\n\n"._('Voicemail: Enabled');
-			$tooltip.="\n"._('Email').": ".$vmemail;
-			
-			
-			if ($vmtype=='u' || $vmtype=='b'){$speaker='🔊 ';}else{$speaker='';}
-			$inbox = countVmMessages($vmnum, $context, 'inbox');
-			$other   = countVmMessages($vmnum, $context, 'other');
-			$messages=_('INBOX').": ".$inbox."  "._('Other').": ".$other."  "._('Total').": ".($inbox + $other);
-			$tooltip.="\n" . $messages . "\n";
-			
-			foreach ($voicemail['options'] as $m=>$mm){
-				$tooltip.="\n".ucfirst($m).": ".ucfirst($mm);
-			}
-			
-			$label=$speaker . $vmnum." ".sanitizeLabels($vmname)." (".$vm_array[$vmtype].")\n".$messages."\n".sanitizeLabels($vmemail);
-
-			makeNode($module,$vmnum,$label,$tooltip,$node);
-		}else{
-			notFound($module,$destination,$node);
-		}
-		#end of Voicemail
-	
-		#
 		# VM Blast + members
 		#
   } elseif (preg_match("/^vmblast\-grp,(\d+),(\d+),(.+)/", $destination, $matches)) {
@@ -2343,26 +2503,32 @@ if ($minimal){
 		$vmblastother = $matches[2];
 		$vmblastLang= $matches[3];
 		
-		if (isset($route['vmblasts'][$vmblastnum])){
-			$vmblast = $route['vmblasts'][$vmblastnum];
-			$audioID = $vmblast['audio_label'];
-			if ($audioID > 0){
-				
-				if (isset($route['recordings'][$audioID])){
-					$recording= $route['recordings'][$audioID];
-					$vmRecName= $recording['displayname'];
-					$recordingId=$recording['id'];
-					$featureCode= getFeatureNum($recordingId,$route);
-					$vmRecName= "🔊 "._('Audio Label')." (".$vmblastLang."): ".sanitizeLabels($vmRecName)."\n"._('Feature Code').": ".$featureCode;
-				}else{
-					$vmRecName=_('Audio Label').': '._('None');
-				}		
+		$vmblast = lazyLoadRow($route, 'vmblasts', $vmblastnum);
 
-			}elseif ($audioID=='-1'){
-				$vmRecName=_('Audio Label').": "._('Read Group Number');
-			}elseif ($audioID=='-2'){
-				$vmRecName=_('Audio Label').": "._('Beep Only - No Confirmation');
+		if (!empty($vmblast)) {
+			$recID = $vmblast['audio_label'];
+			if ($recID > 0) {
+					$recording = lazyLoadRow($route, 'recordings', $recID);
+
+					if ($recording) {
+							$vmRecName   = $recording['displayname'];
+							$recordingId = $recording['id'];
+							$featureCode = getFeatureNum($recordingId, $route);
+
+							$vmRecName = "🔊 "._('Audio Label')." (".$vmblastLang."): "
+									. sanitizeLabels($vmRecName)."\n"
+									. _('Feature Code').": ".$featureCode;
+					} else {
+							$vmRecName = _('Audio Label').': '._('None');
+					}
+
+			} elseif ($recID == '-1') {
+					$vmRecName = _('Audio Label').": "._('Read Group Number');
+
+			} elseif ($recID == '-2') {
+					$vmRecName = _('Audio Label').": "._('Beep Only - No Confirmation');
 			}
+
 			
 			$label=$vmblastnum." ".sanitizeLabels($vmblast['description'])."\n".$vmRecName;
 			if ($vmblast['password'] !=''){$pass="\nPassword: ".$vmblast['password'];}else{$pass='';}
@@ -2372,21 +2538,33 @@ if ($minimal){
 			if (!empty($vmblast['members']) && !$minimal){
 				$line="Voicemail Blast ".$vmblastnum." "._('members').":\n";
 				foreach ($vmblast['members'] as $member) {
-					if (isset($route['extensions'][$member])){
-						$line.=_('Ext')." ".$member." ".$route['extensions'][$member]['name'].": ";
-						$vmblastemail=$route['extensions'][$member]['mailbox']['email'];
-						$line.= str_replace(",",",\n",$vmblastemail)."\l";
+					// Make sure extension is loaded/hydrated
+					$extension = hydrateExtension($route, $member);
+
+					if ($extension) {
+							$line .= _('Ext')." ".$member." ".sanitizeLabels($extension['name']).": ";
+
+							$vmblastemail = '';
+							if (!empty($extension['mailbox']) && isset($extension['mailbox']['email'])) {
+									$vmblastemail = $extension['mailbox']['email'];
+							}
+
+							$line .= str_replace(",", ",\n", $vmblastemail)."\l";
+
+					} else {
+							// fallback if extension not found
+							$line .= _('Ext')." ".$member."\l";
 					}
 				}
 				
 				$memNode= $dpgraph->beginNode('vmblastmem'.$vmblastnum,
 					array(
 						'label' => $line,
-						'tooltip' => $node->getAttribute('label'),
+						'tooltip' => $line,
 						'URL' => $node->getAttribute('URL', ''),
 						'target' => '_blank',
 						'shape' => 'rect',
-						'style' => 'filled',
+						'style' => 'rounded,filled',
 						'fillcolor' => 'gainsboro'
 					)
 				);
@@ -2401,7 +2579,7 @@ if ($minimal){
 		#
 		# Custom Destinations (with return)
 		#
-	} elseif (preg_match("/^customdests,dest-(\d+),(\d+),(.+)/", $destination, $matches)) {
+	} elseif (preg_match("/^customdests,dest-(.+),(\d+),(.+)/", $destination, $matches)) {
 		$module="Custom Dests";
 		$custId=$matches[1];
 		$custLang=$matches[3];
@@ -2409,8 +2587,31 @@ if ($minimal){
 		if (isset($route['customapps'][$custId])){
 			$custDest=$route['customapps'][$custId];
 			$custReturn = ($custDest['destret'] == 1) ? _('Yes') : _('No');
-			$label="\n".$custDest['description']."\n"._('Target').": ".$custDest['target']."\l"._('Return').": ".$custReturn."\l";
-			$tooltip="";
+			
+			$target = $custDest['target'];
+			list($context) = explode(',', $target);
+
+			// Get dialplan snippet
+			$dpLines = runAstmanCommand("dialplan show $context");
+
+			// Remove "Privilege: Command" line if present
+			if (!empty($dpLines) && strpos($dpLines[0], 'Privilege:') === 0) {
+					array_shift($dpLines);
+			}
+			
+			$dpText = $dpLines ? implode("\n", $dpLines) : _("No dialplan found");
+			
+			$label= sanitizeLabels($custDest['description'])."\n"
+				. _('Target') . ": " . $target."\l"
+				. _('Return') . ": " . $custReturn."\l";
+			
+			$tooltip =  _('Description') . ": " . sanitizeLabels($custDest['description']) . "\n" 
+				. _('Target') . ": " . $target . "\n" 
+				. _('Notes') . ": " . sanitizeLabels($custDest['notes']) . "\n" 
+				. _('Return') . ": " . $custReturn
+				. "\n---\n" . sanitizeLabels($dpText)
+			;
+
 			makeNode($module,$custId,$label,$tooltip,$node);
 			
 			if ($custDest['destret']){
@@ -2432,8 +2633,8 @@ if ($minimal){
 		$node->attribute('URL', htmlentities('/admin/config.php?display=blacklist'));
 		$node->attribute('target','_blank');
 		$node->attribute('shape', 'rect');
-		$node->attribute('fillcolor', 'red');
-		$node->attribute('style', 'filled');
+		$node->attribute('fillcolor', 'orangered');
+		$node->attribute('style', 'rounded,filled');
 		#end of blacklistnotset
 		
 		
@@ -2443,6 +2644,7 @@ if ($minimal){
 	
 		if (!empty($route['customapps'])){
 			#custom destinations
+			
 			foreach ($route['customapps'] as $entry) {
 				if (preg_match('/(,[^,]+)$/', $destination, $matches)) {
 					$destLang = $matches[1]; // This will be ",en"
@@ -2460,1247 +2662,84 @@ if ($minimal){
 		
 		if (!empty($custDest)){
 			
-			if (isset($custDest['destid'])){
-				$module="Custom Dests";
-				$custId=$custDest['destid'];
+			if (isset($custDest['destid'])) {
+				$module = "Custom Dests";
+				$custId = $custDest['destid'];
 				$custReturn = ($custDest['destret'] == 1) ? _('Yes') : _('No');
-				
-				$label=sanitizeLabels($custDest['description'])."\n"._('Target').": ".$custDest['target']."\l"._('Return').": ".$custReturn."\l";
-				$tooltip=sanitizeLabels($custDest['description'])."\n"._('Target').": ".$custDest['target']."\n"._('Return').": ".$custReturn."\n";
-				makeNode($module,$custId,$label,$tooltip,$node);
 
-				if ($custDest['destret']){
-					$route['parent_edge_label']= " "._('Return');
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $custDest['dest'].$custDest['lang'],'',$options);
+				$target = $custDest['target'];
+				list($context) = explode(',', $target);
+
+				// Get dialplan snippet
+				$dpLines = runAstmanCommand("dialplan show $context");
+
+				// Remove "Privilege: Command" line if present
+				if (!empty($dpLines) && strpos($dpLines[0], 'Privilege:') === 0) {
+						array_shift($dpLines);
 				}
-			}else{
+
+				$dpText = $dpLines ? implode("\n", $dpLines) : _("No dialplan found");
+
+				$label = sanitizeLabels($custDest['description'])	. "\n" 
+				. _('Target') . ": " . $target . "\l"
+				. _('Return') . ": " . $custReturn . "\l";
+
+				$tooltip = _('Description') . ": " . sanitizeLabels($custDest['description']) . "\n" 
+						. _('Target') . ": " . $target . "\n" 
+						. _('Notes') . ": " . sanitizeLabels($custDest['notes']) . "\n" 
+						. _('Return') . ": " . $custReturn
+						. "\n---\n" . sanitizeLabels($dpText);
+
+				makeNode($module, $custId, $label, $tooltip, $node);
+
+				if ($custDest['destret']) {
+						$route['parent_edge_label'] = " "._('Return');
+						$route['parent_node'] = $node;
+						dpp_follow_destinations($route, $custDest['dest'].$custDest['lang'], '', $options);
+				}
+		}else{
 				notFound($module,$destination,$node);
 			}
 		}else{
 			dpplog(1, "Unknown destination type: $destination");
 			$node->attribute('fillcolor', $pastels[12]);
 			$node->attribute('label', sanitizeLabels($destination));
-			$node->attribute('style', 'filled');
+			$node->attribute('shape', 'rect');
+			$node->attribute('style', 'rounded,filled');
     }
   }
 }
 
-# load gobs of data.  Save it in hashrefs indexed by ints
+# Load Custom Destinations (special case: must eager load)
 function dpp_load_tables(&$dproute) {
-	global $db;
-	
-	# Users
-	$users=\FreePBX::Core()->getAllUsersByDeviceType();
+    global $db;
 
-  foreach($users as $user) {
-		$id = $user['extension'];
-		$dproute['extensions'][$id]= $user;
-		$mailbox=\FreePBX::Voicemail()->getMailbox($id);
-		$dproute['extensions'][$id]['mailbox']=$mailbox;
-		
-  }
-	
-	
-	# Inbound Routes
-  $query = "select * from incoming order by extension";
-  $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
-  if (DB::IsError($results)) {
-    die_freepbx($results->getMessage()."<br><br>Error selecting from incoming");
-  }
-  foreach($results as $incoming) {
-		$id = empty($incoming['extension']) ? 'ANY' : $incoming['extension'];
-		if (!empty($incoming['cidnum'])){
-			$cid='&'.$incoming['cidnum'];
-		}else{
-			$cid='';
-		}
-		
-    $dproute['incoming'][$id.$cid] = $incoming;
-  }	
-	
-  # IVRs
-  $query = "select * from ivr_details";
-  $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
-  if (DB::IsError($results)) {
-    die_freepbx($results->getMessage()."<br><br>Error selecting from ivr_details");       
-  }
-  foreach($results as $ivr) {
-    $id = $ivr['id'];
-    $dproute['ivrs'][$id] = $ivr;
-  }
+    $table = 'kvstore_FreePBX_modules_Customappsreg';
 
-  # IVR entries 
-  $query = "select * from ivr_entries";
-  $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
-  if (DB::IsError($results)) {
-    die_freepbx($results->getMessage()."<br><br>Error selecting from ivr_entries");       
-  }
-  foreach($results as $ent) {
-    $id = $ent['ivr_id'];
-    $selid = $ent['selection'];
-    dpplog(9, "entry:  ivr=$id   selid=$selid");
-    $dproute['ivrs'][$id]['entries'][$selid] = $ent;
-  }
-
-	// Array of table names to check -not required
-	$tables = array('announcement','callback','callrecording','daynight','directory_details','disa','dynroute','dynroute_dests',
-									'featurecodes','findmefollow','kvstore_FreePBX_modules_Calendar','kvstore_FreePBX_modules_Customappsreg','language_incoming',
-									'languages','meetme','miscapps','miscdests','paging_config','paging_groups','queueprio','queues_config','queues_details',
-									'recordings','ringgroups','setcid','timeconditions','timegroups_groups','timegroups_details','trunks','tts',
-									'virtual_queue_config','vmblast','vmblast_groups','vqplus_callback_config','vqplus_queue_config'
-						);
-	
-	foreach ($tables as $table) {
     // Check if the table exists
-    $tableExists = $db->getOne("SHOW TABLES LIKE '$table'");
-    
+    $tableExists = $db->getOne("SHOW TABLES LIKE " . q($table));
     if (!$tableExists) {
-        // Skip to the next table if the current table does not exist
-        continue;
+        dpplog(9, "Skipping load: table $table does not exist");
+        return;
     }
 
     $query = "SELECT * FROM $table";
     $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
-    
+
     if (DB::IsError($results)) {
-        // Log the error but continue to check the other tables
         dpplog(9, "Error selecting from $table: " . $results->getMessage());
-        continue;  // Skip to the next table
-    }
-
- 		if ($table == 'announcement') {
-				foreach($results as $an) {
-					$id = $an['announcement_id'];
-					$dproute['announcements'][$id] = $an;
-					$dest = $an['post_dest'];
-					dpplog(9, "announcement dest:  an=$id   dest=$dest");
-					$dproute['announcements'][$id]['dest'] = $dest;
-				}
-		}elseif ($table == 'callback') {
-				foreach($results as $callback) {
-					$id = $callback['callback_id'];
-					$dproute['callback'][$id] = $callback;
-					dpplog(9, "callback=$id");
-				}
-		}elseif ($table == 'callrecording') {
-				foreach($results as $callrecording) {
-					$id = $callrecording['callrecording_id'];
-					$dproute['callrecording'][$id] = $callrecording;
-					dpplog(9, "callrecording=$id");
-				}
-		}elseif ($table == 'daynight') {
-				foreach($results as $daynight) {
-					$id = $daynight['ext'];
-					if (!isset($dproute['daynight'][$id])) {
-							$dproute['daynight'][$id] = array();
-					}
-					$dproute['daynight'][$id][] = $daynight;
-					dpplog(9, "daynight=$id");
-				}
-		}elseif ($table == 'directory_details') {
-				foreach($results as $directory) {
-					$id = $directory['id'];
-					$dproute['directory'][$id] = $directory;
-					dpplog(9, "directory=$id");
-				}
-		}elseif ($table == 'disa') {
-				foreach($results as $disa) {
-					$id = $disa['disa_id'];
-					$dproute['disa'][$id] = $disa;
-					dpplog(9, "disa=$id");
-				}
-		}elseif ($table == 'dynroute') {
-        foreach ($results as $dynroute) {
-            $id = $dynroute['id'];
-            $dproute['dynroute'][$id] = $dynroute;
-            dpplog(9, "dynroute=$id");
-        }
-    }elseif ($table == 'dynroute_dests') {
-        foreach ($results as $dynroute_dests) {
-            $id = $dynroute_dests['dynroute_id'];
-            $selid = $dynroute_dests['selection'];
-            dpplog(9, "dynroute_dests: dynroute=$id match=$selid");
-            $dproute['dynroute'][$id]['routes'][$selid] = $dynroute_dests;
-        }
-    }elseif ($table == 'featurecodes') {
-        foreach($results as $featurecodes) {
-					$id=$featurecodes['defaultcode'];
-					$dproute['featurecodes'][$id] = $featurecodes;
-					dpplog(9, "featurecodes=$id");
-				}
-		}elseif ($table == 'findmefollow') {
-        foreach($results as $findmefollow) {
-					$id=$findmefollow['grpnum'];
-					$dproute['extensions'][$id]['fmfm'] = $findmefollow;
-					$check = \FreePBX::Findmefollow()->getDDial($id);
-					
-					if ($check){
-						$dproute['extensions'][$id]['fmfm']['ddial']='EXTENSION';
-					}else{
-						$dproute['extensions'][$id]['fmfm']['ddial']='DIRECT';
-					}
-				}
-		}elseif ($table == 'kvstore_FreePBX_modules_Calendar') {
-			foreach($results as $calendar) {
-				if ($calendar['id']=='calendars'){
-					$id=$calendar['key'];
-					$val=json_decode($calendar['val'],true);
-					$dproute['calendar'][$id] = $val;
-					dpplog(9, "calendar=$id");
-				}elseif ($calendar['id']=='groups'){
-					$id=$calendar['key'];
-					$val=json_decode($calendar['val'],true);
-					$dproute['calendar'][$id] = $val;
-					dpplog(9, "calendar=$id");
-				}
-			}
-    }elseif ($table == 'kvstore_FreePBX_modules_Customappsreg') {
-        foreach($results as $Customappsreg) {
-					if (is_numeric($Customappsreg['key'])){
-						$id=$Customappsreg['key'];
-						$val=json_decode($Customappsreg['val'],true);
-						$dproute['customapps'][$id] = $val;
-						dpplog(9, "customapps=$id");
-					}
-				}
-    }elseif ($table == 'language_incoming') {
-        foreach($results as $language_in) {
-					$dproute['incoming'][$language_in['extension'].$language_in['cidnum']]['language'] = $language_in['language'];
-					dpplog(9, "languages=$id");
-				}		
-    }elseif ($table == 'languages') {
-        foreach($results as $languages) {
-					$id=$languages['language_id'];
-					$dproute['languages'][$id] = $languages;
-					dpplog(9, "languages=$id");
-				}		
-    }elseif ($table == 'meetme') {
-        foreach($results as $meetme) {
-					$id = $meetme['exten'];
-					$dproute['meetme'][$id] = $meetme;
-					dpplog(9, "meetme dest:  conf=$id");
-				}
-    }elseif ($table == 'miscapps') {
-        foreach($results as $miscapps) {
-					$id = $miscapps['miscapps_id'];
-					$dproute['miscapps'][$id] = $miscapps;
-					dpplog(9, "miscapps dest: $id");
-				}
-		}elseif ($table == 'miscdests') {
-        foreach($results as $miscdest) {
-					$id = $miscdest['id'];
-					$dproute['miscdest'][$id] = $miscdest;
-					dpplog(9, "miscdest dest: $id");
-				}
-		}elseif ($table == 'paging_config') {
-        foreach($results as $pageConf) {
-					$id = $pageConf['page_group'];
-					$dproute['paging'][$id] = $pageConf;
-					dpplog(9, "paging_config dest: $id");
-				}
-		}elseif ($table == 'paging_groups') {
-        foreach($results as $pageGrp) {
-					$id = $pageGrp['page_number'];
-					$ext= $pageGrp['ext'];
-					$dproute['paging'][$id]['members'][]= $ext;
-					dpplog(9, "paging_groups dest: $id");
-				}
-		}elseif ($table == 'queueprio') {
-        foreach($results as $queueprio) {
-					$id = $queueprio['queueprio_id'];
-					$dproute['queueprio'][$id] = $queueprio;
-					dpplog(9, "queueprio dest: $id");
-				}
-		}elseif ($table == 'queues_config') {
-        foreach($results as $q) {
-					$id = $q['extension'];
-					$dproute['queues'][$id] = $q;
-					$dproute['queues'][$id]['members']['static']=array();
-				}
-		}elseif ($table == 'queues_details') {
-        foreach($results as $qd) {
-					$id = $qd['id'];
-					if ($qd['keyword'] == 'member') {
-						$member = $qd['data'];
-						$staticMembers = array();
-						if (preg_match("/Local\/(\d+).*?,(\d+)/", $member, $matches)) {
-							$enum = $matches[1];
-							$pen= $matches[2];
-							$staticMembers[] = $enum.','.$pen;
-						}
-	
-						addAndSortMembers($dproute['queues'][$id]['members']['static'], $staticMembers);
-						
-					}else{
-						$dproute['queues'][$id]['data'][$qd['keyword']]=$qd['data'];
-					}
-				}
-				
-    }elseif ($table == 'recordings') {
-        foreach($results as $recordings) {
-					$id=$recordings['id'];
-					$dproute['recordings'][$id] = $recordings;
-				}
-    }elseif ($table == 'ringgroups') {
-        foreach($results as $rg) {
-					 if (isset($rg['grplist']) && strlen($rg['grplist'])) {
-							$items = explode('-', $rg['grplist']);
-
-							usort($items, function($a, $b) {
-									$numA = (int) rtrim($a, '#');
-									$numB = (int) rtrim($b, '#');
-									return ($numA < $numB) ? -1 : (($numA > $numB) ? 1 : 0);
-							});
-
-							$rg['grplist'] = implode('-', $items);
-					}
-					$id = $rg['grpnum'];
-					$dproute['ringgroups'][$id] = $rg;
-				}
-    }elseif ($table == 'setcid') {
-        foreach($results as $cid) {
-					$id = $cid['cid_id'];
-					$dproute['setcid'][$id] = $cid;
-				}
-		}elseif ($table == 'timeconditions') {
-        foreach($results as $tc) {
-					$id = $tc['timeconditions_id'];
-					$dproute['timeconditions'][$id] = $tc;
-				}
-		}elseif ($table == 'timegroups_groups') {			
-        foreach($results as $tg) {
-					$id = $tg['id'];
-					$dproute['timegroups'][$id] = $tg;
-				}
-		}elseif ($table == 'timegroups_details') {
-				$dowMap = array(
-						'mon' => _('Mon'),
-						'tue' => _('Tue'),
-						'wed' => _('Wed'),
-						'thu' => _('Thu'),
-						'fri' => _('Fri'),
-						'sat' => _('Sat'),
-						'sun' => _('Sun'),
-				);
-
-				$monthMap = array(
-						'jan' => _('Jan'),
-						'feb' => _('Feb'),
-						'mar' => _('Mar'),
-						'apr' => _('Apr'),
-						'may' => _('May'),
-						'jun' => _('Jun'),
-						'jul' => _('Jul'),
-						'aug' => _('Aug'),
-						'sep' => _('Sep'),
-						'oct' => _('Oct'),
-						'nov' => _('Nov'),
-						'dec' => _('Dec'),
-				);
-
-				// Mappings for sort order
-				$dowOrder = array('*' => 0, 'sun' => 0, 'mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6);
-				$monthOrder = array('*' => 0, 'jan'=>1,'feb'=>2,'mar'=>3,'apr'=>4,'may'=>5,'jun'=>6,'jul'=>7,'aug'=>8,'sep'=>9,'oct'=>10,'nov'=>11,'dec'=>12);
-
-				// Add sort keys to each row
-				foreach ($results as &$tgd) {
-						list($timeStr, $dowStr, $domStr, $monthStr) = explode('|', $tgd['time']);
-
-						// Start time as int (HHMM) or 0 for "*"
-						if ($timeStr === '*') {
-								$tgd['_time'] = 0;
-						} else {
-								$tStart = explode('-', $timeStr);
-								$tgd['_time'] = isset($tStart[0]) ? intval(str_replace(':', '', $tStart[0])) : 0;
-						}
-
-						// Day-of-week order
-						$dowParts  = explode('-', $dowStr);
-						$dowFirst  = strtolower($dowParts[0]);
-						$tgd['_dow'] = isset($dowOrder[$dowFirst]) ? $dowOrder[$dowFirst] : 0;
-
-						// Day-of-month order
-						$domParts = explode('-', $domStr);
-						$tgd['_dom'] = ($domStr === '*') ? 0 : intval($domParts[0]);
-
-						// Month order
-						$monthParts  = explode('-', $monthStr);
-						$monthFirst  = strtolower($monthParts[0]);
-						$tgd['_month'] = isset($monthOrder[$monthFirst]) ? $monthOrder[$monthFirst] : 0;
-				}
-				unset($tgd); // break reference
-
-				usort($results, function($a, $b) {
-						if ($a['_month'] !== $b['_month']) return $a['_month'] - $b['_month'];
-						if ($a['_dom']   !== $b['_dom'])   return $a['_dom']   - $b['_dom'];
-						if ($a['_dow']   !== $b['_dow'])   return $a['_dow']   - $b['_dow'];
-						return $a['_time'] - $b['_time'];
-				});
-
-        foreach($results as $tgd) {
-					$id = $tgd['timegroupid'];
-					if (!isset($dproute['timegroups'][$id])) {
-						dpplog(1, "timegroups_details id found for unknown timegroup, id=$id");
-					} else {
-						if (!isset($dproute['timegroups'][$id]['time'])){$dproute['timegroups'][$id]['time']="";}
-						$check=checkTimeGroupLogic($tgd['time']);
-						$exploded=explode("|",$tgd['time']);
-						
-						$time  = ($exploded[0] !== "*") ? $exploded[0] : "";
-						$dow   = translateRange($exploded[1], $dowMap);
-						$day   = ($exploded[2] !== "*") ? $exploded[2] : "";
-						$month = translateRange($exploded[3], $monthMap);
-						
-						if ($month && ($dow!='' || $day!='' || $time!='')){$month.=" | ";}
-						if ($day && ($dow!='' || $time!='')){$day.=" | ";}
-						if ($dow && ($time!='')){$dow.=" | ";}
-						$dproute['timegroups'][$id]['time'].=$month . $day . $dow . $time . $check."\l";
-					}
-				}
-    }elseif ($table == 'trunks') {
-        foreach($results as $trunk) {
-					$id = $trunk['trunkid'];
-					$dproute['trunks'][$id] = $trunk;
-				}
-		}elseif ($table == 'tts') {
-        foreach($results as $tts) {
-					$id = $tts['id'];
-					$dproute['tts'][$id] = $tts;
-				}
-    }elseif ($table == 'vqplus_callback_config') {
-				foreach($results as $vqcallback) {
-					$id = $vqcallback['id'];
-					$dproute['queuecallback'][$id] = $vqcallback;
-				}
-		}elseif ($table == 'virtual_queue_config') {
-				foreach($results as $vqueues) {
-					$id = $vqueues['id'];
-					$dproute['vqueues'][$id] = $vqueues;
-				}
-		}elseif ($table == 'vmblast') {
-				foreach($results as $vmblasts) {
-					$id = $vmblasts['grpnum'];
-					dpplog(9, "vmblast:  vmblast=$id");
-					$dproute['vmblasts'][$id] = $vmblasts;
-				}
-		}elseif ($table == 'vmblast_groups') {
-				foreach($results as $vmblastsGrp) {
-					$id = $vmblastsGrp['grpnum'];
-					dpplog(9, "vmblast:  vmblast=$id");
-					$dproute['vmblasts'][$id]['members'][]=$vmblastsGrp['ext'];
-				}
-		}elseif ($table == 'vqplus_queue_config') {
-				foreach($results as $vqplus) {
-					$id = $vqplus['queue_num'];
-					$dproute['queues'][$id]['vqplus']=$vqplus;
-				}
-		}
-	}
-	
-}
-# END load gobs of data.
-
-function sanitizeLabels($text) {
-    if ($text === null) {
-        $text = '';
-    }
-		
-		$text = htmlentities($text, ENT_QUOTES, 'UTF-8');
-
-    return $text;
-}
-
-function dpplog($level, $msg) {
-    global $dpp_log_level;
-
-    if (!isset($dpp_log_level) || $dpp_log_level < $level) {
         return;
     }
 
-    $ts = date('Y-m-d H:i:s');
-    $logFile = "/var/log/asterisk/dpviz.log";
-
-    $fd = fopen($logFile, "a");
-    if (!$fd) {
-        error_log("Couldn't open log file: $logFile");
-        return;
-    }
-
-    fwrite($fd, "[$ts] [Level $level] $msg\n");
-    fclose($fd);
-}
-
-function secondsToTimes($seconds) {
-	
-		if (!is_numeric($seconds) || $seconds < 0) {
-			return $seconds;
-		}
-		
-    $seconds = (int) round($seconds); // Ensure whole number input
-
-    $hours = (int) ($seconds / 3600);
-    $minutes = (int) (($seconds % 3600) / 60);
-    $remainingSeconds = $seconds % 60;
-
-    if ($hours > 0) {
-        return $remainingSeconds === 0 
-					? "$hours hrs, $minutes mins" 
-					: "$hours hrs, $minutes mins, $remainingSeconds secs";
-    } elseif ($minutes > 0) {
-        return $remainingSeconds === 0 
-					? "$minutes mins" 
-					: "$minutes mins, $remainingSeconds secs";
-    } else {
-        return "$remainingSeconds secs";
-    }
-}
-
-
-function formatPhoneNumbers($phoneNumber) {
-    $hasPlusOne = strpos($phoneNumber, '+1') === 0;
-
-    // Strip all non-digit characters
-    $digits = preg_replace('/\D/', '', $phoneNumber);
-
-    // If +1 was present, remove the leading '1' from digits so we format the last 10
-    if ($hasPlusOne && strlen($digits) === 11 && $digits[0] === '1') {
-        $digits = substr($digits, 1);
-    }
-
-    if (strlen($digits) === 10) {
-        $areaCode = substr($digits, 0, 3);
-        $nextThree = substr($digits, 3, 3);
-        $lastFour = substr($digits, 6, 4);
-
-        if ($hasPlusOne) {
-            return '+1 (' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
-        } else {
-            return '(' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
-        }
-    }
-
-    // Return original if it doesn't fit expected pattern
-    return $phoneNumber;
-}
-
-function sanitize_filename($string, $replace_with = '_') {
-    // Replace spaces and other separators with underscore (or your preferred character)
-    $string = preg_replace('/[^\w\-\.]+/', $replace_with, $string);
-
-    // Remove multiple consecutive replace characters
-    $string = preg_replace('/' . preg_quote($replace_with, '/') . '+/', $replace_with, $string);
-
-    // Trim leading/trailing replace character
-    $string = trim($string, $replace_with);
-
-    // Prevent reserved names (optional for Windows safety)
-    $reserved = array('CON','PRN','AUX','NUL','COM1','COM2','COM3','COM4','COM5','COM6','COM7','COM8','COM9',
-                 'LPT1','LPT2','LPT3','LPT4','LPT5','LPT6','LPT7','LPT8','LPT9');
-    if (in_array(strtoupper($string), $reserved)) {
-        $string = '_' . $string;
-    }
-
-    return $string;
-}
-
-function makeNode($module,$id,$label,$tooltip,$node){
-
-	switch ($module) {
-			case 'Announcement':
-					$url='#';
-					$shape='note';
-					$color='oldlace';
-					break;
-
-			case 'Callback':
-					$url=strtolower($module).'&view=form&itemid='.$id;
-					$shape='rect';
-					$color='#F7A8A8';
-					break;
-
-			case 'Call Flow':
-					$url='daynight&view=form&itemid='.$id.'&extdisplay='.$id;
-					$shape='rect';
-					$color='#F7A8A8';
-					break;
-
-			case 'Call Recording':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='rect';
-					$color='burlywood';
-					break;
-			
-			case 'Conferences':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
-					$shape='rect';
-					$color='burlywood';
-					break;
-
-			case 'Custom Dests':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&destid='.$id;
-					$shape='component';
-					$color='#D1E8E2';
-					break;
-
-			case 'Directory':
-					$url=strtolower($module).'&view=form&id='.$id;
-					$shape='folder';
-					$color='#eb94e2';
-					break;
-
-			case 'DISA':
-					$url=strtolower($module).'&view=form&itemid='.$id;
-					$shape='folder';
-					$color='#eb94e2';
-					break;
-
-			case 'Dyn Route':
-					$url=str_replace(' ', '', strtolower($module)).'&action=edit&id='.$id;
-					$shape='component';
-					$color='#92b8ef';
-					break;
-
-			case 'Feature Code':
-					$url=str_replace(' ', '', strtolower($module)).'admin';
-					$shape='folder';
-					$color='gainsboro';
-					break;
-
-			case 'IVR':
-					$url=strtolower($module).'&action=edit&id='.$id;
-					$shape='component';
-					$color='gold';
-					break;
-
-			case 'Languages':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
-					$shape='note';
-					$color='#ed9581';
-					break;
-
-			case 'Misc Apps':
-					$url=str_replace(' ', '', strtolower($module)).'&action=edit&extdisplay='.$id;
-					$shape='rpromoter';
-					$color='#5FFEF7';
-					break;
-
-			case 'Misc Dests':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='rpromoter';
-					$color='coral';
-					break;
-
-			case 'Paging':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='tab';
-					$color='#87CEFA';
-					break;
-			
-			case 'Phonebook':
-					$url='phonebook';
-					$shape='folder';
-					$color='#BDB76B';
-					break;
-			
-			case 'Queue Callback':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&id='.$id;
-					$shape='rect';
-					$color='#98FB98';
-					break;
-
-			case 'Queues':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
-					$shape='hexagon';
-					$color='mediumaquamarine';
-					break;
-
-			case 'Queue Priorities':
-					$url='queueprio&view=form&extdisplay='.$id;
-					$shape='rect';
-					$color='#FFC3A0';
-					break;
-
-			case 'Ring Groups':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='rect';
-					$color='#92b8ef';
-					break;
-
-			case 'Set CID':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&id='.$id;
-					$shape='note';
-					$color='#ed9581';
-					break;
-
-			case 'Time Conditions':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&itemid='.$id;
-					$module="TC";
-					$shape='invhouse';
-					$color='dodgerblue';
-					break;
-			
-			case 'TTS':
-					$url=strtolower($module).'&view=form&id='.$id;
-					$shape='note';
-					$color='#ed9581';
-					break;
-
-			case 'Trunks':
-					$idArray=explode(",",$id);
-					$url=strtolower($module).'&tech='.$idArray[0].'&extdisplay=OUT_'.$idArray[1];
-					$shape='rarrow';
-					$color='#66CDAA';
-					break;
-					
-			case 'VM Blast':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='folder';
-					$color='gainsboro';
-					break;
-
-			case 'Virtual Queues':
-					$url='vqueue&action=modify&id='.$id;
-					$module='VQueue';
-					$shape='hexagon';
-					$color='#00FA9A';
-					break;
-
-			case 'Voicemail':
-					$url='voicemail&action=bsettings&ext='.$id;
-					$shape='folder';
-					$color='#979291';
-					break;
-
-			default:
-					// Code to execute if no case matches
-	}
-
-	$node->attribute('label', "{$module}: {$label}");
-	$node->attribute('tooltip', $tooltip);
-	$node->attribute('URL', htmlentities('/admin/config.php?display='.$url));
-	$node->attribute('target', '_blank');
-	$node->attribute('shape', $shape);
-	$node->attribute('fillcolor', $color);
-	$node->attribute('style', 'filled');
-	
-	return $node;
-}
-
-function stopNode($dpgraph,$id){
-		$undoNode = $dpgraph->beginNode('undoLast'.$id,
-			array(
-				'label' => '+',
-				'tooltip' => _('Click to continue...'),
-				'shape' => 'circle',
-				'URL' => '#',
-				'fontcolor' => '#FFFFFF',
-				'fontsize' => '45pt',
-				'fixedsize' => true,
-				'fillcolor' => '#4A90E2',
-				'style' => 'filled'
-			)
-		);				
-		return $undoNode;
-}
-
-function notFound($module,$destination,$node){
-	
-	$pos = strrpos($destination, ',');
-	if ($pos !== false) {
-			$output = substr($destination, 0, $pos);
-	} else {
-			$output = $destination; // No comma found
-	}
-	
-	$node->attribute('label', _('Bad Dest').": {$module}: {$output}");
-	$node->attribute('tooltip', _('Bad Dest').": {$module}: {$output}");
-	$node->attribute('shape', 'rect');
-	$node->attribute('fillcolor', 'red');
-	$node->attribute('style', 'filled');
-	
-	return $node;
-}
-
-function findRecording($route,$id){
-	if (is_numeric($id)){
-		
-		if (isset($route['recordings'][$id])){
-			$name=$route['recordings'][$id]['displayname'];
-		}else{
-			$name=_('not found');
-		}
-	}elseif ($id==''){
-		$name=_('None');
-	}else{
-		$name=$id;
-	}
-	return $name;
-}
-
-function checkTimeGroupLogic($entry) {
-    list($time, $dow, $dom, $month) = explode('|', $entry);
-
-    $errors = array();
-
-    $monthOrder = array('jan'=>1,'feb'=>2,'mar'=>3,'apr'=>4,'may'=>5,'jun'=>6,
-                   'jul'=>7,'aug'=>8,'sep'=>9,'oct'=>10,'nov'=>11,'dec'=>12);
-
-    $monthStart = $monthEnd = null;
-    $monthInverted = false;
-
-    // Check for inverted month range
-    if ($month !== '*') {
-        if (preg_match('/(\w{3})-(\w{3})/', strtolower($month), $m)) {
-            if (isset($monthOrder[$m[1]], $monthOrder[$m[2]])) {
-                $monthStart = $monthOrder[$m[1]];
-                $monthEnd = $monthOrder[$m[2]];
-
-                if ($monthStart > $monthEnd) {
-                    $monthInverted = true;
-                    $errors[] = _('month inverted');
-                }
+    foreach ($results as $row) {
+        if (is_numeric($row['key'])) {
+            $id  = $row['key'];
+            $val = json_decode($row['val'], true);
+            if (is_array($val)) {
+                $dproute['customapps'][$id] = $val;
+                dpplog(9, "customapps=$id");
             }
         }
     }
-
-    $dayStart = $dayEnd = null;
-    $dayInverted = false;
-
-    // Check for inverted day-of-month
-    if ($dom !== '*' && preg_match('/(\d{1,2})-(\d{1,2})/', $dom, $d)) {
-        $dayStart = (int)$d[1];
-        $dayEnd = (int)$d[2];
-
-        if ($dayStart > $dayEnd) {
-            $dayInverted = true;
-            $errors[] = _('day-of-month inverted');
-        }
-    }
-
-    if (!empty($errors)) {
-        return " ❌ " . implode(', ', $errors);
-    }
-
-    return null;
 }
-
-
-function isExtensionRegistered($extension, $tech) {
-    $astman = \FreePBX::create()->astman;
-
-    // Choose command based on technology
-    switch (strtoupper($tech)) {
-        case 'PJSIP':
-            $cmd = "pjsip show aor $extension";
-            break;
-        case 'SIP':
-            $cmd = "sip show peer $extension";
-            break;
-        case 'IAX':
-            $cmd = "iax2 show peer $extension";
-            break;
-        default:
-            return false; // Unknown technology
-    }
-
-    // Run the command
-    $response = $astman->send_request('Command', array('Command' => $cmd));
-
-    // Extract data
-    $data = '';
-    if (isset($response['data'])) {
-        $data = is_array($response['data']) ? implode("\n", $response['data']) : $response['data'];
-    }
-
-    // Parse based on tech
-    if (strtoupper($tech) === 'PJSIP') {
-    $aors = parsePjsipAors($data);
-			foreach ($aors as $aor) {
-					foreach ($aor['contacts'] as $contactLine) {
-							// Match "Avail" and extract latency
-							if (preg_match('/\bAvail\b\s+([\d.]+)/i', $contactLine, $m)) {
-									return true; // Consider it reachable
-							}
-					}
-			}
-		}elseif (preg_match('/Status\s*:\s*(\S+)/i', $data, $m)) {
-			// SIP or IAX: look for "Status: OK" or similar
-			return (stripos($m[1], 'OK') !== false);
-    }
-
-    return false;
-}
-
-function parsePjsipAors($data) {
-    $lines = explode("\n", $data);
-    $aors = array();
-    $currentAor = null;
-
-    foreach ($lines as $line) {
-        $line = trim($line);
-
-        if (preg_match('/^Aor:\s+(\S+)/', $line, $match)) {
-            $currentAor = $match[1];
-            $aors[$currentAor] = array(
-                'contact_found' => false,
-                'contacts' => array(),
-            );
-        }
-
-        if ($currentAor && strpos($line, 'Contact:') === 0) {
-            $aors[$currentAor]['contact_found'] = true;
-            $aors[$currentAor]['contacts'][] = $line;
-        }
-    }
-
-    return $aors;
-}
-
-function translateRange($value, $map) {
-    if ($value === '*') return '';
-		
-    $parts = explode('-', $value);
-    $translated = array_map(function($part) use ($map) {
-        return isset($map[$part]) ? $map[$part] : $part;
-    }, $parts);
-		
-		
-		
-    return implode('-', $translated);
-}
-
-
-function getFeatureNum($recID, $route) {
-	
-		if (strpos($route['recordings'][$recID]['filename'], '&') !== false) {
-				//cannot record on concact files.
-				
-		} elseif (isset($route['featurecodes']['*29' . $recID])) {
-        $fc = $route['featurecodes']['*29' . $recID];
-
-        // pick custom code if set, otherwise default
-        $featurenum = !empty($fc['customcode']) ? $fc['customcode'] : $fc['defaultcode'];
-
-        // check if enabled
-        if (
-            isset($route['recordings'][$recID]['fcode']) &&
-            $route['recordings'][$recID]['fcode'] == '1' &&
-            $fc['enabled'] == '1'
-        ) {
-            return $featurenum;
-        } else {
-            return $featurenum . ' (' . _('Disabled') . ')';
-        }
-    }
-
-    return _('Disabled');
-}
-
-function countVmMessages($ext, $context, $folderType) {
-    $basePath = "/var/spool/asterisk/voicemail/$context/$ext";
-
-    if ($folderType === "inbox") {
-        $path = "$basePath/INBOX";
-        return is_dir($path) ? count(glob("$path/*.txt")) : 0;
-    }
-
-    if ($folderType === "other") {
-        $folders = array("Family", "Friends", "Old", "Work", "Urgent");
-        $count = 0;
-        foreach ($folders as $f) {
-            $path = "$basePath/$f";
-            if (is_dir($path)) {
-                $count += count(glob("$path/*.txt"));
-            }
-        }
-        return $count;
-    }
-
-    // If invalid type passed, return 0
-    return 0;
-}
-
-/**
- * Add members to a queue array and keep them sorted.
- *
- * @param array &$queueMembers Reference to the members array (static or dynamic)
- * @param array $newMembers    Array of members in "enum,pen" format
- */
-function addAndSortMembers(&$queueMembers, $newMembers) {
-    if (!isset($queueMembers) || !is_array($queueMembers)) {
-        $queueMembers = array();
-    }
-
-    // Add all new members
-    foreach ($newMembers as $member) {
-        $queueMembers[] = trim($member);
-    }
-
-    // Sort by pen first, then enum
-    usort($queueMembers, function($a, $b) {
-        $partsA = explode(',', $a);
-        $partsB = explode(',', $b);
-
-        $enumA = (int)$partsA[0];
-        $penA  = (int)$partsA[1];
-        $enumB = (int)$partsB[0];
-        $penB  = (int)$partsB[1];
-
-        if ($penA != $penB) {
-            return $penA - $penB;
-        }
-
-        return $enumA - $enumB;
-    });
-}
-
-function loadRegistrations() {
-    static $registrations = null;
-
-    if ($registrations !== null) {
-        return $registrations; // already cached
-    }
-
-    $astman = \FreePBX::create()->astman;
-    $registrations = array();
-
-    // --- Handle PJSIP ---
-    $resp = $astman->send_request('Command', ['Command' => 'database show registrar contact']);
-    if (!empty($resp['data'])) {
-        $lines = explode("\n", $resp['data']);
-        foreach ($lines as $line) {
-            if (strpos($line, '{') !== false) {
-                $json = trim(substr($line, strpos($line, '{')));
-                $decoded = json_decode($json, true);
-
-                if ($decoded && !empty($decoded['endpoint']) && !empty($decoded['user_agent'])) {
-                    $endpoint = $decoded['endpoint'];
-                    if (!isset($registrations[$endpoint])) {
-                        $registrations[$endpoint] = array();
-                    }
-                    $registrations[$endpoint][] = $decoded['user_agent'];
-                }
-            }
-        }
-    }
-
-    // --- Handle SIP (chan_sip) ---
-    $resp = $astman->send_request('Command', ['Command' => 'sip show peers']);
-    if (!empty($resp['data'])) {
-        $lines = explode("\n", $resp['data']);
-        foreach ($lines as $line) {
-            if (preg_match('/^(\d+)\//', trim($line), $m)) {
-                $ext = $m[1];
-                $peerResp = $astman->send_request('Command', ['Command' => "sip show peer $ext"]);
-                if (!empty($peerResp['data']) && preg_match('/Useragent\s*:\s*(.+)/i', $peerResp['data'], $ua)) {
-                    if (!isset($registrations[$ext])) {
-                        $registrations[$ext] = array();
-                    }
-                    $registrations[$ext][] = trim($ua[1]);
-                }
-            }
-        }
-    }
-    return $registrations;
-}
-
-function getUserAgent($extension) {
-    $registrations = loadRegistrations();
-    $key = $extension;
-
-    if (isset($registrations[$key])) {
-        return $registrations[$key];
-    } else {
-        return array();
-    }
-}
-
-function buildExtTooltip($ext, &$route) {
-    static $tooltipCache = array();
-
-    // Return cached tooltip if exists
-    if (isset($tooltipCache[$ext])) {
-        return $tooltipCache[$ext];
-    }
-
-    $tooltip = '';
-
-    if (!isset($route['extensions'][$ext])) {
-        $tooltipCache[$ext] = $tooltip;
-        return $tooltip;
-    }
-
-    $extension = &$route['extensions'][$ext];
-
-    // Hydrate extension info (reg_status, dnd, cf, etc.)
-    $extension = prepareExtension($extension, $ext);
-
-    // Tech & Registration
-    $tooltip .= "\n\n" . _('Tech') . ": " . strtoupper($extension['tech']);
-    $tooltip .= "\n" . _('Registration') . ": " . ($extension['reg_status'] ? _('Yes') : _('No'));
-
-    // User Agent
-    $ua = getUserAgent($ext);
-    if (!empty($ua)) {
-        $tooltip .= "\n" . _('User Agent') . ":\n" . implode("\n", $ua) . "\n";
-    } else {
-        $tooltip .= "\n";
-    }
-
-    // DND & Call Forward
-    $tooltip .= "\n" . _('Do Not Disturb') . ": " . ($extension['dnd'] ? _('Enabled') : _('Disabled'));
-    $tooltip .= "\n" . _('Call Forward') . ": ";
-    if (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU'])) {
-        $tooltip .= _('Enabled');
-        foreach (array('CF','CFB','CFU') as $type) {
-            if (isset($extension['cf'][$type]) && !empty($extension['cf'][$type])) {
-                $tooltip .= "\n--$type: " . $extension['cf'][$type];
-            }
-        }
-    } else {
-        $tooltip .= _('Disabled');
-    }
-
-    // FMFM
-    if (isset($extension['fmfm'])) {
-        if ($extension['fmfm']['ddial'] === 'DIRECT') {
-            $confirm = (isset($extension['fmfm']['needsconf']) && $extension['fmfm']['needsconf'] === 'CHECKED') ? _('Yes') : _('No');
-            $tooltip .= "\n\nFMFM: " . _('Enabled') .
-                        "\n" . _('Initial Ring Time') . ": " . secondsToTimes($extension['fmfm']['pre_ring']) .
-                        "\n" . _('Ring Time') . ": " . secondsToTimes($extension['fmfm']['grptime']) .
-                        "\n" . _('Follow-Me List') . ": " . $extension['fmfm']['grplist'] .
-                        "\n" . _('Confirm Calls') . ": " . $confirm;
-        } else {
-            $tooltip .= "\n\nFMFM: " . _('Disabled');
-        }
-    }
-
-    // Voicemail
-		if (isset($extension['mailbox'])) {
-				$extemail = isset($extension['mailbox']['email']) ? $extension['mailbox']['email'] : '';
-				$context  = isset($extension['mailbox']['vmcontext']) ? $extension['mailbox']['vmcontext'] : '';
-
-				// Build message counts if not cached
-				if (!isset($extension['mailbox']['label'])) {
-						$inbox = countVmMessages($ext, $context, 'inbox');
-						$other = countVmMessages($ext, $context, 'other');
-
-						$extension['mailbox']['label'] = sprintf(
-								"%s: %d  %s: %d  %s: %d",
-								_('INBOX'),
-								$inbox,
-								_('Other'),
-								$other,
-								_('Total'),
-								$inbox + $other
-						);
-				}
-
-				// Build tooltip once
-				$tooltip .= "\n\n" . _('Voicemail: Enabled') . "\n" . _('Email') . ": ";
-
-				// Append email if present
-				if (!empty($extemail) && !isset($extension['mailbox']['emailLabel'])) {
-						$extension['mailbox']['emailLabel'] = sanitizeLabels($extemail);
-						$tooltip .= $extension['mailbox']['emailLabel'];
-				}
-
-				// Append options if any
-				if (!empty($extension['mailbox']['options'])) {
-						foreach ($extension['mailbox']['options'] as $m => $mm) {
-								$tooltip .= "\n" . ucfirst($m) . ": " . ucfirst($mm);
-						}
-				}
-
-				// Append message counts
-				$tooltip .= "\n" . $extension['mailbox']['label'];
-
-		} else {
-				$tooltip .= "\n\n" . _('Voicemail: Disabled');
-		}
-
-    // Cache and return
-    $tooltipCache[$ext] = $tooltip;
-    return $tooltip;
-}
-
-
-function prepareExtension(&$extension, $ext) {
-    if (!isset($extension['reg_status'])) {
-        $extension['reg_status'] = isExtensionRegistered($ext, $extension['tech']);
-    }
-
-    $freepbx = \FreePBX::create();
-
-		if (!isset($extension['dnd'])) {
-				$dnd = false;
-
-				// Check if the module object can be retrieved
-				if (is_object($freepbx->Donotdisturb)) {
-						$dndStatus = $freepbx->Donotdisturb()->getStatusByExtension($ext);
-						$dnd = ($dndStatus === 'YES');
-				}
-
-				$extension['dnd'] = $dnd;
-		}
-
-		if (!isset($extension['cf'])) {
-				$cf = [];
-
-				// Check if Callforward module is available
-				if (is_object($freepbx->Callforward)) {
-						$cf = $freepbx->Callforward()->getStatusesByExtension($ext);
-				}
-
-				$extension['cf'] = $cf;
-		}
-
-    return $extension;
-}
-
-function resolveExtensionStatus($extension, $context = 'queue', $flags = []) {
-	
-    // Always priority DND/CF
-    if ($extension['dnd'] || !empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU']) ) {
-        return ['icon' => '🟡', 'label' => _('DND/CF')];
-    }
-
-    if ($context === 'queue_edge') {
-        if (!empty($flags['paused'])) {
-            return ['icon' => '⏸️', 'label' => ''];
-        }
-
-        // Dynamic members
-        if (!empty($flags['dynamic'])) {
-            if (!empty($flags['loggedin'])) {
-                return ['icon' => '🔵', 'label' => ''];
-            }
-            // dynamic members that are offline show no icon
-            return ['icon' => '', 'label' => ''];
-        }
-    }
-
-    // Standard queue logic
-    if ($context === 'queue') {
-        if (!empty($flags['paused'])) {
-            return ['icon' => '⏸️', 'label' => _('Paused')];
-        }
-        if (!empty($flags['loggedin'])) {
-            return ['icon' => '🔵', 'label' => ''];
-        }
-    }
-
-    // virtual
-    if ($extension['tech']=='virtual'){
-        return ['icon' => '⚪', 'label' => ''];
-    }
-
-    // Fallback: online/offline
-    return [
-        'icon'  => $extension['reg_status'] ? '🟢' : '🔴',
-        'label' => ''
-    ];
-}
-
-
+# END load Custom Destinations

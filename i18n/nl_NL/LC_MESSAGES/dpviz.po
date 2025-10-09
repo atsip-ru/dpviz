@@ -92,9 +92,6 @@ msgstr "Congestie"
 msgid "Terminate Call"
 msgstr "Einde telefoont:"
 
-msgid "Active"
-msgstr "Actief"
-
 msgid "Night Mode"
 msgstr "Nachtmodus"
 
@@ -146,26 +143,11 @@ msgstr "Ja"
 msgid "No"
 msgstr "Geen"
 
-msgid "Registration"
-msgstr "Registratie"
-
 msgid "Tech"
 msgstr "Tech"
 
-msgid "Voicemail: Enabled"
-msgstr "Stemmail: Ingeschakeld"
-
-msgid "Voicemail: Disabled"
-msgstr "Telefoon: Uitgeschakeld"
-
-msgid "Initial Ring Time"
-msgstr "Aanvangstijdsduur"
-
 msgid "Ring Time"
 msgstr "Ring Time"
-
-msgid "Follow-Me List"
-msgstr "Volg-Mij Lijst"
 
 msgid "Confirm Calls"
 msgstr "Bevestig Aanroepen"
@@ -223,9 +205,6 @@ msgstr "Klik om de whitelijst te bewerken"
 
 msgid "Selection %s"
 msgstr "Selectie %s"
-
-msgid "Invalid Input, Timeout (%s secs)"
-msgstr "Ongeldige invoer, Timeout (%s seconden)"
 
 msgid "Timeout (%s secs)"
 msgstr "Time-out (%s seconden)"
@@ -365,9 +344,6 @@ msgstr "Doelwit"
 msgid "Return"
 msgstr "Retourneren"
 
-msgid "Click to continue..."
-msgstr "Klik om door te gaan..."
-
 msgid "No direct script access allowed"
 msgstr "Geen rechtstreeks toegang tot script toegestaan"
 
@@ -490,9 +466,6 @@ msgstr "Bewaard!"
 msgid "Save"
 msgstr "Opslaan"
 
-msgid "Inbound Routes [destination]"
-msgstr "Inkomende Routes [bestemming]"
-
 msgid "Time Conditions"
 msgstr "Tijdvoorwaarden"
 
@@ -595,9 +568,6 @@ msgstr "Virtueel of niet-extensie-knooppunt (geen grens)"
 msgid "Email"
 msgstr "E-mail"
 
-msgid "Enabled"
-msgstr "Ingeschakeld"
-
 msgid "Caller ID Number"
 msgstr "Nummer Caller ID"
 
@@ -609,9 +579,6 @@ msgstr "CID Voorschaaf"
 
 msgid "Language"
 msgstr "Taal"
-
-msgid "DTMF Options"
-msgstr "Toetsenbord opties"
 
 msgid "Enable Direct Dial"
 msgstr "Schakel Direct Dial in"
@@ -705,75 +672,6 @@ msgstr "Audio Etiket"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Slechte Bestemming: Blokkeerlijst"
-
-msgid "Mon"
-msgstr "Maandag"
-
-msgid "Tue"
-msgstr "Dinsdag"
-
-msgid "Wed"
-msgstr "Woensdag"
-
-msgid "Thu"
-msgstr "Donderdag"
-
-msgid "Fri"
-msgstr "Vrijdag"
-
-msgid "Sat"
-msgstr "Zaterdag"
-
-msgid "Sun"
-msgstr "Zondag"
-
-msgid "Jan"
-msgstr "Jan"
-
-msgid "Feb"
-msgstr "Feb"
-
-msgid "Mar"
-msgstr "Mar"
-
-msgid "Apr"
-msgstr "Apr"
-
-msgid "May"
-msgstr "Mei"
-
-msgid "Jun"
-msgstr "Jun"
-
-msgid "Jul"
-msgstr "Jul"
-
-msgid "Aug"
-msgstr "Aug"
-
-msgid "Sep"
-msgstr "Sep"
-
-msgid "Oct"
-msgstr "Okt"
-
-msgid "Nov"
-msgstr "Nov"
-
-msgid "Dec"
-msgstr "Dec"
-
-msgid "Bad Dest"
-msgstr "Slechte Bestemming"
-
-msgid "not found"
-msgstr "niet gevonden"
-
-msgid "month inverted"
-msgstr "maand omgekeerd"
-
-msgid "day-of-month inverted"
-msgstr "dag-van-maand omgekeerd"
 
 msgid "Loading..."
 msgstr "Laden..."
@@ -944,9 +842,6 @@ msgstr ""
 "Automatisch geluid afspelen wanneer een knooppunt met geluidsbestandingen is "
 "geselecteerd."
 
-msgid "User Agent"
-msgstr "Gebruikersagent"
-
 msgid "Extensions"
 msgstr "Extensies"
 
@@ -965,18 +860,6 @@ msgstr "Doorschakelen bij bezet"
 msgid "Call Forward Unavailable"
 msgstr "Oproepdoorschakeling niet beschikbaar"
 
-msgid "Do Not Disturb"
-msgstr "Niet storen"
-
-msgid "Call Forward"
-msgstr "Doorgaans-overleiding"
-
-msgid "Paused"
-msgstr "Gepauzeerd"
-
-msgid "DND/CF"
-msgstr "DND/CF"
-
 msgid "Dynamic agent logged into queue (blue border)"
 msgstr "Dynamisch agent aangemeld bij wachtrij (blauwe rand)"
 
@@ -985,3 +868,123 @@ msgstr "Vertraagde wachtrijlid"
 
 msgid "DND or Call Forwarding enabled (yellow border)"
 msgstr "DND of Call Forwarding ingeschakeld (geel rand)"
+
+msgid "No dialplan found"
+msgstr "Geen dialplan gevonden"
+
+msgid "Notes"
+msgstr "Notities"
+
+msgid "Display Destinations for Inbound Routes"
+msgstr "Weergave Bestemmingen voor Inkomende Routes"
+
+msgid "Inbound Routes will show the destination."
+msgstr "Inkomende routes zullen de bestemming tonen."
+
+msgid "destination"
+msgstr "bestemming"
+
+msgid "Inbound Routes"
+msgstr "Inkomende routes"
+
+msgid "Click to continue..."
+msgstr "Klik om verder te gaan..."
+
+msgid "Bad Dest"
+msgstr "Slechte Bestemming"
+
+msgid "not found"
+msgstr "niet gevonden"
+
+msgid "month inverted"
+msgstr "maand omgekeerd"
+
+msgid "day-of-month inverted"
+msgstr "dag van de maand omgekeerd"
+
+msgid "Registration"
+msgstr "Registratie"
+
+msgid "User Agent"
+msgstr "Useercagent"
+
+msgid "Do Not Disturb"
+msgstr "Niet storen"
+
+msgid "Enabled"
+msgstr "Ingeschakeld"
+
+msgid "Call Forward"
+msgstr "Doorsturen"
+
+msgid "Initial Ring Time"
+msgstr "Initiële beltoontijd"
+
+msgid "Follow-Me List"
+msgstr "Volg-Mij Lijst"
+
+msgid "DND/CF"
+msgstr "DND/CF"
+
+msgid "Paused"
+msgstr "Gepauzeerd"
+
+msgid "Mon"
+msgstr "Maandag"
+
+msgid "Tue"
+msgstr "Dinsdag"
+
+msgid "Wed"
+msgstr "Woensdag"
+
+msgid "Thu"
+msgstr "Donderdag"
+
+msgid "Fri"
+msgstr "Vrijdag"
+
+msgid "Sat"
+msgstr "Zaterdag"
+
+msgid "Sun"
+msgstr "Zondag"
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Maart"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Mei"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Dec"
+
+msgid "Active"
+msgstr "Actief"

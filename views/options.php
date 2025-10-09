@@ -170,6 +170,33 @@ $options = \FreePBX::Dpviz()->getOptions();
 					</div>
 				</div>
 				<!--END horizontal-->
+				<!--displaydestinations-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="displaydestinations"><?php echo _("Display Destinations for Inbound Routes"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="displaydestinations"></i>
+									</div>
+									<div class="col-md-9 radioset">
+										<input type="radio" name="displaydestinations" id="displaydestinationsyes" value="1" <?php echo ($options['displaydestinations']?"CHECKED":""); ?>>
+										<label for="displaydestinationsyes"><?php echo _("Yes"); ?></label>
+										<input type="radio" name="displaydestinations" id="displaydestinationsno" value="0" <?php echo ($options['displaydestinations']?"":"CHECKED"); ?>>
+										<label for="displaydestinationsno"><?php echo _("No"); ?></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<span id="displaydestinations-help" class="help-block fpbx-help-block"><?php echo _("Inbound Routes will show the destination."); ?></span>
+						</div>
+					</div>
+				</div>
+				<!--END displaydestinations-->
 				<!--combineQueueRing node-->
 				<div class="element-container">
 					<div class="row">

@@ -146,6 +146,32 @@ if(DB::IsError($check)) {
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
 
+// Version 0.28 adds displaydestinations
+$sql = "SELECT displaydestinations FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+
+if(DB::IsError($check)) {
+    // Add new field
+    $sql = "ALTER TABLE dpviz ADD displaydestinations TINYINT(1) NOT NULL DEFAULT 0;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+
+    // Count total incoming routes
+    $sql = "SELECT COUNT(*) AS total FROM incoming";
+    $countResult = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+    if(DB::IsError($countResult)) { die_freepbx($countResult->getDebugInfo()); }
+
+    $total = isset($countResult['total']) ? (int)$countResult['total'] : 0;
+
+    // Set default based on number of routes
+    $defaultValue = ($total > 100) ? 0 : 1;
+
+    $sql = "UPDATE dpviz SET displaydestinations = " . q($defaultValue) . " WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+
 // Check if table exists first
 $sql = "SHOW TABLES LIKE 'dpviz_views'";
 $exists = $db->getOne($sql);

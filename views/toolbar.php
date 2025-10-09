@@ -1,8 +1,14 @@
 <?php
 if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
-$destinations=\FreePBX::Modules()->getDestinations();
+
 $options=\FreePBX::Dpviz()->getOptions();
 
+if ($options['displaydestinations']){
+	$destinations=\FreePBX::Modules()->getDestinations();
+	$displayDestinationOpt = ' [ '._('destination').' ]';
+}else{
+	$displayDestinationOpt = '';
+}
 
 try{
 	$soundlang = FreePBX::create()->Soundlang;
@@ -15,6 +21,7 @@ try{
 
 function dpp_load_incoming_routes() {
   global $db;
+	global $options;
 	global $destinations;
 	
   $sql = "select * from incoming order by extension";
@@ -31,9 +38,18 @@ function dpp_load_incoming_routes() {
       $cid = $route['cidnum'];
 			if (empty($num) && empty($cid)){$exten='ANY';}else{$exten=$num.$cid;}
       $routes[$exten] = $route;
-			$routeDest= $destinations[$route['destination']];
-			$name = isset($routeDest['category']) ? $routeDest['category'] : $routeDest['name'];
-			$routes[$exten]['goDestination']=$name.': '.$routeDest['description'];
+			
+			if ($options['displaydestinations']){
+					$routeDest = isset($destinations[$route['destination']])
+						? $destinations[$route['destination']]
+						: array('name'=>'','description'=>'');
+
+					$name = !empty($routeDest['category'])
+						? $routeDest['category']
+						: $routeDest['name'];
+
+					$routes[$exten]['goDestination'] = $name . ': ' . $routeDest['description'];
+			}
     }
   }
 	return $routes;
@@ -188,12 +204,20 @@ if (isset($otherroutes['dpvizViews']) && count($otherroutes['dpvizViews']) > 0){
 
 //Inbound Routes 
 if (isset($inroutes) && count($inroutes) > 0){
-	$dropOptions .= '<optgroup label="' . _('Inbound Routes [destination]') . '">';
+	$dropOptions .= '<optgroup label="' . _('Inbound Routes') . $displayDestinationOpt.'">';
+	
 	foreach ($inroutes as $in=>$extt){
 		$e=$extt['extension'];
 		if (empty($e)){$e='ANY';}
 		if (!empty($extt['cidnum'])){$c='&'.$extt['cidnum'];$cName=' / '.$extt['cidnum'];}else{$c=$cName='';}
-		$dropOptions.='<option value="from-trunk,'.$e.$c.',1,'.$options['lang'].'">'.$e.$cName.' : '.$extt['description'].' ['.$extt['goDestination'].']</option>';
+		
+		if ($options['displaydestinations'] && isset($extt['goDestination'])){
+			$displayDestination = '[ ' . $extt['goDestination'] . ' ]';
+		}else{
+			$displayDestination='';
+		}
+		
+		$dropOptions.='<option value="from-trunk,'.$e.$c.',1,'.$options['lang'].'">'.$e.$cName.' : '.$extt['description'].' '.$displayDestination.'</option>';
 	}
 	$dropOptions.='</optgroup>';
 }

@@ -57,9 +57,6 @@ msgstr "拥堵"
 msgid "Terminate Call"
 msgstr "结束通话"
 
-msgid "Active"
-msgstr "活跃"
-
 msgid "Night Mode"
 msgstr "夜间模式"
 
@@ -108,26 +105,11 @@ msgstr "是的"
 msgid "No"
 msgstr "不"
 
-msgid "Registration"
-msgstr "注册"
-
 msgid "Tech"
 msgstr "科技"
 
-msgid "Voicemail: Enabled"
-msgstr "邮箱：已启用"
-
-msgid "Voicemail: Disabled"
-msgstr "语音信箱：关闭"
-
-msgid "Initial Ring Time"
-msgstr "初始拨号时间"
-
 msgid "Ring Time"
 msgstr "响铃时间"
-
-msgid "Follow-Me List"
-msgstr "跟随我列表"
 
 msgid "Confirm Calls"
 msgstr "确认电话"
@@ -182,9 +164,6 @@ msgstr "点击编辑允许名单"
 
 msgid "Selection %s"
 msgstr "选择 %s"
-
-msgid "Invalid Input, Timeout (%s secs)"
-msgstr "无效输入，超时（% s秒）"
 
 msgid "Timeout (%s secs)"
 msgstr "超时（%s秒）"
@@ -321,9 +300,6 @@ msgstr "目标"
 msgid "Return"
 msgstr "请返回"
 
-msgid "Click to continue..."
-msgstr "点击继续..."
-
 msgid "No direct script access allowed"
 msgstr "不允许直接访问脚本"
 
@@ -439,9 +415,6 @@ msgstr "已儲存！"
 
 msgid "Save"
 msgstr "節省"
-
-msgid "Inbound Routes [destination]"
-msgstr "输入路由 [目的地]"
 
 msgid "Time Conditions"
 msgstr "时间条件"
@@ -580,9 +553,6 @@ msgstr "附加项目"
 msgid "Email"
 msgstr "电子邮件"
 
-msgid "Enabled"
-msgstr "已启用"
-
 msgid "Caller ID Number"
 msgstr "ID号码"
 
@@ -594,9 +564,6 @@ msgstr "CID前缀"
 
 msgid "Language"
 msgstr "语言"
-
-msgid "DTMF Options"
-msgstr "按键选项"
 
 msgid "Enable Direct Dial"
 msgstr "启用直接拨号"
@@ -690,75 +657,6 @@ msgstr "音频标签"
 
 msgid "Bad Dest: Blacklist"
 msgstr "坏目标：黑名单"
-
-msgid "Mon"
-msgstr "周一"
-
-msgid "Tue"
-msgstr "周二"
-
-msgid "Wed"
-msgstr "周三"
-
-msgid "Thu"
-msgstr "周四"
-
-msgid "Fri"
-msgstr "周五"
-
-msgid "Sat"
-msgstr "周六"
-
-msgid "Sun"
-msgstr "周日"
-
-msgid "Jan"
-msgstr "1月"
-
-msgid "Feb"
-msgstr "2月"
-
-msgid "Mar"
-msgstr "3月"
-
-msgid "Apr"
-msgstr "4月"
-
-msgid "May"
-msgstr "5月"
-
-msgid "Jun"
-msgstr "6月"
-
-msgid "Jul"
-msgstr "7月"
-
-msgid "Aug"
-msgstr "8月"
-
-msgid "Sep"
-msgstr "9月"
-
-msgid "Oct"
-msgstr "10月"
-
-msgid "Nov"
-msgstr "11月"
-
-msgid "Dec"
-msgstr "12月"
-
-msgid "Bad Dest"
-msgstr "坏目的地"
-
-msgid "not found"
-msgstr "未找到"
-
-msgid "month inverted"
-msgstr "倒置的月份"
-
-msgid "day-of-month inverted"
-msgstr "月份倒置"
 
 msgid "Loading..."
 msgstr "正在加载..."
@@ -925,9 +823,6 @@ msgstr "自动播放音频"
 msgid "Automatically play audio when a node with audio is selected."
 msgstr "自动在选中具有音频的节点时播放音频。"
 
-msgid "User Agent"
-msgstr "用户代理"
-
 msgid "Extensions"
 msgstr "扩展"
 
@@ -946,18 +841,6 @@ msgstr "忙碌转移电话"
 msgid "Call Forward Unavailable"
 msgstr "转接电话不可用"
 
-msgid "Do Not Disturb"
-msgstr "请勿打扰"
-
-msgid "Call Forward"
-msgstr "转接拨号"
-
-msgid "Paused"
-msgstr "暂停"
-
-msgid "DND/CF"
-msgstr "静音/呼叫等待"
-
 msgid "Dynamic agent logged into queue (blue border)"
 msgstr "动态代理已登录到队列（蓝色边框）"
 
@@ -966,3 +849,123 @@ msgstr "暂停的队列成员"
 
 msgid "DND or Call Forwarding enabled (yellow border)"
 msgstr "音频通道设置（绿色边框）"
+
+msgid "No dialplan found"
+msgstr "未找到拨号计划"
+
+msgid "Notes"
+msgstr "笔记"
+
+msgid "Display Destinations for Inbound Routes"
+msgstr "显示入站路由的目的地"
+
+msgid "Inbound Routes will show the destination."
+msgstr "进入路由将显示目的地。"
+
+msgid "destination"
+msgstr "目的地"
+
+msgid "Inbound Routes"
+msgstr "入站路由"
+
+msgid "Click to continue..."
+msgstr "单击继续..."
+
+msgid "Bad Dest"
+msgstr "糟糕的目的地"
+
+msgid "not found"
+msgstr "未找到"
+
+msgid "month inverted"
+msgstr "月份反转"
+
+msgid "day-of-month inverted"
+msgstr "日期反转"
+
+msgid "Registration"
+msgstr "登记"
+
+msgid "User Agent"
+msgstr "用户代理"
+
+msgid "Do Not Disturb"
+msgstr "请勿打扰"
+
+msgid "Enabled"
+msgstr "已启用"
+
+msgid "Call Forward"
+msgstr "呼叫转移"
+
+msgid "Initial Ring Time"
+msgstr "初始振铃时间"
+
+msgid "Follow-Me List"
+msgstr "关注我列表"
+
+msgid "DND/CF"
+msgstr "请勿打扰/CF"
+
+msgid "Paused"
+msgstr "已暂停"
+
+msgid "Mon"
+msgstr "周一"
+
+msgid "Tue"
+msgstr "周二"
+
+msgid "Wed"
+msgstr "周三"
+
+msgid "Thu"
+msgstr "周四"
+
+msgid "Fri"
+msgstr "周五"
+
+msgid "Sat"
+msgstr "周六"
+
+msgid "Sun"
+msgstr "周日"
+
+msgid "Jan"
+msgstr "1月"
+
+msgid "Feb"
+msgstr "2月"
+
+msgid "Mar"
+msgstr "3月"
+
+msgid "Apr"
+msgstr "4月"
+
+msgid "May"
+msgstr "5月"
+
+msgid "Jun"
+msgstr "姑姑"
+
+msgid "Jul"
+msgstr "7月"
+
+msgid "Aug"
+msgstr "8月"
+
+msgid "Sep"
+msgstr "九月"
+
+msgid "Oct"
+msgstr "10月"
+
+msgid "Nov"
+msgstr "11月"
+
+msgid "Dec"
+msgstr "12月"
+
+msgid "Active"
+msgstr "活动中"

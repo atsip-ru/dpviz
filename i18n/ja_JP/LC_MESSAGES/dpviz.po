@@ -57,9 +57,6 @@ msgstr "交通大雑布"
 msgid "Terminate Call"
 msgstr "通話を終了させる"
 
-msgid "Active"
-msgstr "有効"
-
 msgid "Night Mode"
 msgstr "ナイトモード"
 
@@ -108,26 +105,11 @@ msgstr "はい"
 msgid "No"
 msgstr "いいえ"
 
-msgid "Registration"
-msgstr "登録"
-
 msgid "Tech"
 msgstr "テクノロジー"
 
-msgid "Voicemail: Enabled"
-msgstr "ボイスメール: 有効"
-
-msgid "Voicemail: Disabled"
-msgstr "ボイスメール: 無効"
-
-msgid "Initial Ring Time"
-msgstr "初期リング時間"
-
 msgid "Ring Time"
 msgstr "リング時間"
-
-msgid "Follow-Me List"
-msgstr "フォローメールリスト"
 
 msgid "Confirm Calls"
 msgstr "呼び出しを確認してください"
@@ -182,9 +164,6 @@ msgstr "編集を許可するにはクリックしてください"
 
 msgid "Selection %s"
 msgstr "選択% s"
-
-msgid "Invalid Input, Timeout (%s secs)"
-msgstr "無効な入力、タイムアウト (%s 秒)"
 
 msgid "Timeout (%s secs)"
 msgstr "タイムアウト (%s 秒)"
@@ -324,9 +303,6 @@ msgstr "ターゲット"
 msgid "Return"
 msgstr "戻る"
 
-msgid "Click to continue..."
-msgstr "続けるにはクリックしてください..."
-
 msgid "No direct script access allowed"
 msgstr "直接のスクリプトアクセスは許可されていません"
 
@@ -448,9 +424,6 @@ msgstr "保存されました！"
 
 msgid "Save"
 msgstr "保存してください"
-
-msgid "Inbound Routes [destination]"
-msgstr "到着ルート [目的地]"
 
 msgid "Time Conditions"
 msgstr "時間の条件"
@@ -591,9 +564,6 @@ msgstr "追加のエントリー"
 msgid "Email"
 msgstr "メール"
 
-msgid "Enabled"
-msgstr "有効"
-
 msgid "Caller ID Number"
 msgstr "呼出者ID番号"
 
@@ -605,9 +575,6 @@ msgstr "CID プレフィックス"
 
 msgid "Language"
 msgstr "言語"
-
-msgid "DTMF Options"
-msgstr "DTMF オプション"
 
 msgid "Enable Direct Dial"
 msgstr "直接ダイアルを有効にする"
@@ -701,75 +668,6 @@ msgstr "オーディオラベル"
 
 msgid "Bad Dest: Blacklist"
 msgstr "不正なデスト:ブラックリスト"
-
-msgid "Mon"
-msgstr "月"
-
-msgid "Tue"
-msgstr "火"
-
-msgid "Wed"
-msgstr "水"
-
-msgid "Thu"
-msgstr "木"
-
-msgid "Fri"
-msgstr "金"
-
-msgid "Sat"
-msgstr "土"
-
-msgid "Sun"
-msgstr "日"
-
-msgid "Jan"
-msgstr "1月"
-
-msgid "Feb"
-msgstr "2月"
-
-msgid "Mar"
-msgstr "3月"
-
-msgid "Apr"
-msgstr "4月"
-
-msgid "May"
-msgstr "5月"
-
-msgid "Jun"
-msgstr "6月"
-
-msgid "Jul"
-msgstr "7月"
-
-msgid "Aug"
-msgstr "8月"
-
-msgid "Sep"
-msgstr "9月"
-
-msgid "Oct"
-msgstr "10月"
-
-msgid "Nov"
-msgstr "11月"
-
-msgid "Dec"
-msgstr "12月"
-
-msgid "Bad Dest"
-msgstr "不良のデスティネーション"
-
-msgid "not found"
-msgstr "見つかりませんでした"
-
-msgid "month inverted"
-msgstr "月を逆にした"
-
-msgid "day-of-month inverted"
-msgstr "月曜日には、日付の日部分が反転しています。"
 
 msgid "Loading..."
 msgstr "読み込み中..."
@@ -939,9 +837,6 @@ msgid "Automatically play audio when a node with audio is selected."
 msgstr ""
 "選択されたノードにオーディオがある場合、自動的にオーディオを再生します。"
 
-msgid "User Agent"
-msgstr "ユーザエージェント"
-
 msgid "Extensions"
 msgstr "拡張機能"
 
@@ -960,18 +855,6 @@ msgstr "忙しくなった場合の呼び出し転送"
 msgid "Call Forward Unavailable"
 msgstr "呼び出し先設定不可"
 
-msgid "Do Not Disturb"
-msgstr "電話は鬱遮る"
-
-msgid "Call Forward"
-msgstr "コール・フォワード"
-
-msgid "Paused"
-msgstr "一時停止した"
-
-msgid "DND/CF"
-msgstr "ダンダン/CF"
-
 msgid "Dynamic agent logged into queue (blue border)"
 msgstr "動的エージェントがキューにログイン (青い枠)"
 
@@ -980,3 +863,123 @@ msgstr "一時停止されたキューメンバー"
 
 msgid "DND or Call Forwarding enabled (yellow border)"
 msgstr "有線放電または呼び出し転送が有効（黄色の枠）"
+
+msgid "No dialplan found"
+msgstr "ダイヤルプランが見つかりません"
+
+msgid "Notes"
+msgstr "注記"
+
+msgid "Display Destinations for Inbound Routes"
+msgstr "入力ルートの宛先を表示 display destinations for inbound routes"
+
+msgid "Inbound Routes will show the destination."
+msgstr "入力ルートは、行先を示します。"
+
+msgid "destination"
+msgstr "先頭"
+
+msgid "Inbound Routes"
+msgstr "入力ルート"
+
+msgid "Click to continue..."
+msgstr "続行するにはクリックしてください..."
+
+msgid "Bad Dest"
+msgstr "悪いDestination"
+
+msgid "not found"
+msgstr "見つかりませんでした"
+
+msgid "month inverted"
+msgstr "月が逆転した"
+
+msgid "day-of-month inverted"
+msgstr "月曜日は、月曜日の日付を反転します。"
+
+msgid "Registration"
+msgstr "登録"
+
+msgid "User Agent"
+msgstr "ユーザエージェント"
+
+msgid "Do Not Disturb"
+msgstr "遮断しないで"
+
+msgid "Enabled"
+msgstr "有効"
+
+msgid "Call Forward"
+msgstr "呼び出し転送"
+
+msgid "Initial Ring Time"
+msgstr "初期呼び出し時間"
+
+msgid "Follow-Me List"
+msgstr "フォローミーリスト"
+
+msgid "DND/CF"
+msgstr "非接続/接続待ち"
+
+msgid "Paused"
+msgstr "一時停止されました"
+
+msgid "Mon"
+msgstr "月曜日"
+
+msgid "Tue"
+msgstr "火曜日"
+
+msgid "Wed"
+msgstr "水曜日"
+
+msgid "Thu"
+msgstr "木曜日"
+
+msgid "Fri"
+msgstr "金曜日"
+
+msgid "Sat"
+msgstr "土曜日"
+
+msgid "Sun"
+msgstr "日曜日"
+
+msgid "Jan"
+msgstr "1月"
+
+msgid "Feb"
+msgstr "2月"
+
+msgid "Mar"
+msgstr "3月"
+
+msgid "Apr"
+msgstr "4月"
+
+msgid "May"
+msgstr "5月"
+
+msgid "Jun"
+msgstr "6月"
+
+msgid "Jul"
+msgstr "7月"
+
+msgid "Aug"
+msgstr "8月"
+
+msgid "Sep"
+msgstr "9月"
+
+msgid "Oct"
+msgstr "10月"
+
+msgid "Nov"
+msgstr "11月"
+
+msgid "Dec"
+msgstr "12月"
+
+msgid "Active"
+msgstr "アクティブ"

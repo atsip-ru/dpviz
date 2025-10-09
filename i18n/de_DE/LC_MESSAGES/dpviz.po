@@ -57,9 +57,6 @@ msgstr "Verkehrsstörung"
 msgid "Terminate Call"
 msgstr "Beenden der Anruf"
 
-msgid "Active"
-msgstr "Aktiv"
-
 msgid "Night Mode"
 msgstr "Nachtmodus"
 
@@ -108,26 +105,11 @@ msgstr "Ja"
 msgid "No"
 msgstr "Nein"
 
-msgid "Registration"
-msgstr "Anmeldung"
-
 msgid "Tech"
 msgstr "Tech"
 
-msgid "Voicemail: Enabled"
-msgstr "Stimmeingang: Aktiviert"
-
-msgid "Voicemail: Disabled"
-msgstr "Sprachmail: Deaktiviert"
-
-msgid "Initial Ring Time"
-msgstr "Initialer Anschlusszeit"
-
 msgid "Ring Time"
 msgstr "Ringzeit"
-
-msgid "Follow-Me List"
-msgstr "Nachfolgeliste"
 
 msgid "Confirm Calls"
 msgstr "Bestätige Anrufe"
@@ -182,9 +164,6 @@ msgstr "Klicken Sie, um die Allowlist zu bearbeiten"
 
 msgid "Selection %s"
 msgstr "Auswahl %s"
-
-msgid "Invalid Input, Timeout (%s secs)"
-msgstr "Ungültiger Eingabe, Timeout (%s Sekunden)"
 
 msgid "Timeout (%s secs)"
 msgstr "Zeitüberschreitung (%s Sekunden)"
@@ -321,9 +300,6 @@ msgstr "Ziel"
 msgid "Return"
 msgstr "Zum Rückgabe"
 
-msgid "Click to continue..."
-msgstr "Klicken Sie, um fortzufahren..."
-
 msgid "No direct script access allowed"
 msgstr "Kein direkter Zugriff auf Skripte erlaubt"
 
@@ -449,9 +425,6 @@ msgstr "Gespeichert!"
 
 msgid "Save"
 msgstr "Speichern"
-
-msgid "Inbound Routes [destination]"
-msgstr "Einbindungswege [Ziel]"
 
 msgid "Time Conditions"
 msgstr "Zeitbedingungen"
@@ -600,9 +573,6 @@ msgstr "zusätzliche Einträge"
 msgid "Email"
 msgstr "E-Mail"
 
-msgid "Enabled"
-msgstr "Aktiviert"
-
 msgid "Caller ID Number"
 msgstr "Rufnummer der Anrufer-ID"
 
@@ -614,9 +584,6 @@ msgstr "CID-Präfix"
 
 msgid "Language"
 msgstr "Sprache"
-
-msgid "DTMF Options"
-msgstr "Tastatur-Optionen"
 
 msgid "Enable Direct Dial"
 msgstr "Aktiviere Direktanruf"
@@ -710,75 +677,6 @@ msgstr "Audiodatei-Bezeichnung"
 
 msgid "Bad Dest: Blacklist"
 msgstr "Schlechter Ziel: Schwarze Liste"
-
-msgid "Mon"
-msgstr "Mo"
-
-msgid "Tue"
-msgstr "Di"
-
-msgid "Wed"
-msgstr "Mi"
-
-msgid "Thu"
-msgstr "Do"
-
-msgid "Fri"
-msgstr "Fr"
-
-msgid "Sat"
-msgstr "Sa"
-
-msgid "Sun"
-msgstr "So"
-
-msgid "Jan"
-msgstr "Jan"
-
-msgid "Feb"
-msgstr "Feb"
-
-msgid "Mar"
-msgstr "Mär"
-
-msgid "Apr"
-msgstr "Apr"
-
-msgid "May"
-msgstr "Mai"
-
-msgid "Jun"
-msgstr "Jun"
-
-msgid "Jul"
-msgstr "Jul"
-
-msgid "Aug"
-msgstr "Aug"
-
-msgid "Sep"
-msgstr "Sep"
-
-msgid "Oct"
-msgstr "Okt"
-
-msgid "Nov"
-msgstr "Nov"
-
-msgid "Dec"
-msgstr "Dez"
-
-msgid "Bad Dest"
-msgstr "Schlechter Zielort"
-
-msgid "not found"
-msgstr "nicht gefunden"
-
-msgid "month inverted"
-msgstr "monat umgekehrt"
-
-msgid "day-of-month inverted"
-msgstr "monatstag umgekehrt"
 
 msgid "Loading..."
 msgstr "Lade..."
@@ -951,9 +849,6 @@ msgstr ""
 "Stellen Sie sicher, dass das Ereignis für das Audio-Element aktiviert ist, "
 "bevor Sie es weglöschen."
 
-msgid "User Agent"
-msgstr "Benutzer-Agent"
-
 msgid "Extensions"
 msgstr "Erweiterungen"
 
@@ -972,18 +867,6 @@ msgstr "Rufumleitung bei Beschäftigung"
 msgid "Call Forward Unavailable"
 msgstr "Anrufübergabe nicht verfügbar"
 
-msgid "Do Not Disturb"
-msgstr "Störung frei"
-
-msgid "Call Forward"
-msgstr "Anrufumleitung"
-
-msgid "Paused"
-msgstr "Angehalten"
-
-msgid "DND/CF"
-msgstr "DND/CF"
-
 msgid "Dynamic agent logged into queue (blue border)"
 msgstr "Dynamisches Agent, in die Warteschlange eingeloggt (blauer Rahmen)"
 
@@ -992,3 +875,123 @@ msgstr "Angehaltenes Warteschlangenmitglied"
 
 msgid "DND or Call Forwarding enabled (yellow border)"
 msgstr "DND oder Call Forwarding aktiviert (gelber Rand)"
+
+msgid "No dialplan found"
+msgstr "Kein Dialplan gefunden"
+
+msgid "Notes"
+msgstr "Hinweise"
+
+msgid "Display Destinations for Inbound Routes"
+msgstr "Ziele für eingehende Routen anzeigen"
+
+msgid "Inbound Routes will show the destination."
+msgstr "Eingehende Routen zeigen das Ziel an."
+
+msgid "destination"
+msgstr "Ziel"
+
+msgid "Inbound Routes"
+msgstr "Eingehende Routen"
+
+msgid "Click to continue..."
+msgstr "Klicken Sie hier, um fortzufahren..."
+
+msgid "Bad Dest"
+msgstr "Schlechtes Ziel"
+
+msgid "not found"
+msgstr "nicht gefunden"
+
+msgid "month inverted"
+msgstr "monat invertiert"
+
+msgid "day-of-month inverted"
+msgstr "Tag des Monats invertiert"
+
+msgid "Registration"
+msgstr "Anmeldung"
+
+msgid "User Agent"
+msgstr "Benutzer-Agent"
+
+msgid "Do Not Disturb"
+msgstr "Nicht stören"
+
+msgid "Enabled"
+msgstr "Aktiviert"
+
+msgid "Call Forward"
+msgstr "Rufweiterleitung"
+
+msgid "Initial Ring Time"
+msgstr "Anfängliche Klingelzeit"
+
+msgid "Follow-Me List"
+msgstr "Follow-Me-Liste"
+
+msgid "DND/CF"
+msgstr "DND/CF"
+
+msgid "Paused"
+msgstr "Angehalten"
+
+msgid "Mon"
+msgstr "Mo"
+
+msgid "Tue"
+msgstr "Di"
+
+msgid "Wed"
+msgstr "Mi"
+
+msgid "Thu"
+msgstr "Do"
+
+msgid "Fri"
+msgstr "Fr"
+
+msgid "Sat"
+msgstr "Sa"
+
+msgid "Sun"
+msgstr "So"
+
+msgid "Jan"
+msgstr "Jan"
+
+msgid "Feb"
+msgstr "Feb"
+
+msgid "Mar"
+msgstr "Mär"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "Jun"
+msgstr "Jun"
+
+msgid "Jul"
+msgstr "Jul"
+
+msgid "Aug"
+msgstr "Aug"
+
+msgid "Sep"
+msgstr "Sep"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Nov"
+
+msgid "Dec"
+msgstr "Dez"
+
+msgid "Active"
+msgstr "Aktiv"
