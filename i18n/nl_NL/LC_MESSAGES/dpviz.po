@@ -613,12 +613,6 @@ msgstr "Bezig Extensies"
 msgid "Duplex"
 msgstr "Duplex"
 
-msgid "Queue"
-msgstr "Wachtrij"
-
-msgid "Agents"
-msgstr "Agents"
-
 msgid "Ext"
 msgstr "Extensie"
 
@@ -630,9 +624,6 @@ msgstr "Herhalingsvertraging"
 
 msgid "Ring Group"
 msgstr "Ringgroep"
-
-msgid "List"
-msgstr "Lijst"
 
 msgid "Timezone"
 msgstr "Tijdzone"

@@ -609,12 +609,6 @@ msgstr "住宅用電話のOccupied拡張機"
 msgid "Duplex"
 msgstr "デュプレックス"
 
-msgid "Queue"
-msgstr "キュー"
-
-msgid "Agents"
-msgstr "エージェント"
-
 msgid "Ext"
 msgstr "拡張機能"
 
@@ -626,9 +620,6 @@ msgstr "再試行遅延"
 
 msgid "Ring Group"
 msgstr "リンググループ"
-
-msgid "List"
-msgstr "リスト"
 
 msgid "Timezone"
 msgstr "時刻帯"

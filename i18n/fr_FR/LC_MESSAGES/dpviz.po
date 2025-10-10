@@ -622,12 +622,6 @@ msgstr "Extensions occupées"
 msgid "Duplex"
 msgstr "Duplex"
 
-msgid "Queue"
-msgstr "File d'attente"
-
-msgid "Agents"
-msgstr "Agents"
-
 msgid "Ext"
 msgstr "Ext"
 
@@ -639,9 +633,6 @@ msgstr "Délai de reprise"
 
 msgid "Ring Group"
 msgstr "Groupe d'appel"
-
-msgid "List"
-msgstr "Liste"
 
 msgid "Timezone"
 msgstr "Fuseau horaire"

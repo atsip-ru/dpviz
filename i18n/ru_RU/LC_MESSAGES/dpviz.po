@@ -617,12 +617,6 @@ msgstr "Занятые расширения"
 msgid "Duplex"
 msgstr "Дуплекс"
 
-msgid "Queue"
-msgstr "Очередь"
-
-msgid "Agents"
-msgstr "Агенты:"
-
 msgid "Ext"
 msgstr "Экст"
 
@@ -634,9 +628,6 @@ msgstr "Отложенная попытка повторной отправки"
 
 msgid "Ring Group"
 msgstr "Группа звонков"
-
-msgid "List"
-msgstr "Список"
 
 msgid "Timezone"
 msgstr "Часовой пояс"

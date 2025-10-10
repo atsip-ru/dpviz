@@ -611,12 +611,6 @@ msgstr "Estensioni occupate"
 msgid "Duplex"
 msgstr "Duplex"
 
-msgid "Queue"
-msgstr "Coda"
-
-msgid "Agents"
-msgstr "Agenti"
-
 msgid "Ext"
 msgstr "Estensione"
 
@@ -628,9 +622,6 @@ msgstr "Ritardo di ripetizione"
 
 msgid "Ring Group"
 msgstr "Gruppo di Anello"
-
-msgid "List"
-msgstr "Elenco"
 
 msgid "Timezone"
 msgstr "Fuso orario"

@@ -618,12 +618,6 @@ msgstr "Belegte Erweiterungen"
 msgid "Duplex"
 msgstr "Duplex"
 
-msgid "Queue"
-msgstr "Warteschlange"
-
-msgid "Agents"
-msgstr "Agenten"
-
 msgid "Ext"
 msgstr "Ext"
 
@@ -635,9 +629,6 @@ msgstr "Wiederholungsverzögerung"
 
 msgid "Ring Group"
 msgstr "Ringgruppe"
-
-msgid "List"
-msgstr "Liste"
 
 msgid "Timezone"
 msgstr "Zeitzone"

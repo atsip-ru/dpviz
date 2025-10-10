@@ -805,6 +805,47 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			"\n\n["._('Timing & Agent Options')."]\n"._('Max Wait Time').": ".$maxwait."\n"._('Agent Timeout').": ".secondsToTimes($q['data']['timeout'])."\n"._('Agent Retry').": ".secondsToTimes($q['data']['retry'])."\n"._('Wrap Up Time').": ".secondsToTimes($q['data']['wrapuptime']).
 			"\n\n["._('Capacity Options')."]\n"._('Max Callers').": ".$maxcallers."\n"._('Join Empty').": ".ucfirst($q['data']['joinempty'])."\n"._('Leave Empty').": ".ucfirst($q['data']['leavewhenempty']).
 			"\n\n".$position.$periodic;
+			
+			
+			if (!empty($q['members']) && !$minimal){
+				if ($options['queue_member_display']==2){ //--option "Combine"
+						$label.="\n\n";
+						foreach ($q['members'] as $types=>$members) {
+							if ($types=='static' && !empty($q['members']['static'])){
+								$label.="["._('Static')."]\n";
+							}elseif($types=='dynamic' && !empty($q['members']['dynamic']) && $dynmembers){
+								$label.="["._('Dynamic')."]\n";
+							}
+							
+							foreach ($members as $member) {
+							
+								$split=explode(',',$member);
+								$member=$split[0];
+								$pen=$split[1];
+								$penalty = ($options['queue_penalty'] == 1) ? ",$pen" : '';
+								
+								// Make sure extension is loaded/hydrated
+								$extension = hydrateExtension($route, $member);
+
+								if ($extension) {
+										$flags = array(
+												'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
+												'loggedin' => ($dynmembers && in_array($member, $route['queues'][$qnum]['loggedin'])),
+												'dynamic'  => ($types === 'dynamic')
+										);
+
+										$status = resolveExtensionStatus($extension, 'queue', $flags);
+
+										$label .= $status['icon']." Ext ".$member.$penalty." ".sanitizeLabels($extension['name'])." ".$status['label']."\l";
+
+								} else {
+										$label .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
+								}
+
+							}
+						}
+				}
+			}
 			makeNode($module,$num,$label,$tooltip,$node);
 			
 			if ($stop){
@@ -908,57 +949,6 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						}
 					}					
 
-				}elseif ($options['queue_member_display']==2){ //--option "Combine"
-					$line=_('Queue')." ".$qnum." "._('Agents').":\n";
-					foreach ($q['members'] as $types=>$members) {
-						if ($types=='static' && !empty($q['members']['static'])){
-							$line.="["._('Static')."]\n";
-						}elseif($types=='dynamic' && !empty($q['members']['dynamic']) && $dynmembers){
-							$line.="["._('Dynamic')."]\n";
-						}
-						
-						foreach ($members as $member) {
-						
-							$split=explode(',',$member);
-							$member=$split[0];
-							$pen=$split[1];
-							$penalty = ($options['queue_penalty'] == 1) ? ",$pen" : '';
-							
-							// Make sure extension is loaded/hydrated
-							$extension = hydrateExtension($route, $member);
-
-							if ($extension) {
-									$flags = array(
-											'paused'   => in_array($member, $route['queues'][$qnum]['paused']),
-											'loggedin' => ($dynmembers && in_array($member, $route['queues'][$qnum]['loggedin'])),
-											'dynamic'  => ($types === 'dynamic')
-									);
-
-									$status = resolveExtensionStatus($extension, 'queue', $flags);
-
-									$line .= $status['icon']." Ext ".$member.$penalty." ".sanitizeLabels($extension['name'])." ".$status['label']."\l";
-
-							} else {
-									$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member.$penalty."\l";
-							}
-
-						}
-					}
-					
-					$memNode= $dpgraph->beginNode('queuemembers'.$qnum,
-						array(
-							'label' => $line,
-							'tooltip' => $line,
-							'URL' => $node->getAttribute('URL', '').'#qagentlist',
-							'target' => '_blank',
-							'shape' => 'rect',
-							'style' => 'rounded,filled',
-							'fillcolor' => $pastels[20]
-						)
-					);
-					$edge= $dpgraph->beginEdge(array($node, $memNode));
-					$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-					
 				}else{
 					//do not display agents --option "Hide"
 				}
@@ -1155,6 +1145,30 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				. _('Confirm Calls') . ": " . $conf . "\n"
 				. _('Call Recording') . ": " . $rg['recording'] . "\n"
 			;
+			
+			if ($options['ring_member_display']==2){  //--option "Combine"
+			
+				$grplist=$rg['grplist'];
+				$grplist = preg_split("/-/", $grplist);
+				
+				$label.="\n\n";
+				foreach ($grplist as $member){
+					// Make sure extension is loaded/hydrated
+					$extension = hydrateExtension($route, $member);
+
+					if ($extension) {
+							// No paused/loggedin in ring groups
+							$status = resolveExtensionStatus($extension, 'ringgroup');
+
+							$label .= $status['icon']." Ext ".$member." ".sanitizeLabels($extension['name'])." ".$status['label']."\l";
+
+					} else {
+							$label .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
+					}
+
+				}
+			}
+			
 			makeNode($module,$rgnum,$label,$tooltip,$node);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
@@ -1185,38 +1199,6 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						}
 						dpp_follow_destinations($route,$go,'',$options);
 					} 
-				}elseif ($options['ring_member_display']==2){  //--option "Combine"
-					$line=_('Ring Group')." ".$rgnum." "._('List').":\n";
-					foreach ($grplist as $member){
-						// Make sure extension is loaded/hydrated
-						$extension = hydrateExtension($route, $member);
-
-						if ($extension) {
-								// No paused/loggedin in ring groups
-								$status = resolveExtensionStatus($extension, 'ringgroup');
-
-								$line .= $status['icon']." Ext ".$member." ".sanitizeLabels($extension['name'])." ".$status['label']."\l";
-
-						} else {
-								$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
-						}
-
-					}
-					
-					$memNode= $dpgraph->beginNode('ringmembers'.$rgnum,
-						array(
-							'label' => $line,
-							'tooltip' => $line,
-							'URL' => $node->getAttribute('URL', ''),
-							'target' => '_blank',
-							'shape' => 'rect',
-							'style' => 'rounded,filled',
-							'fillcolor' => $pastels[2]
-						)
-					);
-					$edge= $dpgraph->beginEdge(array($node, $memNode));
-					$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
-					
 				}else{
 					//do not display members --option "Hide"
 				}
@@ -2229,10 +2211,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$duplexArray=array(_('No'),_('Yes'));
 			$label=$paging['page_group']." ".sanitizeLabels($paging['description']).$pageRecName;
 			$tooltip=_('Page Group').": ".$paging['page_group']."\n"._('Description').": ".sanitizeLabels($paging['description'])."\n".$pageRecName."\n"._('Busy Extensions').": ".$busyArray[$paging['force_page']]."\n"._('Duplex').": ".$duplexArray[$paging['duplex']];
-			makeNode($module,$pagenum,$label,$tooltip,$node);
 			
 			if (!empty($paging['members']) && !$minimal){
-				$line="Page Group ".$pagenum." "._('members').":\n";
+				$label.="\n\nPage Group ".$pagenum." "._('members').":\n";
 				foreach ($paging['members'] as $member) {
 					// Make sure extension is loaded/hydrated
 					$extension = hydrateExtension($route, $member);
@@ -2241,28 +2222,16 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 							$isRegistered = !empty($extension['reg_status']);
 							$regstatus    = $isRegistered ? '🟢' : '🔴';
 
-							$line .= $regstatus." "._('Ext')." ".$member." ".sanitizeLabels($extension['name'])."\l";
+							$label.= $regstatus." "._('Ext')." ".$member." ".sanitizeLabels($extension['name'])."\l";
 
 					} else {
-							$line .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
+							$label.= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$member."\l";
 					}
 
 				}
-				
-				$memNode= $dpgraph->beginNode('pagemem'.$pagenum,
-					array(
-						'label' => $line,
-						'tooltip' => $line,
-						'URL' => $node->getAttribute('URL', ''),
-						'target' => '_blank',
-						'shape' => 'rect',
-						'style' => 'rounded,filled',
-						'fillcolor' => '#87CEFA'
-					)
-				);
-				$edge= $dpgraph->beginEdge(array($node, $memNode));
 			}
-			
+			makeNode($module,$pagenum,$label,$tooltip,$node);
+
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2533,44 +2502,32 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$label=$vmblastnum." ".sanitizeLabels($vmblast['description'])."\n".$vmRecName;
 			if ($vmblast['password'] !=''){$pass="\nPassword: ".$vmblast['password'];}else{$pass='';}
 			$tooltip=$module.": ".$label.$pass;
-			makeNode($module,$vmblastnum,$label,$tooltip,$node);
 			
 			if (!empty($vmblast['members']) && !$minimal){
-				$line="Voicemail Blast ".$vmblastnum." "._('members').":\n";
+				$label.="\n\nVoicemail Blast ".$vmblastnum." "._('members').":\n";
 				foreach ($vmblast['members'] as $member) {
 					// Make sure extension is loaded/hydrated
 					$extension = hydrateExtension($route, $member);
 
 					if ($extension) {
-							$line .= _('Ext')." ".$member." ".sanitizeLabels($extension['name']).": ";
+							$label .= _('Ext')." ".$member." ".sanitizeLabels($extension['name']).": ";
 
 							$vmblastemail = '';
 							if (!empty($extension['mailbox']) && isset($extension['mailbox']['email'])) {
 									$vmblastemail = $extension['mailbox']['email'];
 							}
 
-							$line .= str_replace(",", ",\n", $vmblastemail)."\l";
+							$label .= str_replace(",", ",\n", $vmblastemail)."\l";
 
 					} else {
 							// fallback if extension not found
-							$line .= _('Ext')." ".$member."\l";
+							$label.= _('Ext')." ".$member."\l";
 					}
 				}
-				
-				$memNode= $dpgraph->beginNode('vmblastmem'.$vmblastnum,
-					array(
-						'label' => $line,
-						'tooltip' => $line,
-						'URL' => $node->getAttribute('URL', ''),
-						'target' => '_blank',
-						'shape' => 'rect',
-						'style' => 'rounded,filled',
-						'fillcolor' => 'gainsboro'
-					)
-				);
-				$edge= $dpgraph->beginEdge(array($node, $memNode));
 			}
 			
+			makeNode($module,$vmblastnum,$label,$tooltip,$node);
+
 		}else{
 			notFound($module,$destination,$node);
 		}

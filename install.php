@@ -63,12 +63,12 @@ $sql = "SELECT queue_member_display FROM dpviz";
 $check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
 if(DB::IsError($check)) {
 	// add new field
-    $sql = "ALTER TABLE dpviz ADD queue_member_display TINYINT(1) NOT NULL DEFAULT 0;";
+    $sql = "ALTER TABLE dpviz ADD queue_member_display TINYINT(1) NOT NULL DEFAULT 2;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 		
 		// Only update row if the column was just added
-    $sql = "UPDATE dpviz SET queue_member_display = 1 WHERE id = 1;";
+    $sql = "UPDATE dpviz SET queue_member_display = 2 WHERE id = 1;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
@@ -78,12 +78,12 @@ $sql = "SELECT ring_member_display FROM dpviz";
 $check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
 if(DB::IsError($check)) {
 	// add new field
-    $sql = "ALTER TABLE dpviz ADD ring_member_display TINYINT(1) NOT NULL DEFAULT 0;";
+    $sql = "ALTER TABLE dpviz ADD ring_member_display TINYINT(1) NOT NULL DEFAULT 2;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 		
 		// Only update row if the column was just added
-    $sql = "UPDATE dpviz SET ring_member_display = 1 WHERE id = 1;";
+    $sql = "UPDATE dpviz SET ring_member_display = 2 WHERE id = 1;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }

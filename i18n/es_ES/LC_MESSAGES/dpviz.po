@@ -612,12 +612,6 @@ msgstr "Extensión ocupada"
 msgid "Duplex"
 msgstr "Duplex"
 
-msgid "Queue"
-msgstr "Cola"
-
-msgid "Agents"
-msgstr "Agentes"
-
 msgid "Ext"
 msgstr "Ext"
 
@@ -629,9 +623,6 @@ msgstr "Demora de reintento"
 
 msgid "Ring Group"
 msgstr "Grupo de llamadas"
-
-msgid "List"
-msgstr "Lista"
 
 msgid "Timezone"
 msgstr "Zona horaria"

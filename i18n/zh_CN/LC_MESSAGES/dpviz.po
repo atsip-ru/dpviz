@@ -598,12 +598,6 @@ msgstr "忙碌扩展"
 msgid "Duplex"
 msgstr "双工模式"
 
-msgid "Queue"
-msgstr "队列"
-
-msgid "Agents"
-msgstr "代理人"
-
 msgid "Ext"
 msgstr "扩展号"
 
@@ -615,9 +609,6 @@ msgstr "重试延迟"
 
 msgid "Ring Group"
 msgstr "铃声群组"
-
-msgid "List"
-msgstr "列表"
 
 msgid "Timezone"
 msgstr "时区"
