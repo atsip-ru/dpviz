@@ -1439,7 +1439,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 					$numcidd = " / ANY";
 			}
 		
-			if (isset($incoming['language'])){$numLang=$incoming['language'];}
+			if (!empty($incoming['language'])) {$numLang = $incoming['language'];}
 			
 			$didLabel = ($num == "ANY") ? "ANY" : formatPhoneNumbers($num,$currentLocale);
 			$didLabel.= $numcidd."\n".$incoming['description'];

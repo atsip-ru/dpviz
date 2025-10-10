@@ -1142,38 +1142,48 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 						}
 
 						// First try DID + CID
-						if (!empty($cidnum)) {
-								$sql = "SELECT * FROM incoming WHERE extension = " . q($id) .
-											 " AND cidnum = " . q($cidnum);
-								$row = lazyFetchRow($route, $table, $id.'|'.$cidnum, $sql, 'extension');
-								if ($row) {
-										// Language sub-check
-										$langSql = "SELECT language FROM language_incoming WHERE extension = " . q($id) .
-															 " AND cidnum = " . q($cidnum);
+						// Check if language_incoming table exists once up front
+				$tableExists = sql("SHOW TABLES LIKE 'language_incoming'", "getOne");
+
+				if (!empty($cidnum)) {
+						$sql = "SELECT * FROM incoming WHERE extension = " . q($id) .
+									 " AND cidnum = " . q($cidnum);
+						$row = lazyFetchRow($route, $table, $id.'|'.$cidnum, $sql, 'extension');
+						if ($row) {
+								// Language sub-check (CID-specific)
+								if (!empty($tableExists)) {
+										$langSql = "SELECT language FROM language_incoming
+																WHERE extension = " . q($id) .
+																" AND cidnum = " . q($cidnum);
 										$langRow = sql($langSql, "getRow", DB_FETCHMODE_ASSOC);
 										if ($langRow && !empty($langRow['language'])) {
 												$row['language'] = $langRow['language'];
 												$route[$table][$id.'|'.$cidnum] = $row; // update cache
 										}
-										return $row;
 								}
+								return $row;
 						}
+				}
 
-						// Fallback: DID only (no CID restriction)
-						$sql = "SELECT * FROM incoming WHERE extension = " . q($id) .
-									 " AND (cidnum IS NULL OR cidnum = '')";
-						$row = lazyFetchRow($route, $table, $id, $sql, 'extension');
-						if ($row) {
-								// Language sub-check (DID only, no cidnum)
-								$langSql = "SELECT language FROM language_incoming WHERE extension = " . q($id) .
-													 " AND (cidnum IS NULL OR cidnum = '')";
+				// Fallback: DID only (no CID restriction)
+				$sql = "SELECT * FROM incoming WHERE extension = " . q($id) .
+							 " AND (cidnum IS NULL OR cidnum = '')";
+				$row = lazyFetchRow($route, $table, $id, $sql, 'extension');
+				if ($row) {
+						// Language sub-check (DID only)
+						if (!empty($tableExists)) {
+								$langSql = "SELECT language FROM language_incoming
+														WHERE extension = " . q($id) .
+														" AND (cidnum IS NULL OR cidnum = '')";
 								$langRow = sql($langSql, "getRow", DB_FETCHMODE_ASSOC);
 								if ($langRow && !empty($langRow['language'])) {
 										$row['language'] = $langRow['language'];
 										$route[$table][$id] = $row; // update cache
 								}
-								return $row;
 						}
+						return $row;
+				}
+
 
 				case 'ivrs':
 						return lazyFetchRow($route, $table, $id,
