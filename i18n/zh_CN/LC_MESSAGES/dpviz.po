@@ -865,9 +865,6 @@ msgstr "单击继续..."
 msgid "Bad Dest"
 msgstr "糟糕的目的地"
 
-msgid "not found"
-msgstr "未找到"
-
 msgid "month inverted"
 msgstr "月份反转"
 
@@ -960,3 +957,51 @@ msgstr "12月"
 
 msgid "Active"
 msgstr "活动中"
+
+msgid "Categories"
+msgstr "类别"
+
+msgid "Queue"
+msgstr "队列"
+
+msgid "Join Announcement"
+msgstr "加入公告"
+
+msgid "In Use By"
+msgstr "正在使用中"
+
+msgid "Destination not in use"
+msgstr "目的地未使用"
+
+msgid "Not in Use"
+msgstr "未使用"
+
+msgid "This destination has no references"
+msgstr "该目的地没有参考"
+
+msgid "Display In Use By Nodes"
+msgstr "显示已使用的节点"
+
+msgid "Display nodes where the selected destination is used."
+msgstr "显示使用选定目的地的节点。"
+
+msgid "Static Agent"
+msgstr "静态代理人"
+
+msgid "Dynamic Agent"
+msgstr "动态代理人"
+
+msgid "Member"
+msgstr "成员"
+
+msgid "Repeat Key"
+msgstr "重复键"
+
+msgid "Allow Skip"
+msgstr "允许跳过"
+
+msgid "Return to IVR"
+msgstr "返回自动回答机"
+
+msgid "Don't Answer Channel"
+msgstr "不要回答通道"

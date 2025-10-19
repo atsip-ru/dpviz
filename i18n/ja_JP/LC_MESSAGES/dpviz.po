@@ -879,9 +879,6 @@ msgstr "続行するにはクリックしてください..."
 msgid "Bad Dest"
 msgstr "悪いDestination"
 
-msgid "not found"
-msgstr "見つかりませんでした"
-
 msgid "month inverted"
 msgstr "月が逆転した"
 
@@ -974,3 +971,51 @@ msgstr "12月"
 
 msgid "Active"
 msgstr "アクティブ"
+
+msgid "Categories"
+msgstr "カテゴリ"
+
+msgid "Queue"
+msgstr "キュー"
+
+msgid "Join Announcement"
+msgstr "参加通知"
+
+msgid "In Use By"
+msgstr "使用中"
+
+msgid "Destination not in use"
+msgstr "使用されていない先行先"
+
+msgid "Not in Use"
+msgstr "使用していません"
+
+msgid "This destination has no references"
+msgstr "この先行順序には参照がありません。"
+
+msgid "Display In Use By Nodes"
+msgstr "使用中のノードによる表示"
+
+msgid "Display nodes where the selected destination is used."
+msgstr "選択された目的地が使用されるノードを表示します。"
+
+msgid "Static Agent"
+msgstr "静的エージェント"
+
+msgid "Dynamic Agent"
+msgstr "ディナミックエージェント"
+
+msgid "Member"
+msgstr "メンバー"
+
+msgid "Repeat Key"
+msgstr "再生キー"
+
+msgid "Allow Skip"
+msgstr "スキップを許可する"
+
+msgid "Return to IVR"
+msgstr "IVRに戻る"
+
+msgid "Don't Answer Channel"
+msgstr "回答しないチャネル"

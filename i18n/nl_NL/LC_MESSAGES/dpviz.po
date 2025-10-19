@@ -884,9 +884,6 @@ msgstr "Klik om verder te gaan..."
 msgid "Bad Dest"
 msgstr "Slechte Bestemming"
 
-msgid "not found"
-msgstr "niet gevonden"
-
 msgid "month inverted"
 msgstr "maand omgekeerd"
 
@@ -979,3 +976,51 @@ msgstr "Dec"
 
 msgid "Active"
 msgstr "Actief"
+
+msgid "Categories"
+msgstr "Categorieën"
+
+msgid "Queue"
+msgstr "Wachtrij"
+
+msgid "Join Announcement"
+msgstr "Sluit aan bij Aankondiging"
+
+msgid "In Use By"
+msgstr "In gebruik door"
+
+msgid "Destination not in use"
+msgstr "Bestemming niet in gebruik"
+
+msgid "Not in Use"
+msgstr "Niet in gebruik"
+
+msgid "This destination has no references"
+msgstr "Deze bestemming heeft geen referenties"
+
+msgid "Display In Use By Nodes"
+msgstr "Weergave Gebruikt Door Knopen"
+
+msgid "Display nodes where the selected destination is used."
+msgstr "Weergeven van knopen waar de geselecteerde bestemming wordt gebruikt."
+
+msgid "Static Agent"
+msgstr "Statiële Agent"
+
+msgid "Dynamic Agent"
+msgstr "Dynamische Agent"
+
+msgid "Member"
+msgstr "Lid"
+
+msgid "Repeat Key"
+msgstr "Herhalen Sleutel"
+
+msgid "Allow Skip"
+msgstr "Toestaan Om te Slaan"
+
+msgid "Return to IVR"
+msgstr "Terug naar IVR"
+
+msgid "Don't Answer Channel"
+msgstr "Geen kanaal beantwoorden"

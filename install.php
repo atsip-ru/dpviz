@@ -171,6 +171,20 @@ if(DB::IsError($check)) {
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
 
+$sql = "SELECT inuseby FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD inuseby TINYINT(1) NOT NULL DEFAULT 0;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET inuseby = 0 WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
 
 // Check if table exists first
 $sql = "SHOW TABLES LIKE 'dpviz_views'";
@@ -192,4 +206,60 @@ if (empty($exists)) {
     }
 
     $table_created = true;
+}
+
+
+//gpg key import if framework >= 17
+$fpr = "AEC3F282013E200B0E35A6D058E80D46FED5C0E3"; // full fingerprint
+
+if (function_exists('get_framework_version') && version_compare(get_framework_version(), '17', '>=')) {
+
+    $localKeyFile = __DIR__ . "/publickey.asc";
+    if (file_exists($localKeyFile)) {
+
+        $user = trim(shell_exec('whoami'));
+
+        // ---- Key Import ----
+        $cmdImport = "gpg --batch --import " . escapeshellarg($localKeyFile);
+        if ($user !== 'asterisk') {
+            $cmdImport = "sudo -u asterisk " . $cmdImport;
+        }
+        exec($cmdImport . " 2>&1", $out1, $rc1);
+
+        // ---- Ownertrust Import ----
+        $ownertrust = $fpr . ":6:\n";  // 6 = ultimate
+        $cmdTrust   = "gpg --batch --import-ownertrust";
+        if ($user !== 'asterisk') {
+            $cmdTrust = "sudo -u asterisk " . $cmdTrust;
+        }
+
+        $descriptors = [
+            0 => ["pipe","r"],
+            1 => ["pipe","w"],
+            2 => ["pipe","w"]
+        ];
+        $proc = proc_open($cmdTrust, $descriptors, $pipes);
+        if (is_resource($proc)) {
+            fwrite($pipes[0], $ownertrust);
+            fclose($pipes[0]);
+            $out2 = stream_get_contents($pipes[1]); fclose($pipes[1]);
+            $err2 = stream_get_contents($pipes[2]); fclose($pipes[2]);
+            $rc2  = proc_close($proc);
+        } else {
+            $out2 = "";
+            $err2 = "proc_open failed";
+            $rc2  = 1;
+        }
+
+        // ---- Optional logging ----
+        if (function_exists('out')) {
+            // out("Key import rc=$rc1"); foreach ($out1 as $l) out("  ".$l);
+            // out("Ownertrust rc=$rc2"); if ($out2) out("  ".$out2); if ($err2) out("  ".$err2);
+        }
+
+    } else {
+        if (function_exists('out')) {
+            out("Public key file not found: $localKeyFile");
+        }
+    }
 }

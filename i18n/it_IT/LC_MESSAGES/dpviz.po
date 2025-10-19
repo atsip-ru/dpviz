@@ -882,9 +882,6 @@ msgstr "Clicca per continuare..."
 msgid "Bad Dest"
 msgstr "Cattiva destinazione"
 
-msgid "not found"
-msgstr "non trovato"
-
 msgid "month inverted"
 msgstr "mese invertito"
 
@@ -977,3 +974,53 @@ msgstr "dic"
 
 msgid "Active"
 msgstr "Attivo"
+
+msgid "Categories"
+msgstr "Categorie"
+
+msgid "Queue"
+msgstr "Coda"
+
+msgid "Join Announcement"
+msgstr "Annuncio di adesione"
+
+msgid "In Use By"
+msgstr "In utilizzo da"
+
+msgid "Destination not in use"
+msgstr "Destinazione non in uso"
+
+msgid "Not in Use"
+msgstr "Non in uso"
+
+msgid "This destination has no references"
+msgstr "Questa destinazione non ha riferimenti"
+
+msgid "Display In Use By Nodes"
+msgstr "Visualizza In Uso Da Nodi"
+
+msgid "Display nodes where the selected destination is used."
+msgstr ""
+"Mostra nodi di visualizzazione in cui il destinazione selezionato è "
+"utilizzato."
+
+msgid "Static Agent"
+msgstr "Agente Statico"
+
+msgid "Dynamic Agent"
+msgstr "Agente Dinamico"
+
+msgid "Member"
+msgstr "Membro"
+
+msgid "Repeat Key"
+msgstr "Ripeti Chiave"
+
+msgid "Allow Skip"
+msgstr "Consenti Skip"
+
+msgid "Return to IVR"
+msgstr "Torna all'IVR"
+
+msgid "Don't Answer Channel"
+msgstr "Non risponde canale"

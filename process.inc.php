@@ -1,6 +1,4 @@
 <?php
-
-
 function sanitizeLabels($text) {
     if ($text === null) {
         $text = '';
@@ -9,26 +7,6 @@ function sanitizeLabels($text) {
 		$text = htmlentities($text, ENT_QUOTES, 'UTF-8');
 
     return $text;
-}
-
-function dpplog($level, $msg) {
-    global $dpp_log_level;
-
-    if (!isset($dpp_log_level) || $dpp_log_level < $level) {
-        return;
-    }
-
-    $ts = date('Y-m-d H:i:s');
-    $logFile = "/var/log/asterisk/dpviz.log";
-
-    $fd = fopen($logFile, "a");
-    if (!$fd) {
-        error_log("Couldn't open log file: $logFile");
-        return;
-    }
-
-    fwrite($fd, "[$ts] [Level $level] $msg\n");
-    fclose($fd);
 }
 
 function secondsToTimes($seconds) {
@@ -55,7 +33,6 @@ function secondsToTimes($seconds) {
         return "$remainingSeconds secs";
     }
 }
-
 
 function formatPhoneNumbers($phoneNumber, $locale = 'en_US') {
 	
@@ -156,7 +133,6 @@ function formatPhoneNumbers($phoneNumber, $locale = 'en_US') {
     return $phoneNumber;
 }
 
-
 function sanitize_filename($string, $replace_with = '_') {
     // Replace spaces and other separators with underscore (or your preferred character)
     $string = preg_replace('/[^\w\-\.]+/', $replace_with, $string);
@@ -177,11 +153,12 @@ function sanitize_filename($string, $replace_with = '_') {
     return $string;
 }
 
-function makeNode($module,$id,$label,$tooltip,$node){
+function makeNode($module,$id,$label,$tooltip,$node,$rec = ''){
 
 	switch ($module) {
 			case 'Announcement':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
+					if (empty($rec)){$append='#norec';}else{$append='';}
+					$url=strtolower($module).'&view=form&extdisplay='.$id.$append;
 					$shape='note';
 					$color='oldlace';
 					break;
@@ -189,13 +166,13 @@ function makeNode($module,$id,$label,$tooltip,$node){
 			case 'Callback':
 					$url=strtolower($module).'&view=form&itemid='.$id;
 					$shape='rect';
-					$color='#F7A8A8';
+					$color='#f7a8a8';
 					break;
 
 			case 'Call Flow':
 					$url='daynight&view=form&itemid='.$id.'&extdisplay='.$id;
 					$shape='rect';
-					$color='#F7A8A8';
+					$color='#f7a8a8';
 					break;
 
 			case 'Call Recording':
@@ -213,7 +190,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 			case 'Custom Dests':
 					$url=str_replace(' ', '', strtolower($module)).'&view=form&destid='.$id;
 					$shape='component';
-					$color='#D1E8E2';
+					$color='#d1e8e2';
 					break;
 
 			case 'Directory':
@@ -241,7 +218,8 @@ function makeNode($module,$id,$label,$tooltip,$node){
 					break;
 
 			case 'IVR':
-					$url=strtolower($module).'&action=edit&id='.$id;
+					if (empty($rec)){$append='#norec';}else{$append='';}
+					$url=strtolower($module).'&action=edit&id='.$id.$append;
 					$shape='component';
 					$color='gold';
 					break;
@@ -255,7 +233,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 			case 'Misc Apps':
 					$url=str_replace(' ', '', strtolower($module)).'&action=edit&extdisplay='.$id;
 					$shape='rpromoter';
-					$color='#5FFEF7';
+					$color='#5ffef7';
 					break;
 
 			case 'Misc Dests':
@@ -267,23 +245,24 @@ function makeNode($module,$id,$label,$tooltip,$node){
 			case 'Paging':
 					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
 					$shape='tab';
-					$color='#87CEFA';
+					$color='#87cefa';
 					break;
 			
 			case 'Phonebook':
 					$url='phonebook';
 					$shape='folder';
-					$color='#BDB76B';
+					$color='#bdb76b';
 					break;
 			
 			case 'Queue Callback':
 					$url=str_replace(' ', '', strtolower($module)).'&view=form&id='.$id;
 					$shape='rect';
-					$color='#98FB98';
+					$color='#98fb98';
 					break;
 
 			case 'Queues':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
+					if (empty($rec)){$append='#norec';}else{$append='';}
+					$url=strtolower($module).'&view=form&extdisplay='.$id.$append;
 					$shape='hexagon';
 					$color='mediumaquamarine';
 					break;
@@ -291,11 +270,12 @@ function makeNode($module,$id,$label,$tooltip,$node){
 			case 'Queue Priorities':
 					$url='queueprio&view=form&extdisplay='.$id;
 					$shape='rect';
-					$color='#FFC3A0';
+					$color='#ffc3a0';
 					break;
 
 			case 'Ring Groups':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
+					if (empty($rec)){$append='#norec';}else{$append='';}
+					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id.$append;
 					$shape='rect';
 					$color='#92b8ef';
 					break;
@@ -323,7 +303,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 					$idArray=explode(",",$id);
 					$url=strtolower($module).'&tech='.$idArray[0].'&extdisplay=OUT_'.$idArray[1];
 					$shape='rarrow';
-					$color='#66CDAA';
+					$color='#66cdaa';
 					break;
 					
 			case 'VM Blast':
@@ -336,7 +316,7 @@ function makeNode($module,$id,$label,$tooltip,$node){
 					$url='vqueue&action=modify&id='.$id;
 					$module='VQueue';
 					$shape='hexagon';
-					$color='#00FA9A';
+					$color='#00fa9a';
 					break;
 
 			case 'Voicemail':
@@ -367,10 +347,10 @@ function stopNode($dpgraph,$id){
 				'tooltip' => _('Click to continue...'),
 				'shape' => 'circle',
 				'URL' => '#',
-				'fontcolor' => '#FFFFFF',
+				'fontcolor' => '#ffffff',
 				'fontsize' => '45pt',
 				'fixedsize' => true,
-				'fillcolor' => '#4A90E2',
+				'fillcolor' => '#4a90e2',
 				'style' => 'rounded,filled'
 			)
 		);				
@@ -401,7 +381,7 @@ function findRecording($route,$id){
 		if (isset($route['recordings'][$id])){
 			$name=$route['recordings'][$id]['displayname'];
 		}else{
-			$name=_('not found');
+			$name=_('None');
 		}
 	}elseif ($id==''){
 		$name=_('None');
@@ -1030,7 +1010,7 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 
 				case 'calendar':
 						return lazyFetchRow($route,$table,$id,
-						"SELECT * FROM kvstore_FreePBX_modules_Calendar WHERE `key` = " . q($id) . " LIMIT 1",
+						"SELECT * FROM kvstore_FreePBX_modules_Calendar WHERE `key` = " . q($id),
 								'key',
 								false,
 								function ($row) {

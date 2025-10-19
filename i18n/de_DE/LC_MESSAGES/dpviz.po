@@ -31,7 +31,7 @@ msgid "Always"
 msgstr "Immer"
 
 msgid "Recording"
-msgstr "Aufzeichnung"
+msgstr "Aufnahme"
 
 msgid "Continue"
 msgstr "Fortsetzen"
@@ -891,9 +891,6 @@ msgstr "Klicken Sie hier, um fortzufahren..."
 msgid "Bad Dest"
 msgstr "Schlechtes Ziel"
 
-msgid "not found"
-msgstr "nicht gefunden"
-
 msgid "month inverted"
 msgstr "monat invertiert"
 
@@ -986,3 +983,52 @@ msgstr "Dez"
 
 msgid "Active"
 msgstr "Aktiv"
+
+msgid "Categories"
+msgstr "Kategorien"
+
+msgid "Queue"
+msgstr "Warteschlange"
+
+msgid "Join Announcement"
+msgstr "Beitrittsankündigung"
+
+msgid "In Use By"
+msgstr "In Gebrauch Von"
+
+msgid "Destination not in use"
+msgstr "Ziel nicht in Gebrauch"
+
+msgid "Not in Use"
+msgstr "Nicht in Gebrauch"
+
+msgid "This destination has no references"
+msgstr "Diese Zielnummer hat keine Verbindungen"
+
+msgid "Display In Use By Nodes"
+msgstr "Anzeigen von von Knoten verwendet"
+
+msgid "Display nodes where the selected destination is used."
+msgstr ""
+"Anzeigen Sie Knoten, bei denen die ausgewählte Zielstellung verwendet wird."
+
+msgid "Static Agent"
+msgstr "Static Agent"
+
+msgid "Dynamic Agent"
+msgstr "Dynamisches Agent"
+
+msgid "Member"
+msgstr "Mitglied"
+
+msgid "Repeat Key"
+msgstr "Wiederholen"
+
+msgid "Allow Skip"
+msgstr "Überspringen zulassen"
+
+msgid "Return to IVR"
+msgstr "Zurück zu IVR"
+
+msgid "Don't Answer Channel"
+msgstr "Kanal nicht beantworten"

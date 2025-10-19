@@ -50,6 +50,7 @@ const translations = {
 	ivr: "<?php echo _('IVR'); ?>",
 	voicemail: "<?php echo _('Voicemail'); ?>",
 	ringgroup: "<?php echo _('Ring Group'); ?>",
+	queues: "<?php echo _('Queue'); ?>",
 	vmblast: "<?php echo _('Voicemail Blast'); ?>",
 	pagegroups: "<?php echo _('Page Group'); ?>",
 	dynroute: "<?php echo _('Dynamic Route'); ?>",

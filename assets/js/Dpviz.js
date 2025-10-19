@@ -164,101 +164,107 @@ function generateVisualization(ext, jump, skips) {
 								const titleText = node.dataset.gvtitle || "";
 								if (!titleText) return;
 
-								// Patterns that trigger recording modal
-								const recordingPatterns = [
-									"play-system-recording",
-									"ext-local",
-									"app-announcement-",
-									"ivr-",
-									"ext-group",
-									"vmblast-grp",
-									"app-pagegroups",
-									"dynroute",
-									"queuecallback"
-								];
+								const href = node.querySelector("a")?.getAttribute("xlink:href") || "";
+								if (!href.includes("#norec")) { 
 
-								for (const pattern of recordingPatterns) {
-									if (titleText.startsWith(pattern)) {
-										closeModal("recordingmodal");
-										// special case: skip vms / vmi when pattern = ext-local
-										if (
-											pattern === "ext-local" &&
-											(titleText.includes("vms") || titleText.includes("vmi"))
-										) {
-											return;
-										}
-										
-										e.preventDefault();
-
-										if (overlay && !isFocused && !isSanitized && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-											
-											spinner.style.display = "flex";
-											getRecording(titleText);
-
-											setTimeout(() => {
-												spinner.style.display = "none";
-												recordingModal.style.display = "block";
-											}, 500);
-										}
-										break; // stop after first match
-									}
-								}
-								
-								
-								if (titleText.startsWith("reset") && !isFocused && !isSanitized) {
-									e.preventDefault();
-									resetFocusMode();
-									generateVisualization(ext,'','');
-								}
-
-								if (titleText.startsWith("undoLast") && !isFocused && !isSanitized) {
-										e.preventDefault();
-										resetFocusMode();
-
-										const toRemove = titleText.replace("undoLast", "").trim();
-
-										const index = skips.indexOf(toRemove);
-										if (index !== -1) {
-												skips.splice(index, 1);
-										}
-
-										generateVisualization(ext,jump,skips);
-								}
-								
-								// Ctrl/Meta -jump
-								if ((e.ctrlKey || e.metaKey) && !isFocused && !isSanitized) {
-									e.preventDefault();
-									resetFocusMode();
-									
-									generateVisualization(ext,titleText,skips);
-								}
-								
-								// Shift Key -skip(s)
-								if (e.shiftKey && !isFocused && !isSanitized) {
-									e.preventDefault();
-									const allowedKeywords = [
-										"announcement","callback","callrecording","daynight","directory",
-										"dynroute","ext-group","ext-tts","from-trunk","ivr","languages",
-										"miscapp","queueprio","queues","vqueues","setcid","timeconditions",
-										"vmblast-grp"
+									// Patterns that trigger recording modal
+									const recordingPatterns = [
+										"play-system-recording",
+										"ext-local",
+										"app-announcement-",
+										"ivr-",
+										"ext-group",
+										"vmblast-grp",
+										"app-pagegroups",
+										"dynroute",
+										"queuecallback",
+										"ext-queues"
 									];
 
-									const match = allowedKeywords.find(keyword =>
-											titleText.toLowerCase().includes(keyword.toLowerCase())
-									);
+									for (const pattern of recordingPatterns) {
+										if (titleText.startsWith(pattern)) {
+											closeModal("recordingmodal");
+											// special case: skip vms / vmi when pattern = ext-local
+											if (
+												pattern === "ext-local" &&
+												(titleText.includes("vms") || titleText.includes("vmi"))
+											) {
+												return;
+											}
 
-									if (!match) {
-											return;
+											
+											e.preventDefault();
+
+											if (overlay && !isFocused && !isSanitized && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+												
+												spinner.style.display = "flex";
+												getRecording(titleText);
+
+												setTimeout(() => {
+													spinner.style.display = "none";
+													recordingModal.style.display = "block";
+												}, 500);
+											}
+											break; // stop after first match
+										}
+									}
+								}
+									
+									
+									if (titleText.startsWith("reset") && !isFocused && !isSanitized) {
+										e.preventDefault();
+										resetFocusMode();
+										generateVisualization(ext,'','');
 									}
 
-									if (!skips.includes(titleText)) {
-											skips.push(titleText);
+									if (titleText.startsWith("undoLast") && !isFocused && !isSanitized) {
+											e.preventDefault();
 											resetFocusMode();
+
+											const toRemove = titleText.replace("undoLast", "").trim();
+
+											const index = skips.indexOf(toRemove);
+											if (index !== -1) {
+													skips.splice(index, 1);
+											}
 
 											generateVisualization(ext,jump,skips);
 									}
-								}
+									
+									// Ctrl/Meta -jump
+									if ((e.ctrlKey || e.metaKey) && !isFocused && !isSanitized) {
+										e.preventDefault();
+										resetFocusMode();
+										
+										generateVisualization(ext,titleText,skips);
+									}
+									
+									// Shift Key -skip(s)
+									if (e.shiftKey && !isFocused && !isSanitized) {
+										e.preventDefault();
+										const allowedKeywords = [
+											"announcement","callback","callrecording","daynight","directory",
+											"dynroute","ext-group","ext-tts","from-trunk","ivr","languages",
+											"miscapp","queueprio","queues","vqueues","setcid","timeconditions",
+											"vmblast-grp"
+										];
 
+										const match = allowedKeywords.find(keyword =>
+												titleText.toLowerCase().includes(keyword.toLowerCase())
+										);
+
+										if (!match) {
+												return;
+										}
+
+										if (!skips.includes(titleText)) {
+												skips.push(titleText);
+												resetFocusMode();
+
+												generateVisualization(ext,jump,skips);
+										}
+									}
+								
 							});
 							const text = node.querySelector('text');
 							if (text && text.textContent.trim() === '+') {
@@ -267,6 +273,8 @@ function generateVisualization(ext, jump, skips) {
 									link.style.textDecoration = 'none';
 								}
 							}
+							
+							
 						});
 
             element.querySelectorAll("g.node").forEach(node => {
@@ -484,6 +492,12 @@ function getRecording(titleid) {
 		url = 'voicemail&action=bsettings&ext=' + ext;
 	}
 	
+	if (module.startsWith("ext-queues")) {
+		mod = 'queues';
+		id = parts[1];
+		url = 'queues&view=form&extdisplay=' + id;
+	}
+	
 	const formData = new URLSearchParams();
 	formData.append('app', mod);
 	formData.append('id', id);
@@ -515,7 +529,7 @@ function getRecording(titleid) {
 		if (mod !== 'systemrecording' && mod !== 'voicemail'){
 			html += 
 				'<a href="config.php?display=' + url + '" target="_blank" style="width:100%" class="btn btn-default btn-lg">' +
-					'<i class="fa fa-sitemap"></i> ' + translations[mod] + ': ' + description +
+					'<i class="fa fa-sitemap"></i> ' + translations[mod] + ': ' + id + ' '+ description +
 					' <i class="fa fa-external-link" aria-hidden="true"></i>' +
 				'</a>';
 		}

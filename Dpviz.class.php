@@ -34,7 +34,11 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         return $sth->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, $displaydestinations) {
+    public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing,
+															$extOptional, $fmfm, $minimal, $queue_member_display, 
+															$ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, 
+															$displaydestinations, $inuseby)
+		{
         $sql = "UPDATE dpviz SET
             `panzoom` = :panzoom,
             `horizontal` = :horizontal,
@@ -50,7 +54,8 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						`allowlist` = :allowlist,
 						`blacklist` = :blacklist,
 						`autoplay` = :autoplay,
-						`displaydestinations` = :displaydestinations
+						`displaydestinations` = :inuseby,
+						`inuseby` = :inuseby
 						
             WHERE `id` = 1";
 
@@ -69,7 +74,8 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						':allowlist' => $allowlist,
 						':blacklist' => $blacklist,
 						':autoplay' => $autoplay,
-						':displaydestinations' => $displaydestinations
+						':displaydestinations' => $displaydestinations,
+						':inuseby' => $inuseby
         );
 
         $stmt = $this->db->prepare($sql);
@@ -94,10 +100,15 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 				$blacklist = isset($request['blacklist']) ? $request['blacklist'] : '';
 				$autoplay = isset($request['autoplay']) ? $request['autoplay'] : '';
 				$displaydestinations = isset($request['displaydestinations']) ? $request['displaydestinations'] : '';
+				$inuseby = isset($request['inuseby']) ? $request['inuseby'] : '';
 
         switch ($action) {
             case 'edit':
-                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, $displaydestinations);
+                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, 
+																 $extOptional, $fmfm, $minimal, $queue_member_display, 
+																 $ring_member_display, $queue_penalty, $allowlist, $blacklist, 
+																 $autoplay, $displaydestinations, $inuseby
+								);
                 break;
             default:
                 break;
@@ -140,8 +151,13 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								$blacklist = isset($_POST['blacklist']) ? $_POST['blacklist'] : '';
 								$autoplay = isset($_POST['autoplay']) ? $_POST['autoplay'] : '';
 								$displaydestinations = isset($_POST['displaydestinations']) ? $_POST['displaydestinations'] : '';
+								$inuseby = isset($_POST['inuseby']) ? $_POST['inuseby'] : '';
 
-                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, $extOptional, $fmfm, $minimal, $queue_member_display, $ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, $displaydestinations);
+                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing,
+																						$extOptional, $fmfm, $minimal, $queue_member_display, 
+																						$ring_member_display, $queue_penalty, $allowlist, $blacklist, 
+																						$autoplay, $displaydestinations, $inuseby
+								);
                 echo json_encode(array('success' => $success));
                 exit;
 
@@ -200,6 +216,18 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 									$ivrResults= \FreePBX::Ivr()->getDetails($id);
 									$desc = $ivrResults['name'];
 									$recId = $ivrResults['announcement'];
+									
+								} elseif ($mod=='queues'){
+									$sql = "SELECT * FROM queues_config WHERE extension = ?";
+									$sth = $this->db->prepare($sql);
+									$sth->execute(array($id));
+									$qResults = $sth->fetch(\PDO::FETCH_ASSOC);
+									$desc = $qResults['descr'];
+									if (isset($qResults['joinannounce_id']) && $qResults['joinannounce_id'] !==''){
+										$recId = $qResults['joinannounce_id'];
+									}else{
+										$recId=0;
+									}
 									
 								} elseif ($mod=='ringgroup'){
 									$sql = "SELECT * FROM ringgroups WHERE grpnum = ?";

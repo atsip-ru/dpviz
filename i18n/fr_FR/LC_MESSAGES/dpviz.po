@@ -894,9 +894,6 @@ msgstr "Cliquez pour continuer..."
 msgid "Bad Dest"
 msgstr "Mauvais Dest"
 
-msgid "not found"
-msgstr "Non trouvé"
-
 msgid "month inverted"
 msgstr "mois inversé"
 
@@ -989,3 +986,51 @@ msgstr "déc."
 
 msgid "Active"
 msgstr "Actif"
+
+msgid "Categories"
+msgstr "Catégories"
+
+msgid "Queue"
+msgstr "File d'attente"
+
+msgid "Join Announcement"
+msgstr "Annonce d'adhésion"
+
+msgid "In Use By"
+msgstr "En usage par"
+
+msgid "Destination not in use"
+msgstr "Destination pas en service"
+
+msgid "Not in Use"
+msgstr "Non utilisé"
+
+msgid "This destination has no references"
+msgstr "Cette destination n'a pas de références"
+
+msgid "Display In Use By Nodes"
+msgstr "Afficher Utilisés Par Les Nœuds"
+
+msgid "Display nodes where the selected destination is used."
+msgstr "Afficher les nœuds où la destination sélectionnée est utilisée."
+
+msgid "Static Agent"
+msgstr "Agent Statique"
+
+msgid "Dynamic Agent"
+msgstr "Agent Dynamique"
+
+msgid "Member"
+msgstr "Membre"
+
+msgid "Repeat Key"
+msgstr "Répéter Clé"
+
+msgid "Allow Skip"
+msgstr "Permettre Ignorer"
+
+msgid "Return to IVR"
+msgstr "Retour à l'IVR"
+
+msgid "Don't Answer Channel"
+msgstr "Ne répondre pas au canal"

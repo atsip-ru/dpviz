@@ -27,6 +27,7 @@ require_once 'graphviz/src/Alom/Graphviz/AttributeBag.php';
 require_once 'graphviz/src/Alom/Graphviz/Graph.php';
 require_once 'graphviz/src/Alom/Graphviz/Digraph.php';
 require_once 'graphviz/src/Alom/Graphviz/AttributeSet.php';
+require_once 'graphviz/src/Alom/Graphviz/Subgraph.php';
 require_once 'process.inc.php';
 
 //options
@@ -47,7 +48,15 @@ $options['hideall']=0;
 $options['skip'] = isset($input['skip']) ? $input['skip'] : array();
 $datetime = isset($options['datetime']) ? $options['datetime'] : '1';
 
-$dproute['extension']= $ext;
+if ($options['inuseby']){
+		$dproute['extension']= "inuseby-$ext";
+		$firstExt="inuseby-$ext";
+}else{
+		$dproute['extension'] = $firstExt = $ext;
+}
+
+
+
 if (empty($dproute)) {
 $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."</h2></div>";
 }else{
@@ -56,19 +65,8 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 	if (!empty($jump)){
 		dpp_follow_destinations($dproute, '', $jump, $options); #starts with destination
 	}else{
-		dpp_follow_destinations($dproute, $ext, '', $options); #starts with empty destination
+		dpp_follow_destinations($dproute, $firstExt, '', $options); #starts with empty destination
 	}
-
-	/*  puts a box next to the first node.*/
-	/*
-	$dproute['dpgraph']->node('In Use By', array(
-		'label' => "In Use By:\nline 2\lLine3\lLine3\lLine3\l",
-		'shape' => 'box',
-		'style' => 'filled',
-		'fillcolor' => 'darkseagreen',
-		'rank'=>'source'
-	));
-	*/
 
 	if (!empty($skip) && empty($jump)){
 		$dproute['dpgraph']->node('reset', array(
@@ -78,14 +76,12 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 			'URL' => '#',
 			'fontcolor' => '#000',
 			'fontsize' => '18pt',
-			'fillcolor' => '#F0F0F0',
+			'fillcolor' => '#f0f0f0',
 			'style' => 'filled'
 		));
 	}
 
 	$gtext = $dproute['dpgraph']->render();
-
-
 	$gtext=json_encode($gtext);
 	$version= \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND").' '.get_framework_version();
 	$modinfo = \FreePBX::Modules()->getInfo('dpviz');
@@ -94,7 +90,7 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 	$header = '
 		<h2 style="display: flex; justify-content: space-between; align-items: center; margin: 0;">
 				<span id="headerSelected"></span>
-				<span id="version" style="color: #DCDCDC; font-weight: normal; font-size: 0.5em; display: none; flex-direction: column; align-items: flex-end;">
+				<span id="version" style="color: #dcdcdc; font-weight: normal; font-size: 0.5em; display: none; flex-direction: column; align-items: flex-end;">
 						<span>'.$version.'</span>
 						<span style="text-align: right; width: 100%;">'.$dpvizVersion.'</span>
 				</span>
@@ -196,6 +192,7 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 
 }
 
+
 #
 # This is a recursive function.  It digs through various nodes
 # (ring groups, ivrs, time conditions, extensions, etc.) to find
@@ -203,10 +200,8 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 # the dial plan, stored in the $route object.
 #
 #
-
-
-
 function dpp_follow_destinations (&$route, $destination, $optional, $options) {
+	
 	$horizontal = isset($options['horizontal']) ? $options['horizontal'] : '0';
 	$direction=($horizontal== 1) ? 'LR' : 'TB';
 	$dynmembers= isset($options['dynmembers']) ? $options['dynmembers'] : '0';
@@ -235,42 +230,17 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		}
 	}
 
-	 
-  $pastels = array(
-			"#7979FF", "#86BCFF", "#8ADCFF", "#3DE4FC", "#5FFEF7", "#33FDC0",
-			"#ed9581", "#81a6a2", "#bae1e7", "#eb94e2", "#f8d580", "#979291",
-			"#92b8ef", "#ad8086", "#F7A8A8", "#C5A3FF", "#FFC3A0", "#FFD6E0",
-			"#FFB3DE", "#D4A5A5", "#A5D4D4", "#F5C6EC", "#B5EAD7", "#C7CEEA",
-			"#E0BBE4", "#FFDFD3", "#FEC8D8", "#D1E8E2", "#E8D1E1", "#EAD5DC",
-			"#F9E79F", "#D6EAF8"
-	);
-
-	$neons = array(
-			"#fe0000", "#fdfe02", "#0bff01", "#011efe", "#fe00f6",
-			"#ff5f1f", "#ff007f", "#39ff14", "#ff073a", "#ffae00",
-			"#08f7fe", "#ff44cc", "#ff6ec7", "#dfff00", "#32cd32",
-			"#ccff00", "#ff1493", "#00ffff", "#ff00ff", "#ff4500",
-			"#ff00aa", "#ff4c4c", "#7df9ff", "#adff2f", "#ff6347",
-			"#ff66ff", "#f2003c", "#ffcc00", "#ff69b4", "#0aff02"
-	);
-	
-	//$optional = preg_match('/^[ANY_xX+\d\[\]]+$/', $optional) ? '' : $optional;
   if (! isset ($route['dpgraph'])) {
-		
     $route['dpgraph'] = new Alom\Graphviz\Digraph('"reset'.$route['extension'].'"');
-		//$route['dpgraph']->attr('graph',array('rankdir'=>$direction,'ordering'=>'in','tooltip'=>' ','ranksep'=>'.50 equally','nodesep'=>'.30'));		
-		$route['dpgraph']->attr('graph',array('rankdir'=>$direction,'ordering'=>'in','tooltip'=>' '));
+		$route['dpgraph']->attr('graph',array('rankdir'=>$direction,'ordering'=>'out','tooltip'=>' '));
   }
 	
   $dpgraph = $route['dpgraph'];
 	
-	
-  dpplog(9, "destination='$destination' route[extension]: " . print_r($route['extension'], true));
-
   # This only happens on the first call.  Every recursive call includes
   # a destination to look at.  For the first one, we get the destination from
   # the route object.
-		
+	
 	if ($destination == '') {
 		
 		$dpgraph->node("reset".$route['extension'], array(
@@ -280,7 +250,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			'URL' => '#',
 			'fontcolor' => '#000',
 			'fontsize' => '18pt',
-			'fillcolor' => '#F0F0F0',
+			'fillcolor' => '#f0f0f0',
 			'style' => 'filled'
 		));
     // $graph->node() returns the graph, not the node, so we always
@@ -306,22 +276,222 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
     return;
   }
 	
-  dpplog(9, "Inspecting destination $destination");
-
 	if ((preg_match("/^from-did-direct,(\d+),(\d+),(.+)/", $destination) && $options['hideall']==1)){
 		return;
 	}
 	
+	#
+	# In Use By
+	#
+	if (preg_match("/^inuseby-(.+)/", $destination, $matches)) {
+    $orig = $matches[1];
+
+    $parts = explode(",", $orig);
+    $last  = end($parts);
+    if (preg_match('/^[a-z]{2}$/i', $last)) {
+        array_pop($parts);
+    }
+    $origCheck = implode(",", $parts);
+
+    dpp_follow_destinations($route, $orig, '', $options);
+		
+		if (!preg_match("/^inuseby-from-trunk.+/", $destination)) {
+    
+			$origNodeId = $orig;
+			
+			$allDestinations=\FreePBX::Modules()->getDestinations();  //needed to load the <modules>.functions.incs
+			$modulef = module_functions::create();
+			$active_modules = $modulef->getinfo(false, MODULE_STATUS_ENABLED);
+			
+			$usage = @framework_check_destination_usage([$origCheck], $active_modules) ?: [];
+			
+			
+			if (preg_match("/^from-did-direct,([#\d]+),(\d+),(.+)/", $orig, $matches)) {
+				global $db;
+				$ext=$matches[1];
+				
+				// Queues
+				$sqlQueues = "
+						SELECT qd.id, qc.descr
+						FROM queues_details qd
+						LEFT JOIN queues_config qc ON qd.id = qc.extension
+						WHERE qd.keyword = 'member'
+							AND qd.data LIKE 'Local/{$ext}@from-queue%'
+				";
+				$queues = $db->getAll($sqlQueues, DB_FETCHMODE_ASSOC);
+				
+				// Ring Groups
+				$sqlRGs = "
+						SELECT grpnum, description, grplist
+						FROM ringgroups
+						WHERE grplist REGEXP '(^|-)$ext($|-)'
+				";
+				$ringgroups = $db->getAll($sqlRGs, DB_FETCHMODE_ASSOC);
+				
+				if (!empty($queues)) {
+						foreach ($queues as $q) {
+								$id=$q['id'];
+								$descr=sanitizeLabels($q['descr']);
+								$usage['queuestatic'][] = array(
+										'description' => _('Queue') . ": {$descr} ({$id}) " . _('Static Agent'),
+										'edit_url'    => "config.php?display=queues&view=form&extdisplay={$q['id']}#qagentlist"
+								);
+						}
+				}
+				
+				// Get all QPENALTY entries from AstDB
+				$lines = runAstmanCommand("database show QPENALTY");
+				
+				foreach ($lines as $line) {
+						if (preg_match('#/QPENALTY/(\d+)/agents/' . $ext . '#', $line, $m)) {
+								$qnum = $m[1];
+
+								// Fetch queue description
+								$sql = "SELECT descr FROM queues_config WHERE extension = " . q($qnum);
+								$row = sql($sql, "getRow", DB_FETCHMODE_ASSOC);
+								$qdesc = !empty($row['descr']) ? sanitizeLabels($row['descr']) : '';
+
+								// Add to usage array
+								$label = $qdesc ? _('Queue') . ": {$qdesc} ({$qnum}) " . _('Dynamic Agent') : _('Queue') . " {$qnum} " . _('Dynamic Agent');
+								$usage['queuedyn'][] = array(
+										'description' => $label,
+										'edit_url'    => "config.php?display=queues&view=form&extdisplay={$qnum}#qagentlist"
+								);
+						}
+				}
+
+				if (!empty($ringgroups)) {
+						foreach ($ringgroups as $rg) {
+								$id= $rg['grpnum'];
+								$descr= sanitizeLabels($rg['description']);
+								$usage['ringmember'][] = array(
+										'description' => _('Ring Group') . ": {$descr} ({$id}) " . _('Member'),
+										'edit_url'    => "config.php?display=ringgroups&view=form&extdisplay={$rg['grpnum']}"
+								);
+						}
+				}
+			}
+			
+			$colors=array('core'=>'darkseagreen','ivr'=>'gold','timeconditions'=>'dodgerblue',
+										'queues'=>'mediumaquamarine','queueprio'=>'#ffc3a0','setcid'=>'#ed9581',
+										'announcement'=>'oldlace','ringgroups'=>'#92b8ef','languages'=>'#ed9581',
+										'daynight'=>'#f7a8a8','miscapps'=>'#5ffef7','callback'=>'#f7a8a8',
+										'callrecording'=>'burlywood','exten'=>'#c5a3ff','queuestatic'=>'#a5d4d4',
+										'queuedyn'=>'#bae1e7','ringmember'=>'#8adcff','directory'=>'#eb94e2',
+										'findmefollow'=>'#9ccc65'
+			);
+			
+			if (!empty($usage)) {
+				$counter   = 0;
+				$rankGroup = 0;
+				$subgraph  = null;
+				$prevGroupFirstNode = null;
+
+				$groupedUsage = [];
+				foreach ($usage as $u => $uuu) {
+						foreach ($uuu as $uu) {
+								$key = $uu['edit_url'];
+								if (!isset($groupedUsage[$u][$key])) {
+										$groupedUsage[$u][$key] = [
+												'edit_url'    => $uu['edit_url'],
+												'descriptions'=> []
+										];
+								}
+								$groupedUsage[$u][$key]['descriptions'][] = $uu['description'];
+						}
+				}
+				
+				ksort($groupedUsage, SORT_NATURAL | SORT_FLAG_CASE);
+				
+				foreach ($groupedUsage as $u => $items) {
+						foreach ($items as $item) {
+								// Sort the descriptions so label order is consistent
+								$descs = $item['descriptions'];
+								sort($descs, SORT_NATURAL | SORT_FLAG_CASE);
+
+								$label = sanitizeLabels(implode("\n", $descs));
+
+								$usageId = "inuseby-" . md5($label . '|' . $origNodeId);
+								$colorKey = $u;
+								if (strpos($label, 'Exten') === 0) {
+										$colorKey = 'exten';
+								}
+
+								$dpgraph->node($usageId, [
+										'label'     => $label,
+										'tooltip'   => $label,
+										'URL'       => htmlentities('/admin/'.$item['edit_url']),
+										'target'    => '_blank',
+										'shape'     => 'rect',
+										'fillcolor' => isset($colors[$colorKey]) ? $colors[$colorKey] : '#f0f0f0',
+										'style'     => 'rounded,filled'
+								]);
+
+								if ($counter % 5 === 0) {
+										$rankGroup++;
+										$subgraph = $dpgraph->subgraph("rank_$rankGroup");
+										$subgraph->attr('graph', ['rank' => 'same']);
+
+										if ($prevGroupFirstNode !== null) {
+												$dpgraph->beginEdge([
+														$dpgraph->get($prevGroupFirstNode),
+														$dpgraph->get($usageId)
+												])->attribute('style', 'invis');
+										}
+
+										$prevGroupFirstNode = $usageId;
+								}
+
+								$subgraph->node($usageId);
+
+								$usageNode = $dpgraph->get($usageId);
+								$origNode  = $dpgraph->get($origNodeId);
+
+								$edge = $dpgraph->beginEdge([$usageNode, $origNode]);
+								$edge->attribute('label', " " . _('In Use By'));
+								$edge->attribute('labeltooltip', $label);
+								$edge->attribute('edgetooltip', $label);
+
+								$counter++;
+						}
+				}
+
+				
+			} else {
+
+				$usageId = "inuseby-none-" . md5($origNodeId);
+
+				$dpgraph->node($usageId, [
+						'label'     => _('Destination not in use'),
+						'tooltip'   => _('Destination not in use'),
+						'shape'     => 'rect',
+						'fillcolor' => '#ffdddd',
+						'style'     => 'rounded,filled'
+				]);
+
+				$usageNode = $dpgraph->get($usageId);
+				$origNode  = $dpgraph->get($origNodeId);
+
+				$edge = $dpgraph->beginEdge([$usageNode, $origNode]);
+				$edge->attribute('label', " " . _('Not in Use'));
+				$edge->attribute('labeltooltip', _('This destination has no references'));
+				$edge->attribute('edgetooltip',_('This destination has no references'));
+				
+			}
+		}
+		return;
+		# End of In Use By
+	}
+	
   // We use get() to see if the node exists before creating it.  get() throws
   // an exception if the node does not exist so we have to catch it.
+	
   try {
     $node = $dpgraph->get($destination);
-		
   } catch (Exception $e) {
-    dpplog(7, "Adding node: $destination");
 		$node = $dpgraph->beginNode($destination);
   }
-
+	
   // Add an edge from our parent to this node, if there is not already one.
   // We do this even if the node already existed because this node might
   // have several paths to reach it.
@@ -329,21 +499,15 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 	if (isset($route['parent_node'])){
 		$ptxt = $route['parent_node']->getAttribute('label', '');
 		$ntxt = $node->getAttribute('label', '');
-		dpplog(9, "Found it: ntxt = $ntxt");
 		
 		if ($ntxt == '' ) { $ntxt = "(new node: $destination)"; }
 		if ($dpgraph->hasEdge(array($route['parent_node'], $node))) {
-			
-			dpplog(9, "NOT making an edge from $ptxt -> $ntxt");
 			$edge= $dpgraph->beginEdge(array($route['parent_node'], $node));
 			$edge->attribute('label', sanitizeLabels($route['parent_edge_label']));
 			$edge->attribute('labeltooltip',sanitizeLabels($ptxt));
 			$edge->attribute('edgetooltip',sanitizeLabels($ptxt));
 			
 		} else {
-			
-			dpplog(9, "Making an edge from $ptxt -> $ntxt");
-		
 			$edge= $dpgraph->beginEdge(array($route['parent_node'], $node));
 			$edge->attribute('label', sanitizeLabels($route['parent_edge_label']));
 			$edge->attribute('labeltooltip',sanitizeLabels($ptxt));
@@ -358,7 +522,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				}
 				$route['parent_edge_code']=''; //reset each time
 			}
-			
+		
 			if (preg_match("/^( IVR Break| Queue Callback)./", $route['parent_edge_label'])){
 				$edge->attribute('style', 'dashed');
 			}
@@ -379,9 +543,6 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		}
 	}
 
-
-  dpplog(9, "The Graph: " . print_r($dpgraph, true));
-
   // Now bail if we have already recursed on this destination before.
   if ($node->getAttribute('label', 'NONE') != 'NONE') {
     return;
@@ -389,9 +550,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
 	# Now look at the destination and figure out where to dig deeper.
 	
-		#
-		# Extension (from-did-direct)
-		#
+	#
+	# Extension (from-did-direct)
+	#
   if (preg_match("/^from-did-direct,([#\d]+),(\d+),(.+)/", $destination, $matches)) {
 	
 		$extnum = $matches[1];
@@ -412,7 +573,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 					$node->attribute('color', 'grey');
 			}elseif (!empty($extension['dnd']) || (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU']))) {
 					// DND or any CF active
-					$node->attribute('color', '#FFB300');
+					$node->attribute('color', '#ffb300');
 			} else {
 					// Registered vs offline
 					$node->attribute('color', !empty($extension['reg_status']) ? 'green' : 'red');
@@ -484,7 +645,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		}
 
 		$node->attribute('shape', 'rect');
-		$node->attribute('fillcolor', $pastels[15]);
+		$node->attribute('fillcolor', '#c5a3ff');
 		$node->attribute('style', 'rounded,filled');
 		
 		//Optional Destinations
@@ -716,6 +877,25 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		if ($q) {
 			$q =& $route['queues'][$qnum];
 			
+			
+			$recID= $q['joinannounce_id'];
+			
+			if ($recID) {
+				$recording = lazyLoadRow($route, 'recordings', $recID);
+
+				if ($recording) {
+					$qRecName= $recording['displayname'];
+					$recordingId=$recording['id'];
+					$featureCode= getFeatureNum($recordingId,$route);
+					$qRecName= "\n🔊 "._('Join Announcement')." (".$qlang."): ".sanitizeLabels($qRecName)."\n"._('Feature Code').": ".$featureCode;
+				}else{
+					$qRecName='';
+				}
+			}else{
+				$qRecName='';
+			}
+			
+			
 			if ($dynmembers){ //options
 				// Dynamic Queue members
 				if (!isset($q['members']['dynamic'])){
@@ -763,11 +943,13 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$maxwait = secondsToTimes($maxwait);
 			}
 			
-			$label.=$qnum . " " . sanitizeLabels($q['descr']);
+			$label.=$qnum . " " . sanitizeLabels($q['descr']).$qRecName;
 			$restrict=array('Call as Dialed','No Follow-Me or Call Forward','Extensions Only');
+			
 			$skipbusy=array('No','Yes','Yes + (ringinuse=no)','Queue calls only (ringinuse=no)');
 			$mohclass=array('MoH Only','Ring Only','Agent Ringing');
-			$noyes=array('No','Yes');
+			$joinarray=array(''=>_('Always'),'free'=>'No Free Agents','ready'=>'No Ready Agents');
+			$noyes=array(_('No'),_('Yes'));
 			$maxcallers = ($q['data']['maxlen'] == 0) ? _('Unlimited') : $q['data']['maxlen'];
 			
 			if ($q['data']['announce-frequency']==0){
@@ -801,10 +983,28 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 					$periodic = "["._('Periodic Announcements')."]\n"._('Disabled')."\n";
 			}
 			
-			$tooltip="["._('General Settings')."]\n"._('CID Prefix').": ".$cidPrefix."\n"._('Strategy').": ".$q['data']['strategy']."\n"._('Agent Restrictions').": ".$restrict[$q['use_queue_context']]."\n"._('Autofill').": ".ucfirst($q['data']['autofill'])."\n"._('Skip Busy Agents').": ".$skipbusy[$q['cwignore']]."\n"._('Music On Hold Class').": ".$music." (".$mohclass[$q['ringing']].")\n"._('Call Recording').": ".$q['data']['recording']."\n"._('Mark calls answered elsewhere').": ".$noyes[$q['data']['answered_elsewhere']].
-			"\n\n["._('Timing & Agent Options')."]\n"._('Max Wait Time').": ".$maxwait."\n"._('Agent Timeout').": ".secondsToTimes($q['data']['timeout'])."\n"._('Agent Retry').": ".secondsToTimes($q['data']['retry'])."\n"._('Wrap Up Time').": ".secondsToTimes($q['data']['wrapuptime']).
-			"\n\n["._('Capacity Options')."]\n"._('Max Callers').": ".$maxcallers."\n"._('Join Empty').": ".ucfirst($q['data']['joinempty'])."\n"._('Leave Empty').": ".ucfirst($q['data']['leavewhenempty']).
-			"\n\n".$position.$periodic;
+			$tooltip=
+				"["._('General Settings')."]\n"
+				._('CID Prefix').": ".$cidPrefix."\n"
+				._('Strategy').": ".$q['data']['strategy']."\n"
+				._('Agent Restrictions').": ".$restrict[$q['use_queue_context']]."\n"
+				._('Autofill').": ".ucfirst($q['data']['autofill'])."\n"
+				._('Skip Busy Agents').": ".$skipbusy[$q['cwignore']]."\n"
+				._('Music On Hold Class').": ".$music." (".$mohclass[$q['ringing']].")\n"
+				._('Join Announcement').": " . findRecording($route, $recID) . "\n"
+				. "When: " .$joinarray[$q['data']['skip_joinannounce']]. "\n"
+				._('Call Recording').": ".$q['data']['recording']."\n"
+				._('Mark calls answered elsewhere').": ".$noyes[$q['data']['answered_elsewhere']]."\n
+				\n["._('Timing & Agent Options')."]\n"
+				._('Max Wait Time').": ".$maxwait."\n"
+				._('Agent Timeout').": ".secondsToTimes($q['data']['timeout'])."\n"
+				._('Agent Retry').": ".secondsToTimes($q['data']['retry'])."\n"
+				._('Wrap Up Time').": ".secondsToTimes($q['data']['wrapuptime'])."\n
+				\n["._('Capacity Options')."]\n"
+				._('Max Callers').": ".$maxcallers."\n"
+				._('Join Empty').": ".ucfirst($q['data']['joinempty'])."\n"
+				._('Leave Empty').": ".ucfirst($q['data']['leavewhenempty'])."\n
+				\n".$position.$periodic;
 			
 			
 			if (!empty($q['members']) && !$minimal){
@@ -846,7 +1046,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						}
 				}
 			}
-			makeNode($module,$num,$label,$tooltip,$node);
+			
+			makeNode($module,$num,$label,$tooltip,$node,$recID);
+			
 			
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
@@ -1074,7 +1276,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$node->attribute('penwidth', '2');
 				switch ($status['icon']) {
 						case '⚪': $node->attribute('color', 'grey'); break;      // virtual
-						case '🟡': $node->attribute('color', '#FFB300'); break;   // DND / CF
+						case '🟡': $node->attribute('color', '#ffb300'); break;   // DND / CF
 						case '🔵': $node->attribute('color', 'blue'); break;      // dynamic logged in
 						case '🟢': $node->attribute('color', 'green'); break;     // registered
 						case '🔴':
@@ -1096,9 +1298,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		$node->attribute('style', 'rounded,filled');
 		
 		if ($route['parent_edge_code'] == 'static') {
-			$node->attribute('fillcolor', $pastels[20]);
+			$node->attribute('fillcolor', '#a5d4d4');
 		}else{
-			$node->attribute('fillcolor', $pastels[8]);
+			$node->attribute('fillcolor', '#bae1e7');
 		}
 		$route['parent_edge_code']='';
 		#end of Queue members (static and dynamic)
@@ -1169,7 +1371,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				}
 			}
 			
-			makeNode($module,$rgnum,$label,$tooltip,$node);
+			makeNode($module,$rgnum,$label,$tooltip,$node,$recID);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1247,7 +1449,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$node->attribute('penwidth', '2');
 				switch ($status['icon']) {
 						case '⚪': $node->attribute('color', 'grey'); break;    // virtual
-						case '🟡': $node->attribute('color', '#FFB300'); break; // DND / CF
+						case '🟡': $node->attribute('color', '#ffb300'); break; // DND / CF
 						case '🟢': $node->attribute('color', 'green'); break;   // registered
 						case '🔴':
 						default:  $node->attribute('color', 'red'); break;      // offline
@@ -1262,7 +1464,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		
 		$node->attribute('label', $rglabel);
 		$node->attribute('tooltip', $tooltip);
-		$node->attribute('fillcolor', $pastels[2]);
+		$node->attribute('fillcolor', '#8adcff');
 		$node->attribute('shape', 'rect');
 		$node->attribute('style', 'rounded,filled');
 		# end of ring group members
@@ -1300,9 +1502,6 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			}
 			
 			$label=sanitizeLabels($ivr['name'])."\n".$ivrRecName;
-			
-			/**** TODO? Add entries to main node. Maybe let destinations follow through.*/
-
 			
 			// global (or pass by ref) array for later processing
 			$unresolvedDestinations = [];
@@ -1369,7 +1568,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				. _('Return to IVR after VM') . ": " . $retvm . "\n"
 			;
 			
-			makeNode($module,$inum,$label,$tooltip,$node);
+			makeNode($module,$inum,$label,$tooltip,$node,$recID);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1604,10 +1803,20 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			}else{
 				$announcement="\n"._('Recording').": "._('None');
 			}
+			
+			$repeat = ($an['repeat_msg'] === '') ? _('Disabled') : $an['repeat_msg'];
+			$yesno=array('0'=>_('No'),'1'=>_('Yes'));
 		
 			$label=sanitizeLabels($an['description']).$announcement;
-			$tooltip='';
-			makeNode($module,$annum,$label,$tooltip,$node);
+			$tooltip=_('Description') . ": " . sanitizeLabels($an['description']) . "\n"
+				. _('Recording') . ": " . findRecording($route, $recID) . "\n"
+				. _('Repeat Key') . ": " . $repeat . "\n"
+				. _('Allow Skip') . ": " . $yesno[$an['allow_skip']] . "\n"
+				. _('Return to IVR') . ": " . $yesno[$an['return_ivr']] . "\n"
+				. _('Don\'t Answer Channel') . ": " . $yesno[$an['noanswer']] . "\n";
+				
+			
+			makeNode($module,$annum,$label,$tooltip,$node,$recID);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1661,43 +1870,45 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 
+			$tgLink = $tgLabel = $tgTooltip = '';
 			//TC modes
 			if ($tc['mode'] === 'time-group') {
 				$tg = lazyLoadRow($route, 'timegroups', $tc['time']);
 				$tgnum  = $tg['id'];
-				$tgname = sanitizeLabels($tg['description']);
+				$tgname = !empty($tg['description']) ? sanitizeLabels($tg['description']) : '';
 				$tgtime = !empty($tg['time']) ? $tg['time'] : "No times defined";
 				$tgLabel= $tgname."\n".$tgtime;
 				$tgLink = '/admin/config.php?display=timegroups&view=form&extdisplay='.$tgnum;
 				$tgTooltip= $tgLabel;
 			} elseif ($tc['mode'] === 'calendar-group') {
+				$tgLabel='';
 				if (!empty($tc['calendar_id'])) {
 						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_id']);
 						if (!empty($cal)) {
-								$tgLabel = $cal['name'];
+								$tgLabel = sanitizeLabels($cal['name']);
 								$tgLink  = '/admin/config.php?display=calendar&action=view&type=calendar&id='.$tc['calendar_id'];
-								$tz      = !empty($cal['timezone']) ? $cal['timezone'] : '';
+								$tz      = !empty($cal['timezone']) ? _('Timezone').": ".$cal['timezone'] : '';
 								$tgTooltip = _('Name').": ".$cal['name']."\n"
 													 . _('Description').": ".$cal['description']."\n"
 													 . _('Type').": ".$cal['type']."\n"
-													 . _('Timezone').": ".$tz;
+													 . $tz;
 						}
 				} elseif (!empty($tc['calendar_group_id'])) {
 						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_group_id']);
 						if (!empty($cal)) {
-								$tgLabel = $cal['name'];
+								$tgLabel = sanitizeLabels($cal['name']);
 								$tgLink  = '/admin/config.php?display=calendargroups&action=edit&id='.$tc['calendar_group_id'];
 
 								$calNames = _('Calendars').": ";
 								if (!empty($cal['calendars'])) {
 										foreach ($cal['calendars'] as $c) {
 												$cinfo = lazyLoadRow($route, 'calendar', $c);
-												$calNames .= $cinfo['name']."\n";
+												$calNames .= !empty($cinfo['name']) ? sanitizeLabels($cinfo['name'])."\n" : '';
 										}
 								}
 
 								$cats = !empty($cal['categories']) ? count($cal['categories']) : _('All');
-								$categories = 'Categories= '.$cats;
+								$categories = _('Categories').": " . $cats;
 
 								$eves = !empty($cal['events']) ? count($cal['events']) : _('All');
 								$events = _('Events').": ".$eves;
@@ -2268,7 +2479,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$node->attribute('tooltip', $node->getAttribute('label'));
 			$node->attribute('URL', '#');
 			$node->attribute('shape', 'rect');
-			$node->attribute('fillcolor', $pastels[16]);
+			$node->attribute('fillcolor', '#ffc3a0');
 			$node->attribute('style', 'rounded,filled');
 		}else{
 			notFound($module,$destination,$node);
@@ -2517,7 +2728,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 									$vmblastemail = $extension['mailbox']['email'];
 							}
 
-							$label .= str_replace(",", ",\n", $vmblastemail)."\l";
+							$label .= str_replace(",", ",\l", $vmblastemail)."\l";
 
 					} else {
 							// fallback if extension not found
@@ -2658,8 +2869,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				notFound($module,$destination,$node);
 			}
 		}else{
-			dpplog(1, "Unknown destination type: $destination");
-			$node->attribute('fillcolor', $pastels[12]);
+			$node->attribute('fillcolor', '#92b8ef');
 			$node->attribute('label', sanitizeLabels($destination));
 			$node->attribute('shape', 'rect');
 			$node->attribute('style', 'rounded,filled');
@@ -2676,16 +2886,14 @@ function dpp_load_tables(&$dproute) {
     // Check if the table exists
     $tableExists = $db->getOne("SHOW TABLES LIKE " . q($table));
     if (!$tableExists) {
-        dpplog(9, "Skipping load: table $table does not exist");
-        return;
+      return;
     }
 
     $query = "SELECT * FROM $table";
     $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
 
     if (DB::IsError($results)) {
-        dpplog(9, "Error selecting from $table: " . $results->getMessage());
-        return;
+      return;
     }
 
     foreach ($results as $row) {
@@ -2694,7 +2902,6 @@ function dpp_load_tables(&$dproute) {
             $val = json_decode($row['val'], true);
             if (is_array($val)) {
                 $dproute['customapps'][$id] = $val;
-                dpplog(9, "customapps=$id");
             }
         }
     }

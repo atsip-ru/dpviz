@@ -197,6 +197,33 @@ $options = \FreePBX::Dpviz()->getOptions();
 					</div>
 				</div>
 				<!--END displaydestinations-->
+				<!--inuseby-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="inuseby"><?php echo _("Display In Use By Nodes"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="inuseby"></i>
+									</div>
+									<div class="col-md-9 radioset">
+										<input type="radio" name="inuseby" id="inusebyyes" value="1" <?php echo ($options['inuseby']?"CHECKED":""); ?>>
+										<label for="inusebyyes"><?php echo _("Yes"); ?></label>
+										<input type="radio" name="inuseby" id="inusebyno" value="0" <?php echo ($options['inuseby']?"":"CHECKED"); ?>>
+										<label for="inusebyno"><?php echo _("No"); ?></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<span id="inuseby-help" class="help-block fpbx-help-block"><?php echo _("Display nodes where the selected destination is used."); ?></span>
+						</div>
+					</div>
+				</div>
+				<!--END inuseby-->
 				<!--combineQueueRing node-->
 				<div class="element-container">
 					<div class="row">

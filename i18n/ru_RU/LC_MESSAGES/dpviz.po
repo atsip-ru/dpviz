@@ -890,9 +890,6 @@ msgstr "Нажмите, чтобы продолжить..."
 msgid "Bad Dest"
 msgstr "Плохой пункт назначения"
 
-msgid "not found"
-msgstr "не найдено"
-
 msgid "month inverted"
 msgstr "месяц наоборот"
 
@@ -985,3 +982,51 @@ msgstr "Дек"
 
 msgid "Active"
 msgstr "Активный"
+
+msgid "Categories"
+msgstr "Категории"
+
+msgid "Queue"
+msgstr "очередь"
+
+msgid "Join Announcement"
+msgstr "Присоединение к объявлению"
+
+msgid "In Use By"
+msgstr "В использовании"
+
+msgid "Destination not in use"
+msgstr "Назначение не используется"
+
+msgid "Not in Use"
+msgstr "Не используется"
+
+msgid "This destination has no references"
+msgstr "Эта цель не имеет ссылок"
+
+msgid "Display In Use By Nodes"
+msgstr "Отображение В Употреблении У Узлов"
+
+msgid "Display nodes where the selected destination is used."
+msgstr "Отображать узлы, используемые в выбранном назначении."
+
+msgid "Static Agent"
+msgstr "Статический агент"
+
+msgid "Dynamic Agent"
+msgstr "Динамический агент"
+
+msgid "Member"
+msgstr "Член"
+
+msgid "Repeat Key"
+msgstr "Повторить Клавишу"
+
+msgid "Allow Skip"
+msgstr "Дозволить пропуск"
+
+msgid "Return to IVR"
+msgstr "Вернуться к IVR"
+
+msgid "Don't Answer Channel"
+msgstr "Не отвечать на канал"
