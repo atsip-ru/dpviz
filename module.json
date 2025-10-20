@@ -2,13 +2,13 @@
     "rawname": "dpviz",
     "repo": "unsupported",
     "name": "Dial Plan Vizualizer",
-    "version": "1.0.30",
+    "version": "1.0.31",
     "publisher": "AdamV",
     "license": "GPLv3+",
     "licenselink": "http://www.gnu.org/licenses/gpl-3.0.txt",
-    "changelog": "Added In Use By.Resolved tampered files error for framework 17 #26 and #15. Corrected Time Conditions calendar matching bug #32",
+    "changelog": "Added In Use By.Resolved tampered files error for framework 17 #26 and #15. Corrected Time Conditions calendar matching bug #32. Fixed .png exports",
     "category": "Reports",
     "description": "Graphical display of the dial plan for any Inbound Route",
-    "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.30.tar.gz"
+    "location": "https://modules.volchko.xyz/dpviz/dpviz-1.0.31.tar.gz"
 }
 
