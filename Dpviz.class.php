@@ -54,7 +54,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						`allowlist` = :allowlist,
 						`blacklist` = :blacklist,
 						`autoplay` = :autoplay,
-						`displaydestinations` = :inuseby,
+						`displaydestinations` = :displaydestinations,
 						`inuseby` = :inuseby
 						
             WHERE `id` = 1";
