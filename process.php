@@ -232,7 +232,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
   if (! isset ($route['dpgraph'])) {
     $route['dpgraph'] = new Alom\Graphviz\Digraph('"reset'.$route['extension'].'"');
-		$route['dpgraph']->attr('graph',array('rankdir'=>$direction,'ordering'=>'out','tooltip'=>' '));
+		$route['dpgraph']->attr('graph',array('rankdir'=>$direction,'ordering'=>'in','tooltip'=>' '));
   }
 	
   $dpgraph = $route['dpgraph'];
