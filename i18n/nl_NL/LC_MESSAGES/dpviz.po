@@ -6,15 +6,6 @@ msgstr ""
 msgid "Highlight Paths"
 msgstr "Benadruk paden"
 
-msgid "Remove Highlights"
-msgstr "Verwijder aanduidingen"
-
-msgid "Checking..."
-msgstr "Controleer..."
-
-msgid "You are up to date."
-msgstr "U bent op de hoogte."
-
 msgid "available! Use Module Admin to update"
 msgstr "beschikbaar! Gebruik het Module Admin om te updaten"
 
@@ -134,9 +125,6 @@ msgstr "Matchen"
 msgid "Invalid Input, Default (%s) secs"
 msgstr "Ongeldige Input, Standaard (%s) seconden"
 
-msgid "Default (%s) secs"
-msgstr "Standaard (%s) seconden"
-
 msgid "Yes"
 msgstr "Ja"
 
@@ -205,9 +193,6 @@ msgstr "Klik om de whitelijst te bewerken"
 
 msgid "Selection %s"
 msgstr "Selectie %s"
-
-msgid "Timeout (%s secs)"
-msgstr "Time-out (%s seconden)"
 
 msgid "members"
 msgstr "leden"
@@ -468,9 +453,6 @@ msgstr "Opslaan"
 
 msgid "Time Conditions"
 msgstr "Tijdvoorwaarden"
-
-msgid "Call Flows"
-msgstr "Routes"
 
 msgid "Virtual Queues"
 msgstr "Virtuele wachtrijen"
@@ -807,9 +789,6 @@ msgstr "Andere"
 msgid "Total"
 msgstr "Totaal"
 
-msgid "No name selected"
-msgstr "Geen naam geselecteerd"
-
 msgid "Show Allowlist"
 msgstr "Toon Toegestaan Lijst"
 
@@ -1024,3 +1003,161 @@ msgstr "Terug naar IVR"
 
 msgid "Don't Answer Channel"
 msgstr "Geen kanaal beantwoorden"
+
+msgid "When"
+msgstr "Wanneer"
+
+msgid "Click to choose destination"
+msgstr "Klik om de bestemming te selecteren"
+
+msgid "Undefined Destination"
+msgstr "Ondefinieerde Bestemming"
+
+msgid "New Destination"
+msgstr "Nieuwe Bestemming"
+
+msgid "Call Flow Control"
+msgstr "Controle van de call-stroom"
+
+msgid "Call Flow"
+msgstr "Callstroom"
+
+msgid "Add Selection"
+msgstr "Voeg Selectie Toe"
+
+msgid "Click to add selection"
+msgstr "Klik om de selectie toe te voegen"
+
+msgid "Local Time"
+msgstr "Lokale tijd"
+
+msgid "Insert New Destination"
+msgstr "Voeg nieuwe bestemming toe"
+
+msgid "Click to insert new destination"
+msgstr "Klik om een nieuwe bestemming te invoeren."
+
+msgid "Language Code"
+msgstr "Taalcode"
+
+msgid "Simulated date & time applied."
+msgstr "Gevulde datum & tijd toegepast."
+
+msgid "Simulated date & time cleared."
+msgstr "Simuleerde datum & tijd werd gezuiverd."
+
+msgid "Simulate Date & Time"
+msgstr "Simuleer Datum & Tijd"
+
+msgid "Select Date & Time"
+msgstr "Selecteer Datum & Tijd"
+
+msgid "Click Reset to return to the real system time."
+msgstr "Klik op Reset om terug te keren naar de echte systeemtijd."
+
+msgid "Apply"
+msgstr "Toepassen"
+
+msgid "Simulated time"
+msgstr "Simulatie tijdstip"
+
+msgid ""
+"Simulate Date & Time: Preview how call routing will behave at a future date "
+"or time - useful for holidays, early closures, seasonal hours, or testing new "
+"time conditions."
+msgstr ""
+"Simuleer Datum & Tijd: Bekijk hoe de routering van de telefoontjes zich "
+"gedraagt op een toekomstige datum of tijd - handig voor feestdagen, "
+"vroegtijdig sluitingen, seizoenstijden of het testen van nieuwe "
+"tijdvoorwaarden."
+
+msgid "Mouse Wheel Zoom Sensitivity"
+msgstr "Aantal draaibewegingen voor zoomen"
+
+msgid ""
+"Controls mouse wheel zoom sensitivity. This preference is saved in your "
+"browser and does not affect other users."
+msgstr ""
+"Controleert de muiswiel zoomgevoeligheid. Dit voorkeur wordt opgeslagen in uw "
+"browser en heeft geen invloed op andere gebruikers."
+
+msgid "Add Entry"
+msgstr "Voeg Toevoeging Toe"
+
+msgid "Invalid Input (%s secs)"
+msgstr "Ongeldige input (%s seconden)"
+
+msgid "Click to add entry"
+msgstr "Klik om de informatie toe te voegen"
+
+msgid "Checking..."
+msgstr "Controleer..."
+
+msgid "Remove Highlights"
+msgstr "Verwijder achtergrondverluming"
+
+msgid "You are up to date."
+msgstr "Je bent op de hoogte."
+
+msgid "Match: %s"
+msgstr "Aanpassen: %s"
+
+msgid "Timeout (%s secs x %s)"
+msgstr "Aftellen (%s secs x %s)"
+
+msgid "Invalid Input x %s"
+msgstr "Ongeldige Input x %s"
+
+msgid "every"
+msgstr "elk"
+
+msgid "You do not have permission to create new destinations."
+msgstr "U hebt geen toestemming om nieuwe bestemmingen te maken."
+
+msgid "Current version"
+msgstr "Huidige versie"
+
+msgid "Day"
+msgstr "Dag"
+
+msgid "Night"
+msgstr "Nacht"
+
+msgid "Current Mode"
+msgstr "Huidige Modus"
+
+msgid "Call as Dialed"
+msgstr "Aanroep zoals ingediend"
+
+msgid "No Follow-Me or Call Forward"
+msgstr "Geen volg-mij of doorgestuurde oproepen"
+
+msgid "Extensions Only"
+msgstr "Extensies Alleen"
+
+msgid "Ring Only"
+msgstr "Ring alleen"
+
+msgid "Agent Ringing"
+msgstr "Agent aflopend"
+
+msgid "No Free Agents"
+msgstr "Geen vrije agents"
+
+msgid "No Ready Agents"
+msgstr "Geen bereid agents"
+
+msgid "There are both logged in and no free agents"
+msgstr "Er zijn zowel ingelogde als geen vrije agents beschikbaar."
+
+msgid "Display Insert and Add Selection Nodes"
+msgstr "Toon plaatsen en toevoegen selectieknooppen"
+
+msgid ""
+"Displays a + between nodes. Clicking it creates a new destination and "
+"automatically links it to the current destination. Also Displays Add "
+"Selection (IVRs) and Add Entry (Dynamic Routes) "
+msgstr ""
+"Toont een + tussen knopen. Klik op het + creëert een nieuwe bestemming en "
+"koppelt het automatisch aan bij de huidige bestemming. Toont ook Add Selectie "
+"(IVRs) en Add Invoer (Dynamische Routes)"

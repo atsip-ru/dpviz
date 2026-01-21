@@ -96,9 +96,6 @@ msgstr "Anúncio"
 msgid "Invalid Input, Default (%s) secs"
 msgstr "Entrada Inválida, Padrão (%s) segundos"
 
-msgid "Default (%s) secs"
-msgstr "Default (%s) segundos"
-
 msgid "Yes"
 msgstr "Sim"
 
@@ -164,9 +161,6 @@ msgstr "Clique para editar a lista de permissão"
 
 msgid "Selection %s"
 msgstr "Seleção %s"
-
-msgid "Timeout (%s secs)"
-msgstr "Tempo limite (%s segundos)"
 
 msgid "Disabled"
 msgstr "Desativado"
@@ -424,9 +418,6 @@ msgstr "Salvar"
 msgid "Time Conditions"
 msgstr "Condições do Tempo"
 
-msgid "Call Flows"
-msgstr "Fluxos de Chamada"
-
 msgid "Virtual Queues"
 msgstr "Filas virtuais"
 
@@ -526,15 +517,6 @@ msgstr "Extensão indefinida (cabeçalho vermelho)"
 
 msgid "Virtual or non-extension node (no border)"
 msgstr "Nó virtual ou sem extensão (sem fronteira)"
-
-msgid "Remove Highlights"
-msgstr "Remova Destacados"
-
-msgid "Checking..."
-msgstr "Verificando..."
-
-msgid "You are up to date."
-msgstr "Você está atualizado."
 
 msgid "available! Use Module Admin to update"
 msgstr "disponível! Use o Módulo Admin para atualizar"
@@ -804,9 +786,6 @@ msgstr "Outro"
 msgid "Total"
 msgstr "Total:"
 
-msgid "No name selected"
-msgstr "Nome não selecionado"
-
 msgid "Show Allowlist"
 msgstr "Mostrar Lista de Permissões"
 
@@ -1019,3 +998,160 @@ msgstr "Voltar para o IVR"
 
 msgid "Don't Answer Channel"
 msgstr "Não Responda Canal"
+
+msgid "When"
+msgstr "Quando"
+
+msgid "Click to choose destination"
+msgstr "Clique para escolher destino"
+
+msgid "Undefined Destination"
+msgstr "Destino Não Definido"
+
+msgid "New Destination"
+msgstr "Nova Destino"
+
+msgid "Call Flow Control"
+msgstr "Controle de Fluxo de Chamadas"
+
+msgid "Call Flow"
+msgstr "Fluxo de Chamada"
+
+msgid "Add Selection"
+msgstr "Adicionar Seleção"
+
+msgid "Click to add selection"
+msgstr "Clique para adicionar a seleção"
+
+msgid "Local Time"
+msgstr "Hora Local"
+
+msgid "Insert New Destination"
+msgstr "Insira Nova Destinação"
+
+msgid "Click to insert new destination"
+msgstr "Clique para inserir novo destino"
+
+msgid "Language Code"
+msgstr "Código da Linguagem"
+
+msgid "Simulated date & time applied."
+msgstr "Data e horário simulados aplicados."
+
+msgid "Simulated date & time cleared."
+msgstr "Data e horário simulados limpos."
+
+msgid "Simulate Date & Time"
+msgstr "Simular Data & Hora"
+
+msgid "Select Date & Time"
+msgstr "Selecione a Data & Hora"
+
+msgid "Click Reset to return to the real system time."
+msgstr "Clique em Reinicializar para retornar ao tempo real do sistema."
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Simulated time"
+msgstr "Tempo simulado"
+
+msgid ""
+"Simulate Date & Time: Preview how call routing will behave at a future date "
+"or time - useful for holidays, early closures, seasonal hours, or testing new "
+"time conditions."
+msgstr ""
+"Simular Data & Hora: Visualize como a rotação de chamadas se comportará em "
+"uma data ou hora futura - útil para feriados, encerramentos antecipados, "
+"horários sazonais ou testes de novas condições de tempo."
+
+msgid "Mouse Wheel Zoom Sensitivity"
+msgstr "Sensibilidade de rolagem do rato para zoom"
+
+msgid ""
+"Controls mouse wheel zoom sensitivity. This preference is saved in your "
+"browser and does not affect other users."
+msgstr ""
+"Controles a sensibilidade do rolamento do mouse para zoom. Essa preferência é "
+"armazenada em seu navegador e não afeta outros usuários."
+
+msgid "Add Entry"
+msgstr "Adicionar Entrada"
+
+msgid "Invalid Input (%s secs)"
+msgstr "Entrada inválida (%s segundos)"
+
+msgid "Click to add entry"
+msgstr "Clique para adicionar entrada"
+
+msgid "Checking..."
+msgstr "Verificando..."
+
+msgid "Remove Highlights"
+msgstr "Remover Destacados"
+
+msgid "You are up to date."
+msgstr "Você está atualizado."
+
+msgid "Match: %s"
+msgstr "Conferir: %s"
+
+msgid "Timeout (%s secs x %s)"
+msgstr "Tempo limite (%s seg x %s)"
+
+msgid "Invalid Input x %s"
+msgstr "Entrada Inválida x %s"
+
+msgid "every"
+msgstr "cada"
+
+msgid "You do not have permission to create new destinations."
+msgstr "Você não possui permissão para criar novos destinos."
+
+msgid "Current version"
+msgstr "Versão atual"
+
+msgid "Day"
+msgstr "Dia"
+
+msgid "Night"
+msgstr "Noite"
+
+msgid "Current Mode"
+msgstr "Modo Atual"
+
+msgid "Call as Dialed"
+msgstr "Chamada Como Fez"
+
+msgid "No Follow-Me or Call Forward"
+msgstr "Sem Seguir-Me ou Redirecionar Ligacão"
+
+msgid "Extensions Only"
+msgstr "Extensões apenas"
+
+msgid "Ring Only"
+msgstr "Toque apenas"
+
+msgid "Agent Ringing"
+msgstr "Chamada do Agente"
+
+msgid "No Free Agents"
+msgstr "Nenhuma Agente Livre"
+
+msgid "No Ready Agents"
+msgstr "Nenhum Agente Pronto"
+
+msgid "There are both logged in and no free agents"
+msgstr "Existem tanto agentes conectados quanto sem conectados"
+
+msgid "Display Insert and Add Selection Nodes"
+msgstr "Exibir Nós de Inserção e Nós de Adição de Seleção"
+
+msgid ""
+"Displays a + between nodes. Clicking it creates a new destination and "
+"automatically links it to the current destination. Also Displays Add "
+"Selection (IVRs) and Add Entry (Dynamic Routes) "
+msgstr ""
+"Exibe um + entre os nós. Clicar nele cria uma nova destinação e conecta-a "
+"automaticamente à destinação atual. Também exibe Adicionar Seleção (IVRs) e "
+"Adicionar Entrada (Rotas Dinâmicas)"

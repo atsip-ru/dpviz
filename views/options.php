@@ -1,6 +1,6 @@
-<?php if (!defined('FREEPBX_IS_AUTH')) { exit(_('No direct script access allowed')); }; ?>
-<?php
-$options = \FreePBX::Dpviz()->getOptions();
+<?php if (!defined('FREEPBX_IS_AUTH')) { exit(_('No direct script access allowed')); }; 
+$modinfo = \FreePBX::Modules()->getInfo('dpviz');
+$ver = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['version'] : '0.0.0';
 ?>
 <!-- Feedback Modal -->
 <div id="feedbackModal" class="feedback-modal">
@@ -55,7 +55,7 @@ $options = \FreePBX::Dpviz()->getOptions();
 									
 								</div>
 								<div class="col-md-9">
-									<div id="update-result"></div>
+									<div id="update-result"><div style="margin-top: 10px;"><?php echo _('Current version'); ?>: <?php echo $ver; ?> </div></div>
 								</div>
 							</div>
 						</div>
@@ -197,6 +197,33 @@ $options = \FreePBX::Dpviz()->getOptions();
 					</div>
 				</div>
 				<!--END displaydestinations-->
+				<!--insertnode-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="insertnode"><?php echo _("Display Insert and Add Selection Nodes"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="insertnode"></i>
+									</div>
+									<div class="col-md-9 radioset">
+										<input type="radio" name="insertnode" id="insertnodeyes" value="1" <?php echo ($options['insertnode']?"CHECKED":""); ?>>
+										<label for="insertnodeyes"><?php echo _("Yes"); ?></label>
+										<input type="radio" name="insertnode" id="insertnodeno" value="0" <?php echo ($options['insertnode']?"":"CHECKED"); ?>>
+										<label for="insertnodeno"><?php echo _("No"); ?></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<span id="insertnode-help" class="help-block fpbx-help-block"><?php echo _("Displays a + between nodes. Clicking it creates a new destination and automatically links it to the current destination. Also Displays Add Selection (IVRs) and Add Entry (Dynamic Routes) "); ?></span>
+						</div>
+					</div>
+				</div>
+				<!--END insertnode-->
 				<!--inuseby-->
 				<div class="element-container">
 					<div class="row">
@@ -514,7 +541,49 @@ $options = \FreePBX::Dpviz()->getOptions();
 					</div>
 				</div>
 				<!--END minimal-->
+				<!--Mouse Sensitivity-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
 
+									<div class="col-md-3">
+										<label class="control-label" for="mouseSens">
+												<?php echo _("Mouse Wheel Zoom Sensitivity"); ?>
+										</label>
+										<span id="zoomValue" style="margin-left:10px; font-weight:bold;"></span>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="mouseSens"></i>
+									</div>
+									<div class="col-md-9" style="display:flex; align-items:center;">
+										<input type="range"
+													 id="zoomSensitivity"
+													 class="zoom-slider"
+													 min="0.005"
+													 max=".4"
+													 step="0.005"
+													 value="0.2">
+										<button id="resetZoomSensitivity"
+														type="button"
+														class="btn btn-default btn-xs"
+														style="margin-left: 15px;">
+										<?php echo _("Reset"); ?>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+							<div class="col-md-12">
+									<span id="mouseSens-help" class="help-block fpbx-help-block">
+											<?php echo _("Controls mouse wheel zoom sensitivity. This preference is saved in your browser and does not affect other users."); ?>
+									</span>
+							</div>
+					</div>
+				</div>
+				<!--END Mouse Sensitivity-->
+					
 				<div class="row">
 					<div class="col-md-12 text-right">
 						<button class="btn btn-primary" name="submit" id="saveButton" type="submit" data-saved-label="<?php echo _('Saved!'); ?>">
@@ -528,3 +597,19 @@ $options = \FreePBX::Dpviz()->getOptions();
 		</div>
 	</div>
 </div>
+
+<script>
+$(function () {
+    $('#insertnodeyes').on('change', function () {
+        if (this.checked) {
+            $('#minimalno').prop('checked', true);
+        }
+    });
+
+    $('#minimalyes').on('change', function () {
+        if (this.checked) {
+            $('#insertnodeno').prop('checked', true);
+        }
+    });
+});
+</script>

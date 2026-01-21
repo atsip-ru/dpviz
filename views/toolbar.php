@@ -3,6 +3,7 @@ if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
 
 $options=\FreePBX::Dpviz()->getOptions();
 
+
 if ($options['displaydestinations']){
 	$destinations=\FreePBX::Modules()->getDestinations();
 	$displayDestinationOpt = ' [ '._('destination').' ]';
@@ -18,6 +19,27 @@ try{
 	$options['lang'] = "en";
 }
 
+$options['sections'] = [];
+
+$jsSections = [];
+
+if (isset($_SESSION['AMP_user']) && is_object($_SESSION['AMP_user'])
+    && method_exists($_SESSION['AMP_user'], 'getSections')) {
+
+    $sections = $_SESSION['AMP_user']->getSections();
+
+    if (is_array($sections)) {
+        $jsSections = $sections;
+				$options['sections'] = $sections;
+    }
+}
+
+?>
+<script>
+    window.dpvizConfig = window.dpvizConfig || {};
+    dpvizConfig.sections = <?php echo json_encode($jsSections); ?>;
+</script>
+<?php
 
 function dpp_load_incoming_routes() {
   global $db;
@@ -40,6 +62,7 @@ function dpp_load_incoming_routes() {
       $routes[$exten] = $route;
 			
 			if ($options['displaydestinations']){
+					$destDescription ='';
 					$routeDest = isset($destinations[$route['destination']])
 						? $destinations[$route['destination']]
 						: array('name'=>'','description'=>'');
@@ -47,8 +70,14 @@ function dpp_load_incoming_routes() {
 					$name = !empty($routeDest['category'])
 						? $routeDest['category']
 						: $routeDest['name'];
+						
+					if (isset($routeDest['destination'])){
+						$destDescription = (strpos($routeDest['destination'], 'zapateller') !== false)
+						? _('Undefined Destination')
+						: $routeDest['description'];
+					}
 
-					$routes[$exten]['goDestination'] = $name . ': ' . $routeDest['description'];
+					$routes[$exten]['goDestination'] = $name . ': ' . $destDescription;
 			}
     }
   }
@@ -57,17 +86,18 @@ function dpp_load_incoming_routes() {
 
 $inroutes= dpp_load_incoming_routes();
 
-
+$existingModules = array('incoming');
 
 function dpp_load_tables() {
-	global $db;
+	global $db, $existingModules;
 	$dproute=array();
 
-	$tables = array('announcement','daynight','dynroute','languages','ivr_details',
-	  'kvstore_FreePBX_modules_Customappsreg','miscapps','queues_config',
-		'ringgroups','timeconditions','virtual_queue_config','dpviz_views'
+	$tables = array('announcement','callrecording','daynight','dynroute','languages','ivr_details',
+	  'miscapps','miscdests','queues_config','ringgroups','setcid','timeconditions','virtual_queue_config',
+		'dpviz_views'
 	);
 	
+	$freepbx = \FreePBX::create();
 	foreach ($tables as $table) {
     // Check if the table exists
     $tableExists = $db->getOne("SHOW TABLES LIKE '$table'");
@@ -75,7 +105,24 @@ function dpp_load_tables() {
     if (!$tableExists) {
         continue;
     }
-
+		
+		if ($table==='ivr_details'){
+			$checkMod='ivr';
+		}elseif ($table==='queues_config'){
+			$checkMod='queues';
+		}else{
+			$checkMod=$table;
+		}
+		
+		if ($table!='dpviz_views'){
+			if ($freepbx->Modules->checkStatus($checkMod)) {
+				$existingModules[] = $checkMod; //js array for new destinations
+			}else{
+				//module is disabled
+				continue;
+			}
+		}
+		
 		$order = ($table === 'dpviz_views') ? 'ORDER BY description' : '';
 		$query = "SELECT * FROM `$table` $order";
     $results = $db->getAll($query, DB_FETCHMODE_ASSOC);
@@ -111,14 +158,6 @@ function dpp_load_tables() {
         foreach($results as $ivr) {
 					$id = $ivr['id'];
 					$dproute['ivrs'][$id] = $ivr;
-				}
-    }elseif ($table == 'kvstore_FreePBX_modules_Customappsreg') {
-        foreach($results as $Customappsreg) {
-					if (is_numeric($Customappsreg['key'])){
-						$id=$Customappsreg['key'];
-						$val=json_decode($Customappsreg['val'],true);
-						$dproute['customapps'][$id] = $val;
-					}
 				}
     }elseif ($table == 'miscapps') {
         foreach($results as $miscapps) {
@@ -158,19 +197,11 @@ function dpp_load_tables() {
 
 $otherroutes= dpp_load_tables();
 
-
 //build dropdowns
 $dropOptions="";
 
-
-/*
-$all_modules = module_getinfo(false, MODULE_STATUS_ENABLED);
-$me= framework_check_destination_usage('from-did-direct,102,1',$all_modules);
-
-echo '<pre>';
-print_r($otherroutes['queues']);
-echo '</pre>';
-*/
+//build js array
+echo "<script>window.existingModules = " . json_encode($existingModules) . ";</script>";
 
 
 # Users
@@ -180,12 +211,6 @@ foreach($users as $user) {
 	$id = $user['extension'];
 	$otherroutes['extensions'][$id]= $user;
 }
-
-/*
-echo '<pre>';
-print_r($otherroutes['extensions']);
-echo '</pre>';
-*/
 
 //Saved Views
 if (isset($otherroutes['dpvizViews']) && count($otherroutes['dpvizViews']) > 0){
@@ -234,7 +259,7 @@ if (isset($otherroutes['timeconditions']) && count($otherroutes['timeconditions'
 
 //Call Flow Control
 if (isset($otherroutes['daynight']) && count($otherroutes['daynight']) > 0){
-	$dropOptions.='<optgroup label="' . _('Call Flows') . '">';
+	$dropOptions.='<optgroup label="' . _('Call Flow Control') . '">';
 	foreach ($otherroutes['daynight'] as $i=>$ii){
 		foreach ($ii as $iii){
 			if ($iii['dmode']=='fc_description'){
@@ -247,7 +272,15 @@ if (isset($otherroutes['daynight']) && count($otherroutes['daynight']) > 0){
 	$dropOptions.='</optgroup>';
 	
 }
-		
+
+//Dynamic Routes
+if (isset($otherroutes['dynroute']) && count($otherroutes['dynroute']) > 0){
+	$dropOptions.='<optgroup label="' . _('Dynamic Routes') . '">';
+	foreach ($otherroutes['dynroute'] as $i=>$ii){
+		$dropOptions.='<option value="dynroute-'.$ii['id'].',s,1,'.$options['lang'].'">'.$ii['name'].'</option>';
+	}
+	$dropOptions.='</optgroup>';
+}
 //IVRs
 if (isset($otherroutes['ivrs']) && count($otherroutes['ivrs']) > 0){
 	$dropOptions.='<optgroup label="IVRs">';
@@ -280,15 +313,6 @@ if (isset($otherroutes['ringgroups']) && count($otherroutes['ringgroups']) > 0){
 	$dropOptions.='<optgroup label="' . _('Ring Groups') . '">';
 	foreach ($otherroutes['ringgroups'] as $i=>$ii){
 		$dropOptions.='<option value="ext-group,'.$ii['grpnum'].',1,'.$options['lang'].'">'.$ii['grpnum'].' : '.$ii['description'].'</option>';
-	}
-	$dropOptions.='</optgroup>';
-}
-
-//Dynamic Routes
-if (isset($otherroutes['dynroute']) && count($otherroutes['dynroute']) > 0){
-	$dropOptions.='<optgroup label="' . _('Dynamic Routes') . '">';
-	foreach ($otherroutes['dynroute'] as $i=>$ii){
-		$dropOptions.='<option value="dynroute-'.$ii['id'].',s,1,'.$options['lang'].'">'.$ii['name'].'</option>';
 	}
 	$dropOptions.='</optgroup>';
 }
@@ -353,9 +377,13 @@ if (isset($otherroutes['extensions']) && count($otherroutes['extensions']) > 0){
 						<button type="button" id="sanitizeBtn" class="btn btn-default" disabled>
 							<i class="fa fa-eye-slash"></i> <?php echo _('Sanitize Labels'); ?>
 						</button>
+						<button class="btn btn-default" onclick="openModal('customTimeModal')">
+								<i class="fa fa-clock-o"></i> Simulate Date & Time
+						</button>
 						<button type="button" style="display:none;" id="saveModalBtn" class="btn btn-default">
 							<i class="fa fa-save"></i> <?php echo _('Save View'); ?>
 						</button>
+						
 					</div>
 				</div>
 				
@@ -384,12 +412,18 @@ if (isset($otherroutes['extensions']) && count($otherroutes['extensions']) > 0){
 				</select>
 
 				<!-- Buttons -->
-				<button id="prevBtn" class="btn btn-default" title="<?php echo _('Previous'); ?>">
+				<button id="prevBtn" class="btn btn-default btn-sm" title="<?php echo _('Previous'); ?>">
 					<i class="fa fa-chevron-left"></i>
 				</button>
-				<button id="nextBtn" class="btn btn-default" title="<?php echo _('Next'); ?>">
+				<button id="nextBtn" class="btn btn-default btn-sm" title="<?php echo _('Next'); ?>">
 					<i class="fa fa-chevron-right"></i>
 				</button>
+				<?php 
+				if (is_array($options['sections']) && (in_array('*',$options['sections']) || count($options['sections']) > 1) ){ ?>
+					<button id="addNewDestBtn" class="btn btn-default btn-sm" title="<?php echo _('New Destination'); ?>">
+						<i class="fa fa-plus"></i>
+					</button>
+				<?php } ?>
 			</div>
 		</div>
 
@@ -456,7 +490,7 @@ $(document).ready(function() {
 
 					// Add clear button if not already present
 					if ($searchField.parent().find('.select2-search__clear').length === 0) {
-							const $clearBtn = $('<span class="select2-search__clear">×</span>');
+							const $clearBtn = $('<span class="select2-search__clear">x</span>');
 
 							$clearBtn.on('click', function () {
 									$searchField.val('').trigger('input').focus();
@@ -553,8 +587,7 @@ $(document).ready(function() {
 function getVisibleOptions($el) {
   let searchTerm = lastSearchTerm || '';
 
-  // all non-disabled options **excluding placeholder (value="")**
-  let $options = $el.find('option:not(:disabled)').filter(function() {
+   let $options = $el.find('option:not(:disabled)').filter(function() {
     return $(this).val() !== '';
   });
 
@@ -612,7 +645,10 @@ $('#prevBtn').on('click', function() {
   select2Prev($('#dialPlan'));
 });
 
-
+<?php
+	$lang = isset($options['lang']) ? $options['lang'] : 'en';
+	echo 'const currentLang = "' . addslashes($lang) . '";';
+?>
 
 function sanitizeFilename(filename) {
     return filename
@@ -621,5 +657,58 @@ function sanitizeFilename(filename) {
         .replace(/\s+/g, '_')                  // Replace spaces with _
         .trim();
 }
+
+$(document).on('click', '#addNewDestBtn', function() {
+  const vizGraph = document.getElementById('vizGraph');
+	const vizHeader = document.getElementById('vizHeader');
+  const dialplanLabel = document.getElementById('dialplanLabel');
+  const reloadButton = document.getElementById('reloadButton');
+  const hamburgerButton = document.getElementById('hamburgerBtn');
+  const focusButton = document.getElementById('focus');
+  const sanitizeButton = document.getElementById('sanitizeBtn');
+  const filenameInput = document.getElementById('filenameInput');
+  const downloadButton = document.getElementById('downloadButton');
+  const savedDescription = document.getElementById('savedDescription');
+  const viewId = document.getElementById('viewId');
+	const saveModalBtn = document.getElementById('saveModalBtn');
+	const recordingModal = document.getElementById('recordingmodal');
+	const customtimemodal = document.getElementById('customTimeModal');
+  const $dialPlan = $('#dialPlan');
+
+  // Clear the visualization
+  vizGraph.innerHTML = '';
+	vizHeader.innerHTML = '';
+
+  // Reset text fields / labels
+  dialplanLabel.textContent = '';
+  filenameInput.value = '';
+  savedDescription.value = '';
+  viewId.value = '';
+
+  // Reset buttons and states
+  reloadButton.disabled = true;
+  hamburgerButton.disabled = true;
+  focusButton.disabled = true;
+  sanitizeButton.disabled = true;
+  filenameInput.disabled = true;
+  downloadButton.disabled = true;
+  saveModalBtn.style.display = 'none';
+	recordingModal.style.display = 'none';
+	customtimemodal.style.display = 'none';
+
+  // Clear stored session name
+  sessionStorage.removeItem('selectedName');
+
+  // Reset focus / mode if needed
+  if (typeof resetFocusMode === 'function') resetFocusMode();
+
+  // Reset the Select2 dropdown back to placeholder
+  if ($dialPlan.length) {
+    $dialPlan.val(null).trigger('change');
+  }
+
+  // Finally open your modal
+  openNewDestinationModal();
+});
 
 </script>

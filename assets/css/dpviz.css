@@ -194,77 +194,165 @@ a:hover {
 	display: block;
 }
 
+/* ──────────────────────────────────────────────
+   UNIVERSAL MODAL CONTAINER (recording + nodest + customTimeModal)
+   ────────────────────────────────────────────── */
+#recordingmodal,
+#nodestmodal,
+#customTimeModal {
+    display: none;
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 680px;
+    max-width: 95%;
+		max-height: 85vh;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    z-index: 1050;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+#customTimeModal {
+	width: 380px;
+  max-width: 95%;
+}
+
+.datepicker-dropdown {
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+}
+
+/* Some modals need hidden overflow */
 #recordingmodal {
-	display: none;
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background: #fff;
-	width: 600px;
-	max-width: 90%;
-	border-radius: 12px;
-	box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-	z-index: 1050;
-	padding: 0;
-	font-family: Arial, sans-serif;
-	overflow: hidden;
+    overflow: hidden;
 }
 
-#recordingmodal-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	background: #007bff;
-	color: #fff;
-	padding: 10px 14px;
-	font-size: 18px;
-	font-weight: bold;
-	cursor: move;
+/* ──────────────────────────────────────────────
+   SHARED HEADER STYLE
+   ────────────────────────────────────────────── */
+.modal-header-unified {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: #fff;
+    padding: 14px 18px;
+		flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: move;
+    border-radius: 10px 10px 0 0;
 }
 
-#recordingmodal-title i {
-	margin-right: 8px;
+.modal-header-unified i {
+    margin-right: 8px;
 }
 
-#modal-close-btn {
-	background: none;
-	border: none;
-	color: #fff;
-	font-size: 20px;
-	cursor: pointer;
-	transition: color 0.2s ease;
+/* Titles inside the header */
+.modal-title-unified {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    flex: 1;
+    text-align: left;
 }
 
-#modal-close-btn:hover {
-	color: #ffdddd;
+/* Close button */
+.modal-close-btn-unified {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
 }
 
-/* Main content links */
+.modal-close-btn-unified:hover {
+    color: #ffdddd;
+}
+
+/* ──────────────────────────────────────────────
+   SHARED BODY
+   ────────────────────────────────────────────── */
+.modal-body-unified {
+    overflow-y: auto;
+    max-height: calc(85vh - 70px); /* header height offset */
+    padding: 22px 26px;
+    background: #fafafa;
+    color: #333;
+    border-radius: 0 0 10px 10px;
+}
+
+/* ──────────────────────────────────────────────
+   FORM ELEMENTS / SELECTS
+   ────────────────────────────────────────────── */
+.modal-body-unified select,
+.modal-body-unified input,
+.modal-body-unified textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin: 12px 0;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    background: #fdfdfd;
+    border-radius: 6px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.modal-body-unified select:focus,
+.modal-body-unified input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 4px rgba(52, 152, 219, 0.4);
+    outline: none;
+}
+
+/* Select2 compatibility */
+.select2-container--open {
+    z-index: 200000 !important;
+}
+
+/* ──────────────────────────────────────────────
+   RECORDING LIST (only for recording modal)
+   ────────────────────────────────────────────── */
 #recording-displayname {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+		overflow: hidden;
 }
 
 #recording-displayname a {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	font-size: 16px;
-	border-radius: 8px;
-	transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
 }
 
 #recording-displayname a:hover {
-	background: #f8f9fa;
-	border-color: #007bff;
+    background: #f8f9fa;
 }
 
-/* Audio card */
-#audioList {
-	padding: 0 16px 16px;
+/* ──────────────────────────────────────────────
+   Animation
+   ────────────────────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -48%); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+
+#recordingmodal #audioList {
+    padding: 14px 20px;
+    border-top: 1px solid #e4e4e4;
+    background: #fff;
+    border-radius: 0 0 10px 10px;
 }
 
 .custom-card-bg {
@@ -392,10 +480,10 @@ audio {
 }
 
 .select2-container--default .select2-results > .select2-results__options {
-background-color:#f9f9f9;
-max-height: 800px;
-min-height: 500px;
-overflow-y: auto;
+	background-color:#f9f9f9;
+	/*max-height: 800px;*/
+	min-height: 500px;
+	overflow-y: auto;
 }
 
 .select2-container .select2-search__field-wrapper {
@@ -653,3 +741,228 @@ textarea:focus, input[type="email"]:focus {
     display: block;
 }
 */
+
+/* Limit Select2 height only inside the No Destination modal */
+#nodestmodal .select2-dropdown .select2-results > .select2-results__options {
+  min-height: 0 !important;      /* override the global 500px */
+  max-height: 260px !important;  /* your cap */
+  overflow-y: auto !important;    /* single scrollbar */
+}
+
+/* prevent wrapper from adding a second scrollbar */
+#nodestmodal .select2-dropdown .select2-results {
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+.is-invalid { border-color: #dc3545; }
+.invalid-feedback { color: #dc3545; font-size: 0.875rem; margin-top: 4px; }
+
+
+#inlineNewForm .col-md-9 {
+  position: relative;      /* anchor for the icon */
+}
+
+#inlineNewForm .input-warn {
+  position: absolute;
+  right: 25px;              /* adjust as needed (6–10px usually perfect) */
+  top: 50%;
+  transform: translateY(-50%);  /* centers vertically no matter the height */
+  color: #a94442;          /* FreePBX warning color */
+  cursor: pointer;
+  font-size: 15px;         /* matches the default icon size */
+  z-index: 3;
+}
+
+
+/* ensures tooltips float above the modal */
+.tooltip {
+  z-index: 99999 !important;
+}
+
+.inline-radios label {
+  margin-right: 0;
+}
+
+.inline-radios {
+  display: inline-block;
+  text-align: right;
+}
+
+.text-right .ui-buttonset {
+  float: right;
+}
+
+.form-horizontal .control-label {
+  text-align: left !important;
+	display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+
+/* Hybrid Bootstrap 3 + 5 compatibility for radioset toggle buttons */
+.btn-group.radioset input[type="radio"] {
+  display: none;
+}
+
+#inlineNewForm .btn-group.radioset label.btn:first-of-type { border-radius: 4px 0 0 4px; }
+#inlineNewForm .btn-group.radioset label.btn:last-of-type  { border-radius: 0 4px 4px 0; }
+
+.btn-group.radioset label.btn {
+  border: 1px solid rgba(94, 156, 125, 0.9);
+  background: #e5eeea;
+  color: #0f5a59;
+  background-color: #e5eeea;
+  font-weight: bold;
+  margin-right: -1px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-group.radioset label.btn:hover {
+  background-color: #e9ecef;
+}
+
+.btn-group.radioset input[type="radio"]:checked + label.btn,
+.btn-group.radioset label.btn.active {
+	
+	background: #4c9471;
+	color: #fff;
+	background-color: #4c9471;
+	border-color: rgba(56, 92, 74, 0.9);
+	font-weight: bold;
+}
+
+/* 🟩 Add spacing and alignment fixes */
+.mode-buttons {
+  float: right;                /* push buttons to right */
+  gap: 6px;                    /* spacing between buttons (BS5 supports gap) */
+  margin-top: 4px;             /* spacing above buttons */
+}
+@media (max-width: 768px) {
+  .mode-buttons {
+    float: none;
+    justify-content: flex-start;
+  }
+}
+
+
+.form-horizontal .col-md-3,
+.form-horizontal .col-md-4,
+.form-horizontal .col-md-5,
+.form-horizontal .col-md-6,
+.form-horizontal .col-md-7,
+.form-horizontal .col-md-8,
+.form-horizontal .col-md-9,
+.form-horizontal .col-md-10 {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+
+.form-group.row.align-items-center {
+  display: flex;
+  align-items: center;
+}
+
+.btn-group.radioset .btn + .btn {
+  margin-left: -1px !important; /* overlap borders slightly */
+}
+
+/* Optional: make sure the buttons form a solid group */
+.btn-group.radioset {
+  display: inline-flex !important;
+  gap: 0 !important; /* in case BS5 uses gap */
+}
+
+
+.select2-container--open {  /*fixes the ivr entry dropdowns */
+  z-index: 999999 !important;
+}
+
+.entries-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ivr-digit {
+  text-align: center;
+}
+
+.ivr-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;   /* consistent gap, no Select2 glitches */
+}
+
+
+.no-dest-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start; /* important! */
+}
+
+.no-dest-digit {
+  width: 100px; /* or whatever you want */
+}
+
+.no-dest-selects {
+  flex: 1;          /* take full remaining space */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+
+.no-dest-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+
+.digit-box {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 6px 0;
+    border-radius: 6px;
+}
+
+.no-dest-selects {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stacked-select {
+    height: 38px;
+    border-radius: 6px;
+}
+
+/* Select2 override for consistent height */
+.select2-container--default .select2-selection--single {
+    height: 38px !important;
+    padding: 6px 10px !important;
+    line-height: 24px !important;
+}
+
+#inlineNewFormContainer {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 1s ease, max-height 1s ease;
+}
+
+/* Active state when showing */
+#inlineNewFormContainer.open {
+  opacity: 1;
+  max-height: 1000px; /* Large enough to fit any inline form */
+}
+
+.zoom-slider {
+    width: 350px !important; /* Adjust as desired */
+}

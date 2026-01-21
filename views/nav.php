@@ -13,6 +13,9 @@
 				🙈 <?php echo _('Sanitize Labels: Click Sanitize Labels to hide node labels and the header for privacy. Click nodes afterwards to reveal them individually, or click Restore to show all labels again.'); ?>
 		</li>
 		<li>
+        🧪 <?php echo _('Simulate Date & Time: Preview how call routing will behave at a future date or time - useful for holidays, early closures, seasonal hours, or testing new time conditions.'); ?>
+    </li>
+		<li>
         💾 <?php echo _('Save View: Save the current dial plan layout. This button appears after modifying the view using CTRL or Shift + click on one or more nodes.'); ?>
     </li>
     <li>

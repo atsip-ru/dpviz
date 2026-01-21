@@ -1,36 +1,70 @@
 $(document).ready(function() {
 	//github update check
-	$('#check-update-btn').click(function() {
-		$('#update-result').html(`<div style="margin-top: 10px;">${translations.checking}</div>`);
+	let updateResultOriginalHtml = null;
 
-		$.ajax({
-			url: 'ajax.php?module=dpviz&command=check_update',
-			method: 'POST',
-			dataType: 'json',
-			
-			success: function(response) {
-				if (response.status === 'success') {
-					if (response.up_to_date) {
-						$('#update-result').html(`<div style="margin-top: 10px;">${translations.uptodate}</div>`);
-					} else {
-						$('#update-result').html(
-							`<a href="config.php?display=modules" target="_blank" class="btn btn-default">
-								 ${response.latest} ${translations.available}
-								 <i class="fa fa-external-link" aria-hidden="true"></i>
-							 </a> 
-							 ${translations.currentVersion}: ${response.current}`
-						);
-					}
-				} else {
-						$('#update-result').html('Error: ' + response.message);
-				}
-			},
-			error: function(xhr, status, error) {
-					$('#update-result').html('AJAX error: ' + error);
-			}
-		});
+	$(document).ready(function () {
+			updateResultOriginalHtml = $('#update-result').html();
 	});
 
+	$('#check-update-btn').click(function () {
+
+			$('#update-result').html(
+					`<div style="margin-top: 10px;">${translations.checking}</div>`
+			);
+
+			$.ajax({
+					url: 'ajax.php?module=dpviz&command=check_update',
+					method: 'POST',
+					dataType: 'json',
+
+					success: function (response) {
+
+							if (response.status === 'success') {
+
+									if (response.up_to_date) {
+
+											$('#update-result')
+													.html(`<div style="margin-top: 10px;">${translations.uptodate}</div>`)
+													.delay(4000)
+													.fadeOut('slow', function () {
+															$(this)
+																	.html(updateResultOriginalHtml)
+																	.fadeIn('fast');
+													});
+
+									} else {
+
+											$('#update-result').html(
+													`<a href="config.php?display=modules" target="_blank" class="btn btn-default">
+															${response.latest} ${translations.available}
+															<i class="fa fa-external-link" aria-hidden="true"></i>
+													 </a>
+													 <div style="margin-top: 6px;">
+															${translations.currentVersion}: ${response.current}
+													 </div>`
+											);
+									}
+
+							} else {
+									$('#update-result').html('Error: ' + response.message);
+							}
+					},
+
+					error: function (xhr, status, error) {
+							$('#update-result').html('AJAX error: ' + error);
+					}
+			});
+	});
+
+
+});
+
+// GLOBAL Select2 autofocus
+$(document).on('select2:open', function () {
+    setTimeout(() => {
+        const el = document.querySelector('.select2-container--open .select2-search__field');
+        if (el) el.focus();
+    }, 10);
 });
 
 // store the initial value when page loads
@@ -104,7 +138,14 @@ $('#reloadButton').click(function() {
 });
 
 
-function generateVisualization(ext, jump, skips) {	
+function generateVisualization(ext, jump, skips) {
+	const $modal = $('#nodestmodal');
+	if ($modal.is(':visible')) {
+		$('#nodestmodal-displayname').empty();
+		$('#inlineNewForm').remove();
+		closeNoDestModal();
+	}
+	
 	const vizContainer = document.getElementById("vizContainer");
 	const spinner = document.getElementById("vizSpinner");
 	const recordingModal = document.getElementById('recordingmodal');
@@ -115,7 +156,9 @@ function generateVisualization(ext, jump, skips) {
 	const header = document.getElementById("headerSelected");
 	skips = skips || [];
 	
+	
 	closeModal('recordingmodal');
+	closeModal('customTimeModal');
 	//console.log("Skips:", skips.join(", "));
 	
 	spinner.style.display = "flex";
@@ -148,6 +191,31 @@ function generateVisualization(ext, jump, skips) {
 					;
 					
 					viz.renderSVGElement(dot).then(element => {
+						//need reload?
+						fetch('ajax.php?module=dpviz&command=need_reload_status')
+						.then(r => r.json())
+						.then(res => {
+							if (res && res.status === 'success' && res.need_reload) {
+								try {
+									const $top = (window.top && (window.top.$ || parent.$)) ? (window.top.$ || parent.$) : null;
+									if ($top) {
+										const $applyBtn = $top('#button_reload');
+										if ($applyBtn.length) {
+											$applyBtn
+												.css('display', 'inline')
+												.removeClass('hidden')
+												.show();
+											$applyBtn.closest('li').show().removeClass('hidden');
+										}
+									}
+								} catch (e) {
+									console.warn('Unable to show Apply Config button:', e);
+								}
+							}
+						})
+						.catch(err => console.error('Failed to check reload status:', err));
+
+
 						vizGraph.innerHTML = '';
 						vizGraph.appendChild(element);
 						svgContainer = element;
@@ -160,12 +228,12 @@ function generateVisualization(ext, jump, skips) {
 						// Ctrl/Command + shift + click handler for Graphviz nodes
 						element.querySelectorAll('g.node').forEach(node => {
 							node.addEventListener('click', function (e) {
-								// 🔑 no more titleElement check here
+								
 								const titleText = node.dataset.gvtitle || "";
 								if (!titleText) return;
 
 								const href = node.querySelector("a")?.getAttribute("xlink:href") || "";
-								if (!href.includes("#norec")) { 
+								if (!href.includes("#norec")) {
 
 									// Patterns that trigger recording modal
 									const recordingPatterns = [
@@ -209,8 +277,34 @@ function generateVisualization(ext, jump, skips) {
 										}
 									}
 								}
+								
+									// -----------------------
+									// Open modal on noDest click
+									// -----------------------
+									// open modal (no event binding here)
+									if (titleText.startsWith("noDest") && !isFocused && !isSanitized) {
+										e.preventDefault();
+										resetFocusMode();
+										loadNoDestModal(titleText);
+									}
 									
+									if (titleText.startsWith("insertDest") && !isFocused && !isSanitized) {
+										e.preventDefault();
+										resetFocusMode();
+										loadInsertDestModal(titleText);
+									}
 									
+									if (titleText.startsWith("newSelection") && !isFocused && !isSanitized) {
+										e.preventDefault();
+										resetFocusMode();
+										loadNewSelectionModal(titleText);
+									}
+									
+									if (titleText.startsWith("newEntry") && !isFocused && !isSanitized) {
+										e.preventDefault();
+										resetFocusMode();
+										loadNewEntryModal(titleText);
+									}
 									if (titleText.startsWith("reset") && !isFocused && !isSanitized) {
 										e.preventDefault();
 										resetFocusMode();
@@ -529,7 +623,7 @@ function getRecording(titleid) {
 		if (mod !== 'systemrecording' && mod !== 'voicemail'){
 			html += 
 				'<a href="config.php?display=' + url + '" target="_blank" style="width:100%" class="btn btn-default btn-lg">' +
-					'<i class="fa fa-sitemap"></i> ' + translations[mod] + ': ' + id + ' '+ description +
+					'<i class="fa fa-sitemap"></i> ' + translations[mod] + ': ' + description +
 					' <i class="fa fa-external-link" aria-hidden="true"></i>' +
 				'</a>';
 		}
@@ -711,12 +805,22 @@ document.addEventListener('keydown', function(event) {
   if (event.key === 'Escape') {
     const recordingModal = document.getElementById('recordingmodal');
 		const savemodal = document.getElementById('saveModal');
+		const nodestmodal = document.getElementById('nodestmodal');
+		const customtimemodal = document.getElementById('customTimeModal');
     if (recordingModal && recordingModal.style.display !== 'none') {
       closeModal('recordingmodal');
     }
 		
 		if (savemodal && savemodal.style.display !== 'none') {
       closeSaveModal();
+    }
+		
+		if (nodestmodal && nodestmodal.style.display !== 'none') {
+      closeNoDestModal();
+    }
+		
+		if (customtimemodal && customtimemodal.style.display !== 'none') {
+      closeCustomTimeModal();
     }
   }
 });
@@ -734,6 +838,8 @@ function closeModal(modalId) {
     audio.pause();
     audio.currentTime = 0;
   });
+	
+	newDestinationMode = false;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -741,7 +847,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const recordingHeader = document.getElementById("recordingmodal-header");
     makeDraggable(recordingModal, recordingHeader);
 
+    const noDestModal = document.getElementById("nodestmodal");
+    const noDestHeader = document.getElementById("nodestmodal-header");
+    makeDraggable(noDestModal, noDestHeader);
+
+    const customTimeModal = document.getElementById("customTimeModal");
+    const customTimeHeader = document.getElementById("customTimeModal-header");
+    makeDraggable(customTimeModal, customTimeHeader);
 });
+
 
 function makeDraggable(modal, header) {
     if (!modal || !header) return; // safety check
@@ -792,6 +906,14 @@ window.addEventListener('click', function (e) {
 
 function closeSaveModal() {
   document.getElementById('saveModal').style.display = 'none';
+}
+
+function closeNoDestModal() {
+  document.getElementById('nodestmodal').style.display = 'none';
+}
+
+function closeCustomTimeModal() {
+  document.getElementById('customTimeModal').style.display = 'none';
 }
 
 
@@ -862,6 +984,52 @@ document.getElementById('deleteViewBtn').addEventListener('click', function () {
 	});
 	
 });
+
+
+function openModal(id) {
+    document.getElementById(id).style.display = 'block';
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const dtInput = document.getElementById('customDateTime');
+    const applyBtn = document.getElementById('applyCustomDateTimeBtn');
+
+    function updateApplyState() {
+        applyBtn.disabled = (dtInput.value === '');
+    }
+
+    dtInput.addEventListener('input', updateApplyState);
+
+    // call on init
+    updateApplyState();
+});
+
+function applyCustomDateTime() {
+    var dt = $('#customDateTime').val();
+
+    $.post('ajax.php?module=dpviz&command=set_simtime', { customDateTime: dt })
+        .done(function (res) {
+            closeModal('customTimeModal');
+            fpbxToast(`${translations.customTimeSaved}`,'info','info');
+						$('#reloadButton').trigger('click');
+        })
+        .fail(function () {
+            alert('Failed to save custom datetime.');
+        });
+}
+
+function resetCustomDateTime() {
+		document.getElementById('applyCustomDateTimeBtn').disabled = true;
+		
+    $.post('ajax.php?module=dpviz&command=set_simtime', { customDateTime: '' })
+        .done(function () {
+            closeModal('customTimeModal');
+						$('#customDateTime').val('');
+						fpbxToast(`${translations.customTimeRemoved}`,'info','info');
+						$('#reloadButton').trigger('click');
+        });
+}
 
 
 // ----- censor helpers -----
@@ -1102,32 +1270,68 @@ function initPanZoom(containerId) {
 
     inertiaFrame = requestAnimationFrame(step);
   }
+	
 
-  function onWheel(e) {
-    e.preventDefault();
-    const rect = viewport.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const zoomIntensity = 0.2;
+	function onWheel(e) {
+			e.preventDefault();
+			const rect = viewport.getBoundingClientRect();
+			const mouseX = e.clientX - rect.left;
+			const mouseY = e.clientY - rect.top;
 
-    let newScale = e.deltaY < 0
-        ? scale * (1 + zoomIntensity)
-        : scale * (1 - zoomIntensity);
+			let zoomIntensity = wheelSensitivity;
 
-    newScale = Math.max(0.3, Math.min(10, newScale));
+			let newScale = e.deltaY < 0
+					? scale * (1 + zoomIntensity)
+					: scale * (1 - zoomIntensity);
 
-    panX = mouseX - (mouseX - panX) * (newScale / scale);
-    panY = mouseY - (mouseY - panY) * (newScale / scale);
-    scale = newScale;
+			newScale = Math.max(0.3, Math.min(10, newScale));
 
-    updateTransform();
-  }
+			panX = mouseX - (mouseX - panX) * (newScale / scale);
+			panY = mouseY - (mouseY - panY) * (newScale / scale);
+			scale = newScale;
+
+			updateTransform();
+	}
+
+
 
   viewport.addEventListener("mousedown", onMouseDown);
   document.addEventListener("mousemove", onMouseMove);
   document.addEventListener("mouseup", onMouseUp);
-  viewport.addEventListener("wheel", onWheel);
+  viewport.addEventListener("wheel", onWheel, { passive: false });
 }
+
+//mouse sensitivity
+let defaultSensitivity = 0.2;
+
+// Load saved value
+let wheelSensitivity = parseFloat(localStorage.getItem('dpviz_zoomSensitivity')) || defaultSensitivity;
+
+// Elements
+const zoomSlider = document.getElementById('zoomSensitivity');
+const zoomValue  = document.getElementById('zoomValue');
+const resetBtn   = document.getElementById('resetZoomSensitivity');
+
+// Initialize UI
+zoomSlider.value = wheelSensitivity;
+zoomValue.textContent = parseFloat(wheelSensitivity.toFixed(3));
+
+// Save when changed
+zoomSlider.addEventListener('input', function () {
+    wheelSensitivity = parseFloat(this.value);
+    zoomValue.textContent = parseFloat(wheelSensitivity.toFixed(3));
+    localStorage.setItem('dpviz_zoomSensitivity', wheelSensitivity);
+});
+
+// Reset to default
+resetBtn.addEventListener('click', function () {
+    wheelSensitivity = defaultSensitivity;
+    zoomSlider.value = defaultSensitivity;
+    zoomValue.textContent = parseFloat(defaultSensitivity.toFixed(3));
+    localStorage.setItem('dpviz_zoomSensitivity', defaultSensitivity);
+});
+
+
 
 
 //feedback form
@@ -1189,7 +1393,7 @@ function wireGraphvizTooltips(container) {
     tip.id = 'gv-tooltip';
     Object.assign(tip.style, {
       position: 'absolute',
-      zIndex: '9999',
+      zIndex: '30',
       pointerEvents: 'none',
       background: '#222',
       color: '#fff',
@@ -1313,3 +1517,747 @@ function wireGraphvizTooltips(container) {
 
   svg.addEventListener('mouseleave', hide, { passive: true });
 }
+
+
+
+
+
+let nodestData = {};
+
+const moduleMap = {
+  announcement: 'Announcements',
+	daynight: 'Call Flow Control',
+	callrecording: 'Call Recording',
+  dynroute: 'Dynamic Routes',
+  incoming: 'Inbound Routes',
+	ivr_details: 'IVR',
+	languages: 'Languages',
+	miscdests: 'Misc Destinations',
+  queues_config: 'Queues',
+  ringgroups: 'Ring Groups',
+	setcid: 'Set CallerID',
+  timeconditions: 'Time Conditions'
+};
+
+
+const moduleKeyAliases = {
+  ivr_details: ['ivr', 'ivr_details'],
+	incoming: ['incoming', 'did'],
+	queues_config: ['queues', 'queues_config']
+};
+
+const filteredAllowNew = Object.keys(moduleMap)
+  .filter(function (key) {
+      const aliases = moduleKeyAliases[key] || [key];
+      return aliases.some(function (k) {
+          return window.existingModules.includes(k);
+      });
+  })
+  .map(key => moduleMap[key]);
+
+
+	
+
+
+
+let newDestinationMode = false;
+
+$(document).on('change', '#moduleSelect', function () {
+
+    const mod   = $(this).val();
+    const dests = nodestData[mod] || [];
+    const $dest = $('#destSelect');
+
+    $('#inlineNewForm').remove();
+    $dest.empty().append('<option value="">-- Select Destination --</option>');
+
+    const sections = Array.isArray(window.dpvizConfig?.sections)
+        ? window.dpvizConfig.sections
+        : [];
+
+    let canAddNew = false;
+
+    // 🔒 RULE #1: module must support creation
+    if (filteredAllowNew.includes(mod)) {
+
+        // 🔒 RULE #2: user must have permission
+        if (sections.includes('*')) {
+            canAddNew = true;
+        } else {
+            const key = Object.keys(moduleMap).find(k => moduleMap[k] === mod);
+            if (key) {
+                const aliases = moduleKeyAliases[key] || [key];
+                canAddNew = aliases.some(k => sections.includes(k));
+            }
+        }
+    }
+
+    if (canAddNew) {
+        $dest.append('<option value="__new__">➕ Add New…</option>');
+    }
+
+    dests.forEach(d => $dest.append(new Option(d.label, d.value)));
+
+    $dest.trigger('change.select2');
+    $('#saveNoDestBtn').prop('disabled', true);
+});
+
+
+$(document).on('change', '#destSelect', function () {
+  const v = $(this).val();
+  const $formContainer = $('#inlineNewFormContainer');
+  if (v === '__new__') {
+    showInlineForm($('#moduleSelect').val(), $formContainer);
+    $('#saveNoDestBtn').prop('disabled', true);
+  } else {
+    $('#inlineNewForm').remove();
+    $('#saveNoDestBtn').prop('disabled', !v);
+  }
+});
+
+
+
+$(document).on('click', '#saveNoDestBtn', function () {
+
+  const mode        = $('#nodestmodal').data('mode');   // 'ivr', 'link', or 'nodest'
+  const value       = $('#destSelect').val();
+  const label       = $('#destSelect option:selected').text();
+  const noDestTitle = $(this).data('titleText');        // used only by noDest mode
+  const rawExt      = $('#ext').val();                  // used by original noDest
+
+  if (!value) {
+    fpbxToast('Save failed: You must select a destination', 'error', 'error');
+    return;
+  }
+
+  /* -----------------------------------------------------
+   * MODE: IVR (multiple ivr entry rows)
+   * ----------------------------------------------------- */
+  if (mode === 'ivr') {
+    const rowId = $('#nodestmodal').data('row');
+
+    $('#ivrDestValue_' + rowId).val(value);
+    $('#ivrDestLabel_' + rowId).text(label || '(none)');
+
+    closeModal('nodestmodal');
+    return;
+  }
+
+
+	/* -----------------------------------------------------
+   * MODE: ADD IVR SELECTION (two-dropdown modal for linking nodes)
+   * ----------------------------------------------------- */
+  if (mode === 'add_ivr_entry') {
+		const $destSelect = $('#destSelect');
+		const $digitInput = $('#digitInput');
+		const $saveBtn    = $('#saveNoDestBtn');
+		const digit       = $('#digitInput').val();
+		
+		if (!/^[0-9*#]{1,10}$/.test(digit)) {
+				return warnInvalid($digitInput, 'Please enter a valid value for Digits Pressed');
+		}
+
+		// Update dropdown
+		$destSelect
+			.append(new Option(label, value, true, true))
+			.trigger('change.select2');
+
+		$('#inlineNewForm').remove();
+		if ($saveBtn.length) $saveBtn.prop('disabled', false);
+
+		fetch('ajax.php?module=dpviz&command=add_ivr_entry', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				titleText: noDestTitle || null,
+				destination: value,
+				digit: digit
+			})
+		})
+		.then(r => r.json())
+		.then(res => {
+			if (res.status === 'success') {
+				closeModal('nodestmodal');
+				$('#saveNoDestBtn').removeData('titleText');
+				$('#reloadButton').trigger('click');
+				fpbxToast('Inserted successfully into current dial plan!', 'success');
+				
+			} else {
+				fpbxToast((res.message || 'Unknown error'), 'error', 'error');
+			}
+		})
+		.catch(e => alert('Network error: ' + e));
+
+		return;
+	}
+	
+	/* -----------------------------------------------------
+   * MODE: ADD DYN ENTRY (two-dropdown modal for linking nodes)
+   * ----------------------------------------------------- */
+  if (mode === 'add_dyn_entry') {
+		const $destSelect = $('#destSelect');
+		const $digitInput = $('#digitInput');
+		const $saveBtn    = $('#saveNoDestBtn');
+		const digit       = $('#digitInput').val();
+		
+		if (!/^[0-9*#]{1,10}$/.test(digit)) {
+				return warnInvalid($digitInput, 'Please enter a valid value for Digits Pressed');
+		}
+
+		// Update dropdown
+		$destSelect
+			.append(new Option(label, value, true, true))
+			.trigger('change.select2');
+
+		$('#inlineNewForm').remove();
+		if ($saveBtn.length) $saveBtn.prop('disabled', false);
+
+		// NOW SAVE THE RELATIONSHIP (the missing step!)
+		fetch('ajax.php?module=dpviz&command=add_dyn_entry', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				titleText: noDestTitle || null,
+				destination: value,
+				digit: digit
+			})
+		})
+		.then(r => r.json())
+		.then(res => {
+			if (res.status === 'success') {
+				closeModal('nodestmodal');
+				$('#saveNoDestBtn').removeData('titleText');
+				$('#reloadButton').trigger('click');
+				fpbxToast('Inserted successfully into current dial plan!', 'success');
+				
+			} else {
+				fpbxToast((res.message || 'Unknown error'), 'error', 'error');
+			}
+		})
+		.catch(e => alert('Network error: ' + e));
+
+		return;
+	}
+	
+  /* -----------------------------------------------------
+   * MODE: LINK (two-dropdown modal for linking nodes)
+   * ----------------------------------------------------- */
+  if (mode === 'link') {
+		const $destSelect = $('#destSelect');
+		const $saveBtn    = $('#saveNoDestBtn');
+
+		// Update dropdown
+		$destSelect
+			.append(new Option(label, value, true, true))
+			.trigger('change.select2');
+
+		$('#inlineNewForm').remove();
+		if ($saveBtn.length) $saveBtn.prop('disabled', false);
+
+		// NOW SAVE THE RELATIONSHIP (the missing step!)
+		fetch('ajax.php?module=dpviz&command=save_nodest', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				titleText: noDestTitle || null,
+				destination: value
+			})
+		})
+		.then(r => r.json())
+		.then(res => {
+			if (res.status === 'success') {
+				closeModal('nodestmodal');
+				$('#saveNoDestBtn').removeData('titleText');
+				generateVisualization(rawExt, '', '');
+			} else {
+				alert('Save failed: ' + (res.message || 'Unknown error'));
+			}
+		})
+		.catch(e => alert('Network error: ' + e));
+
+		return;
+	}
+	
+  /* -----------------------------------------------------
+   * MODE: NEW DESTINATION MODE (your old override)
+   * ----------------------------------------------------- */
+  if (typeof newDestinationMode !== 'undefined' && newDestinationMode === true) {
+    $('#nodestmodal').hide();
+    const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
+    generateVisualization(value + ',' + lang, '', '');
+    newDestinationMode = false;
+    return;
+  }
+
+  /* -----------------------------------------------------
+   * MODE: ORIGINAL noDest SAVE (default)
+   * ----------------------------------------------------- */
+  fetch('ajax.php?module=dpviz&command=save_nodest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      titleText: noDestTitle || null,
+      destination: value
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'success') {
+      $('#nodestmodal').hide();
+      $('#saveNoDestBtn').removeData('titleText');
+      generateVisualization(rawExt, '', '');
+    } else {
+      alert('Save failed: ' + (res.message || 'Unknown error'));
+    }
+  })
+  .catch(e => alert('Network error: ' + e));
+
+});
+
+
+
+function loadNoDestModal(titleText) {
+  const $modal = $('#nodestmodal');
+  const body   = document.getElementById('nodestmodal-displayname');
+  const $title = $('#nodestmodal-title');
+
+  $title.text(translations.newDestination || 'New Destination');
+  $modal.data('mode', 'link');
+
+  fetch('ajax.php?module=dpviz&command=nodestselect')
+    .then(r => r.json())
+    .then(data => {
+      nodestData = data;
+
+      const nodestKeys = Object.keys(nodestData);      // e.g. ["Announcements", "Extensions", "Queues"]
+      const allowedModules = (typeof filteredAllowNew !== 'undefined'
+        ? filteredAllowNew
+        : []);                                        // fallback so it doesn’t blow up
+
+      // Add allowed modules that aren't already in nodestData
+      const missingModules = allowedModules.filter(m => !nodestKeys.includes(m));
+
+      // Merge + sort alphabetically
+      const combinedModules = [...nodestKeys, ...missingModules]
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+      body.innerHTML = `
+        <select id="moduleSelect" style="width:100%">
+          <option value="">-- Select Module --</option>
+          ${combinedModules.map(m => `<option value="${m}">${m}</option>`).join('')}
+        </select>
+        <select id="destSelect" style="width:100%">
+          <option value="">-- Select Destination --</option>
+        </select>
+        <div id="inlineNewFormContainer" style="margin-top:10px;"></div>
+        <div style="margin-top:10px;text-align:right;">
+          <button id="saveNoDestBtn" class="btn btn-primary btn-sm" disabled>Save</button>
+        </div>
+      `;
+
+      $modal.show();
+
+      $(body).find('select').select2({
+        dropdownParent: $modal,
+				minimumResultsForSearch: 5,
+				width: '100%',
+        dropdownCssClass: 's2-limit-height'
+      });
+
+      $('#saveNoDestBtn').data('titleText', titleText);
+    })
+    .catch(err => console.error('Error loading destinations:', err));
+}
+
+
+function loadInsertDestModal(titleText) {
+
+    const $modal = $('#nodestmodal');
+    const $body  = $('#nodestmodal-displayname');
+    const $title = $('#nodestmodal-title');
+
+    const excludeModules = [
+        'Call Flow Control',
+        'Dynamic Routes',
+        'IVR',
+        'Inbound Routes',
+        'Misc Destinations',
+        'Time Conditions'
+    ];
+
+    $title.text(translations.insertDestination || 'Insert New Destination');
+    $modal.data('mode', 'insert');
+    $modal.data('title', titleText);
+
+    let previous = null;
+    if (titleText.includes('|')) {
+        previous = titleText.split('|')[1];
+    }
+    $modal.data('previous', previous);
+
+    // ✅ NEW: sections come from PHP
+    const sections = Array.isArray(dpvizConfig.sections)
+        ? dpvizConfig.sections
+        : [];
+
+    const hasWildcard = sections.includes('*');
+
+    const allowedLabels = filteredAllowNew.filter(function (label) {
+
+        // Insert-specific exclusions
+        if (excludeModules.includes(label)) {
+            return false;
+        }
+
+        if (hasWildcard) {
+            return true;
+        }
+
+        // label → moduleMap key
+        const key = Object.keys(moduleMap).find(k => moduleMap[k] === label);
+        if (!key) return false;
+
+        const aliases = moduleKeyAliases[key] || [key];
+
+        return aliases.some(k => sections.includes(k));
+    });
+
+    if (!allowedLabels.length) {
+        $body.html(`
+            <div class="alert alert-warning">
+                ${translations.noPermission || 'You do not have permission to insert new destinations.'}
+            </div>
+        `);
+        $modal.fadeIn(150);
+        return;
+    }
+
+    $body.html(`
+        <select id="moduleSelect" style="width:100%">
+            <option value="">-- Select Module --</option>
+            ${allowedLabels.map(m =>
+                `<option value="${m}">${m}</option>`
+            ).join('')}
+        </select>
+        <div id="inlineNewFormContainer" style="margin-top:10px;"></div>
+    `);
+
+    $modal.fadeIn(150);
+
+    const $moduleSelect  = $modal.find('#moduleSelect');
+    const $formContainer = $modal.find('#inlineNewFormContainer');
+
+    if ($.fn.select2) {
+        if ($moduleSelect.hasClass('select2-hidden-accessible')) {
+            $moduleSelect.select2('destroy');
+        }
+        $moduleSelect.select2({
+            dropdownParent: $modal,
+            minimumResultsForSearch: 5,
+            width: '100%',
+            dropdownCssClass: 's2-limit-height'
+        });
+    }
+
+    $moduleSelect
+        .off('.inline')
+        .on('select2:select.inline', function (e) {
+            const label = $(this).val() || e?.params?.data?.id;
+            $modal.find('#inlineNewForm').remove();
+            if (label) {
+                showInlineForm(label, $formContainer);
+            }
+        });
+}
+
+
+
+function loadNewSelectionModal(titleText) {
+
+    const $modal = $('#nodestmodal');
+    const body   = document.getElementById('nodestmodal-displayname');
+    const $title = $('#nodestmodal-title');
+
+    $title.text(translations.addSelection || 'Add Selection');
+    $modal.data('mode', 'add_ivr_entry');
+
+    fetch('ajax.php?module=dpviz&command=nodestselect')
+        .then(r => r.json())
+        .then(data => {
+
+            nodestData = data;
+            const nodestKeys = Object.keys(nodestData); // LABELS
+
+            // ✅ NEW: sections come from PHP
+            const sections = Array.isArray(dpvizConfig.sections)
+                ? dpvizConfig.sections
+                : [];
+
+            const hasWildcard = sections.includes('*');
+
+            const allowedLabels = filteredAllowNew.filter(function (label) {
+
+                if (hasWildcard) {
+                    return true;
+                }
+
+                // label → moduleMap key
+                const key = Object.keys(moduleMap).find(
+                    k => moduleMap[k] === label
+                );
+                if (!key) return false;
+
+                const aliases = moduleKeyAliases[key] || [key];
+                return aliases.some(k => sections.includes(k));
+            });
+
+            const combinedModules = Array.from(new Set([
+                ...nodestKeys,
+                ...allowedLabels
+            ])).sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: 'base' })
+            );
+
+            body.innerHTML = `
+                <div class="no-dest-row">
+                    <div class="no-dest-digit">
+                        <input type="text"
+                               id="digitInput"
+                               maxlength="10"
+                               class="form-control"
+                               style="text-align:center;"
+                               placeholder="Digit"
+                               autocomplete="off">
+                    </div>
+
+                    <div class="no-dest-selects ivr-select-wrapper">
+                        <select id="moduleSelect" style="width:100%">
+                            <option value="">-- Select Module --</option>
+                            ${combinedModules.map(m =>
+                                `<option value="${m}">${m}</option>`
+                            ).join('')}
+                        </select>
+
+                        <select id="destSelect" style="width:100%">
+                            <option value="">-- Select Destination --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="inlineNewFormContainer" style="margin-top:10px;"></div>
+
+                <div style="margin-top:10px;text-align:right;">
+                    <button id="saveNoDestBtn"
+                            class="btn btn-primary btn-sm"
+                            disabled>Save</button>
+                </div>
+            `;
+
+            $modal.show();
+
+            $(body).find('select').select2({
+                dropdownParent: $modal,
+                minimumResultsForSearch: 5,
+                width: '100%',
+                dropdownCssClass: 's2-limit-height'
+            });
+
+            $('#saveNoDestBtn').data('titleText', titleText);
+        })
+        .catch(err => console.error('Error loading destinations:', err));
+}
+
+
+
+
+function loadNewEntryModal(titleText) {
+
+    const $modal = $('#nodestmodal');
+    const body   = document.getElementById('nodestmodal-displayname');
+    const $title = $('#nodestmodal-title');
+
+    $title.text(translations.addEntry || 'Add Entry');
+    $modal.data('mode', 'add_dyn_entry');
+
+    fetch('ajax.php?module=dpviz&command=nodestselect')
+        .then(r => r.json())
+        .then(data => {
+
+            nodestData = data;
+            const nodestKeys = Object.keys(nodestData);
+
+            // ✅ sections from injected config
+            const sections = Array.isArray(window.dpvizConfig?.sections)
+                ? window.dpvizConfig.sections
+                : [];
+
+            const hasWildcard = sections.includes('*');
+
+            // ✅ modules user is allowed to CREATE
+            const allowedCreatable = Array.isArray(filteredAllowNew)
+                ? filteredAllowNew.filter(function (label) {
+
+                    if (hasWildcard) {
+                        return true;
+                    }
+
+                    // label → moduleMap key
+                    const key = Object.keys(moduleMap).find(k => moduleMap[k] === label);
+                    if (!key) return false;
+
+                    const aliases = moduleKeyAliases[key] || [key];
+                    return aliases.some(k => sections.includes(k));
+                })
+                : [];
+
+            // Merge backend-provided destinations + allowed creatable modules
+            const combinedModules = Array.from(new Set([
+                ...nodestKeys,
+                ...allowedCreatable
+            ])).sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: 'base' })
+            );
+
+            body.innerHTML = `
+                <div class="no-dest-row">
+                    <div class="no-dest-digit">
+                        <input type="text"
+                               id="digitInput"
+                               maxlength="10"
+                               class="form-control"
+                               style="text-align:center;"
+                               placeholder="Digit"
+                               autocomplete="off">
+                    </div>
+
+                    <div class="no-dest-selects ivr-select-wrapper">
+                        <select id="moduleSelect" style="width:100%">
+                            <option value="">-- Select Module --</option>
+                            ${combinedModules.map(m =>
+                                `<option value="${m}">${m}</option>`
+                            ).join('')}
+                        </select>
+
+                        <select id="destSelect" style="width:100%">
+                            <option value="">-- Select Destination --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="inlineNewFormContainer" style="margin-top:10px;"></div>
+
+                <div style="margin-top:10px;text-align:right;">
+                    <button id="saveNoDestBtn"
+                            class="btn btn-primary btn-sm"
+                            disabled>Save</button>
+                </div>
+            `;
+
+            $modal.show();
+
+            $(body).find('select').select2({
+                dropdownParent: $modal,
+                minimumResultsForSearch: 5,
+                width: '100%',
+                dropdownCssClass: 's2-limit-height'
+            });
+
+            $('#saveNoDestBtn').data('titleText', titleText);
+        })
+        .catch(err => console.error('Error loading destinations:', err));
+}
+
+
+
+
+function openNewDestinationModal() {
+
+    const $modal = $('#nodestmodal');
+    const $body  = $('#nodestmodal-displayname');
+    const $title = $('#nodestmodal-title');
+
+    const excludeModules = ['Set CallerID', 'Blacklist', 'Languages', 'Misc Destinations'];
+
+    $title.text(translations.newDestination || 'New Destination');
+    $modal.data('mode', 'create');
+
+    // ✅ NEW: sections come from PHP
+    const sections = Array.isArray(dpvizConfig.sections)
+        ? dpvizConfig.sections
+        : [];
+
+    const hasWildcard = sections.includes('*');
+
+    // Filter allowed modules by KEY, display by LABEL
+    const allowedLabels = filteredAllowNew.filter(function (label) {
+
+        if (excludeModules.includes(label)) {
+            return false;
+        }
+
+        if (hasWildcard) {
+            return true;
+        }
+
+        // Map label → moduleMap key
+        const key = Object.keys(moduleMap).find(k => moduleMap[k] === label);
+        if (!key) return false;
+
+        const aliases = moduleKeyAliases[key] || [key];
+
+        return aliases.some(function (k) {
+            return sections.includes(k);
+        });
+    });
+
+    if (!allowedLabels.length) {
+        $body.html(`
+            <div class="alert alert-warning">
+                ${translations.noPermission || 'You do not have permission to create new destinations.'}
+            </div>
+        `);
+        $modal.fadeIn(150);
+        return;
+    }
+
+    $body.html(`
+        <select id="moduleSelect" style="width:100%">
+            <option value="">-- Select Module --</option>
+            ${allowedLabels.map(label =>
+                `<option value="${label}">${label}</option>`
+            ).join('')}
+        </select>
+        <div id="inlineNewFormContainer" style="margin-top:10px;"></div>
+    `);
+
+    $modal.fadeIn(150);
+
+    const $moduleSelect  = $modal.find('#moduleSelect');
+    const $formContainer = $modal.find('#inlineNewFormContainer');
+
+    if ($.fn.select2) {
+        if ($moduleSelect.hasClass('select2-hidden-accessible')) {
+            $moduleSelect.select2('destroy');
+        }
+
+        $moduleSelect.select2({
+            dropdownParent: $modal,
+            minimumResultsForSearch: 5,
+            width: '100%',
+            dropdownCssClass: 's2-limit-height'
+        });
+    }
+
+    $moduleSelect
+        .off('.inline')
+        .on('select2:select.inline', function () {
+            const label = $(this).val(); // 'IVR', 'Queues', etc.
+
+            $modal.find('#inlineNewForm').remove();
+
+            if (label) {
+                showInlineForm(label, $formContainer);
+            }
+        });
+}
+

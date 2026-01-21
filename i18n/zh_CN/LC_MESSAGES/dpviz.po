@@ -96,9 +96,6 @@ msgstr "声明"
 msgid "Invalid Input, Default (%s) secs"
 msgstr "无效输入，默认（%s）秒。"
 
-msgid "Default (%s) secs"
-msgstr "默认(%s)秒"
-
 msgid "Yes"
 msgstr "是的"
 
@@ -164,9 +161,6 @@ msgstr "点击编辑允许名单"
 
 msgid "Selection %s"
 msgstr "选择 %s"
-
-msgid "Timeout (%s secs)"
-msgstr "超时（%s秒）"
 
 msgid "Disabled"
 msgstr "已禁用"
@@ -419,9 +413,6 @@ msgstr "節省"
 msgid "Time Conditions"
 msgstr "时间条件"
 
-msgid "Call Flows"
-msgstr "呼叫流程"
-
 msgid "Virtual Queues"
 msgstr "虚拟排队"
 
@@ -516,15 +507,6 @@ msgstr "未注册扩展（红色边框）"
 
 msgid "Virtual or non-extension node (no border)"
 msgstr "虚拟或非补号节点（无边框）"
-
-msgid "Remove Highlights"
-msgstr "移除突出显示"
-
-msgid "Checking..."
-msgstr "检查中..."
-
-msgid "You are up to date."
-msgstr "您已了解最新情況"
 
 msgid "available! Use Module Admin to update"
 msgstr "可用！使用模块管理员更新。"
@@ -790,9 +772,6 @@ msgstr "其他"
 msgid "Total"
 msgstr "合计"
 
-msgid "No name selected"
-msgstr "未选择名称"
-
 msgid "Show Allowlist"
 msgstr "显示允许列表。"
 
@@ -1005,3 +984,156 @@ msgstr "返回自动回答机"
 
 msgid "Don't Answer Channel"
 msgstr "不要回答通道"
+
+msgid "When"
+msgstr "当"
+
+msgid "Click to choose destination"
+msgstr "点击选择目的地"
+
+msgid "Undefined Destination"
+msgstr "未定义的目标"
+
+msgid "New Destination"
+msgstr "新目的地"
+
+msgid "Call Flow Control"
+msgstr "呼叫流程控制"
+
+msgid "Call Flow"
+msgstr "电话流程"
+
+msgid "Add Selection"
+msgstr "添加选择"
+
+msgid "Click to add selection"
+msgstr "点击添加选择"
+
+msgid "Local Time"
+msgstr "当地时间"
+
+msgid "Insert New Destination"
+msgstr "插入新目的地"
+
+msgid "Click to insert new destination"
+msgstr "点击插入新目的地"
+
+msgid "Language Code"
+msgstr "语言代码"
+
+msgid "Simulated date & time applied."
+msgstr "模拟日期和时间已应用。"
+
+msgid "Simulated date & time cleared."
+msgstr "模拟日期和时间已清除。"
+
+msgid "Simulate Date & Time"
+msgstr "仿真日期和时间"
+
+msgid "Select Date & Time"
+msgstr "选择日期和时间"
+
+msgid "Click Reset to return to the real system time."
+msgstr "单击重置以返回到实际系统时间。"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Simulated time"
+msgstr "仿真时间"
+
+msgid ""
+"Simulate Date & Time: Preview how call routing will behave at a future date "
+"or time - useful for holidays, early closures, seasonal hours, or testing new "
+"time conditions."
+msgstr ""
+"模拟日期和时间：查看呼叫路由将如何在未来的日期或时间表现 - 对于节日、早期关"
+"闭、季节性小时或测试新时间条件非常有用。"
+
+msgid "Mouse Wheel Zoom Sensitivity"
+msgstr "鼠轮放大敏感度"
+
+msgid ""
+"Controls mouse wheel zoom sensitivity. This preference is saved in your "
+"browser and does not affect other users."
+msgstr "调整鼠标滚轮缩放敏感度。这个选项保存在您的浏览器中，不会影响其他用户。"
+
+msgid "Add Entry"
+msgstr "增加项目"
+
+msgid "Invalid Input (%s secs)"
+msgstr "无效输入（%s 秒）"
+
+msgid "Click to add entry"
+msgstr "点击添加条目"
+
+msgid "Checking..."
+msgstr "正在检查..."
+
+msgid "Remove Highlights"
+msgstr "移除亮点"
+
+msgid "You are up to date."
+msgstr "您已更新至最新版本。"
+
+msgid "Match: %s"
+msgstr "匹配：%s"
+
+msgid "Timeout (%s secs x %s)"
+msgstr "超时（%s 秒 x %s）"
+
+msgid "Invalid Input x %s"
+msgstr "无效的输入 x %s"
+
+msgid "every"
+msgstr "每一个"
+
+msgid "You do not have permission to create new destinations."
+msgstr "您没有权限创建新的目的地。"
+
+msgid "Current version"
+msgstr "当前版本"
+
+msgid "Day"
+msgstr "日"
+
+msgid "Night"
+msgstr "夜晚"
+
+msgid "Current Mode"
+msgstr "当前模式"
+
+msgid "Call as Dialed"
+msgstr "呼叫按悬挂"
+
+msgid "No Follow-Me or Call Forward"
+msgstr "不要使用 Follow-Me 或呼叫转发"
+
+msgid "Extensions Only"
+msgstr "仅扩展"
+
+msgid "Ring Only"
+msgstr "只响铃声"
+
+msgid "Agent Ringing"
+msgstr "代理人铃音"
+
+msgid "No Free Agents"
+msgstr "没有自由代理人"
+
+msgid "No Ready Agents"
+msgstr "没有可用代理人"
+
+msgid "There are both logged in and no free agents"
+msgstr "有登录并且有没有免费代理人"
+
+msgid "Display Insert and Add Selection Nodes"
+msgstr "显示插入和添加选择节点"
+
+msgid ""
+"Displays a + between nodes. Clicking it creates a new destination and "
+"automatically links it to the current destination. Also Displays Add "
+"Selection (IVRs) and Add Entry (Dynamic Routes) "
+msgstr ""
+"显示在节点之间的+。单击它将创建一个新目的地并自动将其链接到当前目的地。同时显"
+"示添加选择（IVR）和添加条目（动态路由）。"

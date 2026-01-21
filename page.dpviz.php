@@ -54,7 +54,13 @@ const translations = {
 	vmblast: "<?php echo _('Voicemail Blast'); ?>",
 	pagegroups: "<?php echo _('Page Group'); ?>",
 	dynroute: "<?php echo _('Dynamic Route'); ?>",
-	queuecallback: "<?php echo _('Queue Callback'); ?>"
+	queuecallback: "<?php echo _('Queue Callback'); ?>",
+	newDestination: "<?php echo _('New Destination'); ?>",
+	insertDestination: "<?php echo _('Insert New Destination'); ?>",
+	customTimeSaved: "<?php echo _('Simulated date & time applied.'); ?>",
+	customTimeRemoved: "<?php echo _('Simulated date & time cleared.'); ?>",
+	noPermission: "<?php echo _('You do not have permission to create new destinations.'); ?>"
+	
 };
 </script>
 <meta charset="UTF-8">
@@ -95,15 +101,33 @@ const translations = {
 						<div id="vizWrapper">
 							
 							<div id="overlay" onclick="closeModal()"></div>
+							
+							<div id="nodestmodal">
+									<div class="modal-header-unified" id="nodestmodal-header">
+											<span class="modal-title-unified" id="nodestmodal-title">Destination</span>
+											<button class="modal-close-btn-unified" onclick="closeModal('nodestmodal')">&times;</button>
+									</div>
+
+									<div class="modal-body-unified" id="nodestmodal-displayname">
+											<!-- dynamically injected content -->
+									</div>
+							</div>
+							
 							<!-- Recording Modal container -->
 							<div id="recordingmodal">
-								<div id="recordingmodal-header">
-									<span id="recordingmodal-title"></span>
-									<button id="modal-close-btn" onclick="closeModal('recordingmodal')">✖</button>
-								</div>
-								<div id="recording-displayname"></div>
-								<div id="audioList"></div>
+									<div class="modal-header-unified" id="recordingmodal-header">
+											<span class="modal-title-unified" id="recordingmodal-title">
+													<i class="fa fa-music"></i> Recordings
+											</span>
+											<button class="modal-close-btn-unified" onclick="closeModal('recordingmodal')">&times;</button>
+									</div>
+
+									<div class="modal-body-unified" id="recording-displayname">
+											
+									</div>
+									<div id="audioList"></div>
 							</div>
+
 							
 							<!-- Saved View Modal container -->
 							<div id="saveModal" class="savemodal">
@@ -121,6 +145,43 @@ const translations = {
 									</form>
 								</div>
 							</div>
+						
+							<!-- Custom Time Modal container -->						
+							<div id="customTimeModal">
+									<div class="modal-header-unified" id="customTimeModal-header">
+											<span class="modal-title-unified">
+													<i class="fa fa-clock-o"></i> <?php echo _('Simulate Date & Time'); ?>
+											</span>
+											<button class="modal-close-btn-unified" onclick="closeModal('customTimeModal')">&times;</button>
+									</div>
+
+									<div class="modal-body-unified">
+
+											<div class="form-group" style="margin-bottom: 20px;">
+													<label for="customDateTime" class="control-label"><?php echo _('Select Date & Time'); ?></label>
+													<input type="datetime-local"
+																 id="customDateTime"
+																 name="customDateTime"
+																 class="form-control"
+																 style="max-width:260px;"
+																 value="<?php echo $options['custom_datetime']; ?>">
+													<small class="help-block" style="margin-top:6px;">
+															<?php echo _('Click Reset to return to the real system time.'); ?>
+													</small>
+											</div>
+
+											<div class="text-right" style="margin-top: 25px;">
+													<button id="applyCustomDateTimeBtn" type="button" class="btn btn-primary" onclick="applyCustomDateTime()">
+															<i class="fa fa-check"></i> <?php echo _('Apply'); ?>
+													</button>
+													<button type="button" class="btn btn-danger" onclick="resetCustomDateTime()">
+															<i class="fa fa-times-circle"></i> <?php echo _('Reset'); ?>
+													</button>
+											</div>
+
+									</div>
+							</div>
+
 							
 							<div id="vizContainer" class="display full-border">
 								<div id="vizHeader"><p><strong><?php echo _('Dial Plan Not Selected'); ?></strong><br><?php echo _('Use the dropdown to select a dial plan.'); ?></p></div>

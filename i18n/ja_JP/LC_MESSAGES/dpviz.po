@@ -96,9 +96,6 @@ msgstr "発表"
 msgid "Invalid Input, Default (%s) secs"
 msgstr "無効な入力、デフォルト (%s) 秒"
 
-msgid "Default (%s) secs"
-msgstr "デフォルト（%s）秒"
-
 msgid "Yes"
 msgstr "はい"
 
@@ -164,9 +161,6 @@ msgstr "編集を許可するにはクリックしてください"
 
 msgid "Selection %s"
 msgstr "選択% s"
-
-msgid "Timeout (%s secs)"
-msgstr "タイムアウト (%s 秒)"
 
 msgid "members"
 msgstr "メンバー"
@@ -428,9 +422,6 @@ msgstr "保存してください"
 msgid "Time Conditions"
 msgstr "時間の条件"
 
-msgid "Call Flows"
-msgstr "呼び出しフロー"
-
 msgid "Virtual Queues"
 msgstr "仮想キュー"
 
@@ -526,15 +517,6 @@ msgstr "登録されていない拡張機能（赤い枠）"
 
 msgid "Virtual or non-extension node (no border)"
 msgstr "仮想または拡張機能のないノード（境界なし）"
-
-msgid "Remove Highlights"
-msgstr "ハイライトを削除"
-
-msgid "Checking..."
-msgstr "チェック中..."
-
-msgid "You are up to date."
-msgstr "更新されています。"
 
 msgid "available! Use Module Admin to update"
 msgstr "利用可能！ Module Admin を使用して更新してください"
@@ -803,9 +785,6 @@ msgstr "他の"
 msgid "Total"
 msgstr "総額"
 
-msgid "No name selected"
-msgstr "名前が選択されていません"
-
 msgid "Show Allowlist"
 msgstr "許可リストを表示"
 
@@ -1019,3 +998,160 @@ msgstr "IVRに戻る"
 
 msgid "Don't Answer Channel"
 msgstr "回答しないチャネル"
+
+msgid "When"
+msgstr "いつ"
+
+msgid "Click to choose destination"
+msgstr "目的地を選択するにはクリックしてください"
+
+msgid "Undefined Destination"
+msgstr "Undefined Destination は定義されていません。"
+
+msgid "New Destination"
+msgstr "新しい先行"
+
+msgid "Call Flow Control"
+msgstr "呼び出しフロー制御"
+
+msgid "Call Flow"
+msgstr "コールフロー"
+
+msgid "Add Selection"
+msgstr "選択を追加"
+
+msgid "Click to add selection"
+msgstr "選択を追加するにはクリックしてください"
+
+msgid "Local Time"
+msgstr "現地時間"
+
+msgid "Insert New Destination"
+msgstr "新しいデストイネーションを挿入"
+
+msgid "Click to insert new destination"
+msgstr "新しいデストイネーションを挿入するにはクリックしてください"
+
+msgid "Language Code"
+msgstr "言語コード"
+
+msgid "Simulated date & time applied."
+msgstr "シミュレートされた日付と時刻が適用されました。"
+
+msgid "Simulated date & time cleared."
+msgstr "シミュレートされた日付と時間は削除されました。"
+
+msgid "Simulate Date & Time"
+msgstr "日付と時間をシミュレート"
+
+msgid "Select Date & Time"
+msgstr "日付と時刻を選択してください"
+
+msgid "Click Reset to return to the real system time."
+msgstr "リアルシステム時間に戻るためにリセットをクリックしてください。"
+
+msgid "Apply"
+msgstr "適用"
+
+msgid "Simulated time"
+msgstr "シミュレートされた時間"
+
+msgid ""
+"Simulate Date & Time: Preview how call routing will behave at a future date "
+"or time - useful for holidays, early closures, seasonal hours, or testing new "
+"time conditions."
+msgstr ""
+"日付と時間のシミュレーション: ハッベージング、祝祭、早い閉鎖、季節的な営業時"
+"間、または新しい時間条件のテストのためにコールルーティングがいつかどのように動"
+"作するかを先の日付や時間で予想する - 有用です。"
+
+msgid "Mouse Wheel Zoom Sensitivity"
+msgstr "マウスホイールのズーム感度"
+
+msgid ""
+"Controls mouse wheel zoom sensitivity. This preference is saved in your "
+"browser and does not affect other users."
+msgstr ""
+"マウスホイールの拡大縮小感度を制御します。この設定はブラウザ内に保存され、他の"
+"ユーザーに影響しません。"
+
+msgid "Add Entry"
+msgstr "エントリーを追加する"
+
+msgid "Invalid Input (%s secs)"
+msgstr "無効な入力 (%s 秒)"
+
+msgid "Click to add entry"
+msgstr "エントリーを追加するにはクリックしてください"
+
+msgid "Checking..."
+msgstr "確認中..."
+
+msgid "Remove Highlights"
+msgstr "強調を取り除く"
+
+msgid "You are up to date."
+msgstr "アップデートされています。"
+
+msgid "Match: %s"
+msgstr "対応: %s"
+
+msgid "Timeout (%s secs x %s)"
+msgstr "タイムアウト (%s 秒 x %s)"
+
+msgid "Invalid Input x %s"
+msgstr "無効な入力 x %s"
+
+msgid "every"
+msgstr "毎"
+
+msgid "You do not have permission to create new destinations."
+msgstr "新しいデスティネーションを作成できません。"
+
+msgid "Current version"
+msgstr "現在のバージョン"
+
+msgid "Day"
+msgstr "日"
+
+msgid "Night"
+msgstr "夜"
+
+msgid "Current Mode"
+msgstr "現在のモード"
+
+msgid "Call as Dialed"
+msgstr "呼出されたまま呼び出し"
+
+msgid "No Follow-Me or Call Forward"
+msgstr "フォローミーまたは呼び出し転送を利用しない"
+
+msgid "Extensions Only"
+msgstr "拡張機能のみ"
+
+msgid "Ring Only"
+msgstr "リングのみ"
+
+msgid "Agent Ringing"
+msgstr "エージェントが鳴ります"
+
+msgid "No Free Agents"
+msgstr "無料エージェントがありません。"
+
+msgid "No Ready Agents"
+msgstr "準備完了エージェントなし"
+
+msgid "There are both logged in and no free agents"
+msgstr "ログインしているエージェントと、無料のエージェントが同時に存在します。"
+
+msgid "Display Insert and Add Selection Nodes"
+msgstr "表示挿入および追加の選択ノードを追加する"
+
+msgid ""
+"Displays a + between nodes. Clicking it creates a new destination and "
+"automatically links it to the current destination. Also Displays Add "
+"Selection (IVRs) and Add Entry (Dynamic Routes) "
+msgstr ""
+"ノード間に「+」を表示します。それをクリックすると、現在のデスティネーションに"
+"自動的にリンクされる新しいデスティネーションを作成します。また、「IVRsの追加選"
+"択」と「ダイナミックルートの追加エントリ」を表示します。"

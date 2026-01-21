@@ -153,118 +153,122 @@ function sanitize_filename($string, $replace_with = '_') {
     return $string;
 }
 
-function makeNode($module,$id,$label,$tooltip,$node,$rec = ''){
-
+function makeNode($module,$id,$label,$tooltip,$node,$rec,$sections,$active=true){
+	$rawname= str_replace(' ', '', strtolower($module));
+	$append='';
 	switch ($module) {
 			case 'Announcement':
-					if (empty($rec)){$append='#norec';}else{$append='';}
-					$url=strtolower($module).'&view=form&extdisplay='.$id.$append;
-					$shape='note';
-					$color='oldlace';
+					if (empty($rec)){$append='#norec';}
+					$url=$rawname.'&view=form&extdisplay='.$id.$append;
+					$shape='rect';
+					$color='#fdf5e6';
 					break;
 
 			case 'Callback':
-					$url=strtolower($module).'&view=form&itemid='.$id;
+					$url=$rawname.'&view=form&itemid='.$id;
 					$shape='rect';
 					$color='#f7a8a8';
 					break;
 
-			case 'Call Flow':
-					$url='daynight&view=form&itemid='.$id.'&extdisplay='.$id;
+			case 'Call Flow Control':
+					$rawname='daynight';
+					$url=$rawname.'&view=form&itemid='.$id.'&extdisplay='.$id;
 					$shape='rect';
-					$color='#f7a8a8';
+					$color='#f2c27a';
 					break;
 
 			case 'Call Recording':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
+					$url=$rawname.'&view=form&extdisplay='.$id;
 					$shape='rect';
-					$color='burlywood';
+					$color='#deb887';
 					break;
 			
 			case 'Conferences':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
+					$url=$rawname.'&view=form&extdisplay='.$id;
 					$shape='rect';
-					$color='burlywood';
+					$color='#deb887';
 					break;
 
 			case 'Custom Dests':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&destid='.$id;
-					$shape='component';
+					$url=$rawname.'&view=form&destid='.$id;
+					$shape='rect';
 					$color='#d1e8e2';
 					break;
 
 			case 'Directory':
-					$url=strtolower($module).'&view=form&id='.$id;
-					$shape='folder';
+					$url=$rawname.'&view=form&id='.$id;
+					$shape='rect';
 					$color='#eb94e2';
 					break;
 
 			case 'DISA':
-					$url=strtolower($module).'&view=form&itemid='.$id;
-					$shape='folder';
+					$url=$rawname.'&view=form&itemid='.$id;
+					$shape='rect';
 					$color='#eb94e2';
 					break;
 
 			case 'Dyn Route':
-					$url=str_replace(' ', '', strtolower($module)).'&action=edit&id='.$id;
-					$shape='component';
+					if (empty($rec)){$append='#norec';}
+					$url=$rawname.'&action=edit&id='.$id.$append;
+					$shape='rect';
 					$color='#92b8ef';
 					break;
 
 			case 'Feature Code':
-					$url=str_replace(' ', '', strtolower($module)).'admin';
-					$shape='folder';
-					$color='gainsboro';
+					$url=$rawname.'admin';
+					$shape='rect';
+					$color='#dcdcdc';
 					break;
 
 			case 'IVR':
-					if (empty($rec)){$append='#norec';}else{$append='';}
-					$url=strtolower($module).'&action=edit&id='.$id.$append;
-					$shape='component';
-					$color='gold';
+					if (empty($rec)){$append='#norec';}
+					$url=$rawname.'&action=edit&id='.$id.$append;
+					$shape='rect';
+					$color='#ffd700';
 					break;
 
 			case 'Languages':
-					$url=strtolower($module).'&view=form&extdisplay='.$id;
-					$shape='note';
+					$url=$rawname.'&view=form&extdisplay='.$id;
+					$shape='rect';
 					$color='#ed9581';
 					break;
 
 			case 'Misc Apps':
-					$url=str_replace(' ', '', strtolower($module)).'&action=edit&extdisplay='.$id;
-					$shape='rpromoter';
+					$url=$rawname.'&action=edit&extdisplay='.$id;
+					$shape='rect';
 					$color='#5ffef7';
 					break;
 
 			case 'Misc Dests':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='rpromoter';
-					$color='coral';
+					$url=$rawname.'&view=form&extdisplay='.$id;
+					$shape='rect';
+					$color='#ff7f50';
 					break;
 
 			case 'Paging':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='tab';
+					if (empty($rec)){$append='#norec';}
+					$url=$rawname.'&view=form&extdisplay='.$id.$append;
+					$shape='rect';
 					$color='#87cefa';
 					break;
 			
 			case 'Phonebook':
 					$url='phonebook';
-					$shape='folder';
+					$shape='rect';
 					$color='#bdb76b';
 					break;
 			
 			case 'Queue Callback':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&id='.$id;
+					$url=$rawname.'&view=form&id='.$id;
 					$shape='rect';
 					$color='#98fb98';
 					break;
 
 			case 'Queues':
-					if (empty($rec)){$append='#norec';}else{$append='';}
-					$url=strtolower($module).'&view=form&extdisplay='.$id.$append;
-					$shape='hexagon';
-					$color='mediumaquamarine';
+					if (empty($rec)){$append='#norec';}
+					$url=$rawname.'&view=form&extdisplay='.$id.$append;
+					$shape='rect';
+					$color='#66cdaa';
 					break;
 
 			case 'Queue Priorities':
@@ -274,91 +278,236 @@ function makeNode($module,$id,$label,$tooltip,$node,$rec = ''){
 					break;
 
 			case 'Ring Groups':
-					if (empty($rec)){$append='#norec';}else{$append='';}
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id.$append;
+					if (empty($rec)){$append='#norec';}
+					$url=$rawname.'&view=form&extdisplay='.$id.$append;
 					$shape='rect';
 					$color='#92b8ef';
 					break;
 
 			case 'Set CID':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&id='.$id;
-					$shape='note';
+					$url=$rawname.'&view=form&id='.$id;
+					$shape='rect';
 					$color='#ed9581';
 					break;
 
 			case 'Time Conditions':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&itemid='.$id;
+					$url=$rawname.'&view=form&itemid='.$id;
 					$module="TC";
-					$shape='invhouse';
-					$color='dodgerblue';
+					$shape='rect';
+					$color='#1e90ff';
 					break;
 			
 			case 'TTS':
-					$url=strtolower($module).'&view=form&id='.$id;
+					$url=$rawname.'&view=form&id='.$id;
 					$shape='note';
 					$color='#ed9581';
 					break;
 
 			case 'Trunks':
 					$idArray=explode(",",$id);
-					$url=strtolower($module).'&tech='.$idArray[0].'&extdisplay=OUT_'.$idArray[1];
-					$shape='rarrow';
+					$url=$rawname.'&tech='.$idArray[0].'&extdisplay=OUT_'.$idArray[1];
+					$shape='rect';
 					$color='#66cdaa';
 					break;
 					
 			case 'VM Blast':
-					$url=str_replace(' ', '', strtolower($module)).'&view=form&extdisplay='.$id;
-					$shape='folder';
-					$color='gainsboro';
+					$url=$rawname.'&view=form&extdisplay='.$id;
+					$shape='rect';
+					$color='#dcdcdc';
 					break;
 
 			case 'Virtual Queues':
+					$rawname='vqueue';
 					$url='vqueue&action=modify&id='.$id;
 					$module='VQueue';
-					$shape='hexagon';
+					$shape='rect';
 					$color='#00fa9a';
 					break;
 
 			case 'Voicemail':
-					$url='voicemail&action=bsettings&ext='.$id;
-					$shape='folder';
+					$url=$rawname.'&action=bsettings&ext='.$id;
+					$shape='rect';
 					$color='#979291';
 					break;
 
 			default:
 					// Code to execute if no case matches
+					$url='#';
+					$shape='rect';
+					$color='#979291';
 	}
-
+	if (!$active){
+		$color= muteHexColor($color, .80);
+	}
+	$outline = adjustHexColor($color, -45);
+	
 	$node->attribute('label', "{$module}: {$label}");
 	$node->attribute('tooltip', $tooltip);
-	$node->attribute('URL', htmlentities('/admin/config.php?display='.$url));
-	$node->attribute('target', '_blank');
-	$node->attribute('shape', 'rect');
+	//$ignoreRaw=array('ringgroups');
+	//if (hasSectionAccess($sections, $rawname) && in_array($rawname,$ignoreRaw)){
+		$node->attribute('URL', htmlentities('/admin/config.php?display='.$url));
+		$node->attribute('target', '_blank');
+	//}
+	$node->attribute('shape', $shape);
+	$node->attribute('color', $outline);
+	$node->attribute('penwidth', '2');
 	$node->attribute('fillcolor', $color);
 	$node->attribute('style', 'rounded,filled');
 	
 	return $node;
 }
 
+function hasSectionAccess($sections, $key) {
+    return is_array($sections)
+        && (in_array('*', $sections, true)
+            || in_array($key, $sections, true));
+}
+
+
+function noDestination($dpgraph,$id){
+		$noDestNode = $dpgraph->beginNode('noDest'.$id,
+			array(
+				'label' => "❔",
+				'tooltip' => _('Click to choose destination'),
+				'shape' => 'circle',
+				'URL' => '#',
+				'fontcolor' => '#ffffff',
+				'fillcolor' => '#4a90e2',
+				'color' => adjustHexColor('#4a90e2', -45),
+				'penwidth' => '2',
+				'fontsize' => '20pt',
+				'fixedsize' => true,
+				'style' => 'rounded,filled'
+			)
+		);				
+		return $noDestNode;
+}
+
+function adjustHexColor($hex, $steps = 0) {
+    $hex = str_replace('#', '', $hex);
+
+    // Short form (#abc)
+    if (strlen($hex) === 3) {
+        $hex = $hex[0].$hex[0]
+             . $hex[1].$hex[1]
+             . $hex[2].$hex[2];
+    }
+
+    // Invalid
+    if (strlen($hex) !== 6) {
+        return '#000000';
+    }
+
+    $steps = max(-255, min(255, (int)$steps));
+
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+
+    $r = max(0, min(255, $r + $steps));
+    $g = max(0, min(255, $g + $steps));
+    $b = max(0, min(255, $b + $steps));
+
+    return sprintf('#%02X%02X%02X', $r, $g, $b);
+}
+
+function muteHexColor($hex, $amount = 0.5) {
+    // $amount: 0 = original color, 1 = fully gray
+
+    $hex = ltrim($hex, '#');
+
+    if (strlen($hex) === 3) {
+        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    }
+
+    if (strlen($hex) !== 6) {
+        return '#808080';
+    }
+
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+
+    // Perceived luminance (better than simple average)
+    $gray = (int)(0.299 * $r + 0.587 * $g + 0.114 * $b);
+
+    // Blend original color toward gray
+    $r = (int)($r + ($gray - $r) * $amount);
+    $g = (int)($g + ($gray - $g) * $amount);
+    $b = (int)($b + ($gray - $b) * $amount);
+
+    return sprintf('#%02X%02X%02X', $r, $g, $b);
+}
+
+
+
+function insertDestination($dpgraph,$id){
+		$insertDestNode = $dpgraph->beginNode('insertDest'.$id,
+			array(
+				'label' => "➕️",
+				'tooltip' => _('Click to insert new destination'),
+				'shape' => 'plaintext',
+				'URL' => '#',
+				'fontcolor' => '#808080',
+				'fontsize' => '15pt',
+				'fixedsize' => true,
+				'margin' => '0'
+			)
+		);				
+		return $insertDestNode;
+}
+
+function newSelection($dpgraph,$id){
+		$insertDestNode = $dpgraph->beginNode('newSelection'.$id,
+			array(
+				'label' => "➕️",
+				'tooltip' => _('Click to add selection'),
+				'shape' => 'plaintext',
+				'URL' => '#',
+				'fontcolor' => '#808080',
+				'fontsize' => '15pt',
+				'fixedsize' => true,
+				'margin' => '0'
+			)
+		);				
+		return $insertDestNode;
+}
+
+function newEntry($dpgraph,$id){
+		$insertDestNode = $dpgraph->beginNode('newEntry'.$id,
+			array(
+				'label' => "➕️",
+				'tooltip' => _('Click to add entry'),
+				'shape' => 'plaintext',
+				'URL' => '#',
+				'fontcolor' => '#808080',
+				'fontsize' => '15pt',
+				'fixedsize' => true,
+				'margin' => '0'
+			)
+		);				
+		return $insertDestNode;
+}
+
 function stopNode($dpgraph,$id){
 		$undoNode = $dpgraph->beginNode('undoLast'.$id,
 			array(
-				'label' => '+',
+				'label' => "➕️",
 				'tooltip' => _('Click to continue...'),
 				'shape' => 'circle',
 				'URL' => '#',
 				'fontcolor' => '#ffffff',
-				'fontsize' => '45pt',
+				'fontsize' => '20pt',
 				'fixedsize' => true,
 				'fillcolor' => '#4a90e2',
-				'style' => 'rounded,filled'
+				'style' => 'filled'
 			)
 		);				
 		return $undoNode;
 }
 
 function notFound($module,$destination,$node){
-	
+	$outline = adjustHexColor('#ff0000', -45);
 	$pos = strrpos($destination, ',');
 	if ($pos !== false) {
 			$output = substr($destination, 0, $pos);
@@ -369,7 +518,9 @@ function notFound($module,$destination,$node){
 	$node->attribute('label', _('Bad Dest').": {$module}: {$output}");
 	$node->attribute('tooltip', _('Bad Dest').": {$module}: {$output}");
 	$node->attribute('shape', 'rect');
-	$node->attribute('fillcolor', 'red');
+	$node->attribute('fillcolor', '#ff0000');
+	$node->attribute('color', $outline);
+	$node->attribute('penwidth', '2');
 	$node->attribute('style', 'rounded,filled');
 	
 	return $node;
@@ -446,9 +597,7 @@ function translateRange($value, $map) {
     $translated = array_map(function($part) use ($map) {
         return isset($map[$part]) ? $map[$part] : $part;
     }, $parts);
-		
-		
-		
+
     return implode('-', $translated);
 }
 
@@ -487,9 +636,6 @@ function getFeatureNum($recID, &$route) {
 }
 
 
-
-
-
 /**
  * Add members to a queue array and keep them sorted.
  *
@@ -523,7 +669,6 @@ function addAndSortMembers(&$queueMembers, $newMembers) {
         return $enumA - $enumB;
     });
 }
-
 
 
 function isExtensionRegistered($extension, $tech) {
@@ -697,7 +842,19 @@ function loadExtension(&$route, $ext) {
     }
 
     $core = \FreePBX::Core();
-    $vm   = \FreePBX::Voicemail();
+    // Voicemail is optional → must check
+    $vm = null;
+    $mailbox = array();
+
+    if (\FreePBX::Modules()->checkStatus("voicemail")) {
+        try {
+            $vm = \FreePBX::Voicemail();
+            $mailbox = $vm->getMailbox($ext);
+        } catch (\Exception $e) {
+            error_log("Voicemail module error for $ext: ".$e->getMessage());
+            $mailbox = array();
+        }
+    }
 
     $user    = $core->getUser($ext);
     $device  = $core->getDevice($ext);
@@ -743,22 +900,42 @@ function hydrateExtension(&$route, $ext) {
 
     // DND
     if (!isset($extension['dnd'])) {
-        $dnd = false;
-        if (is_object($freepbx->Donotdisturb)) {
-            $dndStatus = $freepbx->Donotdisturb()->getStatusByExtension($ext);
-            $dnd = ($dndStatus === 'YES');
-        }
-        $extension['dnd'] = $dnd;
-    }
+				$dnd = false;
+
+				// Check if the DND module exists AND is enabled
+				if (\FreePBX::Modules()->checkStatus("donotdisturb")) {
+
+						$dndObj = $freepbx->Donotdisturb;
+
+						if (is_object($dndObj)) {
+								$dndStatus = $dndObj->getStatusByExtension($ext);
+								$dnd = ($dndStatus === 'YES');
+						}
+				}
+
+				$extension['dnd'] = $dnd;
+		}
+
 
     // CF
     if (!isset($extension['cf'])) {
-        $cf = array();
-        if (is_object($freepbx->Callforward)) {
-            $cf = $freepbx->Callforward()->getStatusesByExtension($ext);
-        }
-        $extension['cf'] = $cf;
-    }
+				$cf = array();
+
+				// Only attempt Call Forward lookup if the module is installed & enabled
+				if (\FreePBX::Modules()->checkStatus("callforward")) {
+						try {
+								$cfObj = $freepbx->Callforward;
+
+								if (is_object($cfObj)) {
+										$cf = $cfObj->getStatusesByExtension($ext);
+								}
+						} catch (\Exception $e) {
+								error_log("CallForward check failed for $ext: " . $e->getMessage());
+						}
+				}
+
+				$extension['cf'] = $cf;
+		}
 
     // User Agent
     if (!isset($extension['ua'])) {
@@ -780,19 +957,25 @@ function hydrateExtension(&$route, $ext) {
     }
 		
 		$fmfm = sql("SELECT * FROM findmefollow WHERE grpnum = " . q($ext), "getRow", DB_FETCHMODE_ASSOC);
+
 		if ($fmfm && !DB::isError($fmfm)) {
-				// Attach row
+
 				$extension['fmfm'] = $fmfm;
 
-				// Determine ddial
-				$check = \FreePBX::Findmefollow()->getDDial($ext);
-				if ($check) {
-						$extension['fmfm']['ddial'] = 'EXTENSION';
+				// Check module availability first
+				if (\FreePBX::Modules()->checkStatus("findmefollow")) {
+						try {
+								$check = \FreePBX::Findmefollow()->getDDial($ext);
+								$extension['fmfm']['ddial'] = $check ? 'EXTENSION' : 'DIRECT';
+						} catch (\Exception $e) {
+								error_log("FindMeFollow getDDial failed for $ext: " . $e->getMessage());
+								$extension['fmfm']['ddial'] = null;
+						}
 				} else {
-						$extension['fmfm']['ddial'] = 'DIRECT';
+						// module not installed / disabled
+						$extension['fmfm']['ddial'] = null;
 				}
 		}
-
 
     return $extension;
 }
@@ -808,107 +991,133 @@ function buildExtTooltip($ext, &$route) {
 
     $extension = hydrateExtension($route, $ext);
     if (!$extension) {
-        $tooltipCache[$ext] = '';
-        return '';
+        return $tooltipCache[$ext] = '';
     }
 
-    $tooltip  = "\n\n" . _('Tech') . ": " . strtoupper($extension['tech']);
-    $tooltip .= "\n" . _('Registration') . ": " . ($extension['reg_status'] ? _('Yes') : _('No'));
+    // always safe values
+    $tech  = isset($extension['tech']) ? strtoupper($extension['tech']) : '';
+    $reg   = !empty($extension['reg_status']);
+    $ua    = isset($extension['ua']) ? (array)$extension['ua'] : [];
 
-    if (!empty($extension['ua'])) {
-        $tooltip .= "\n" . _('User Agent') . ":\n" . implode("\n", $extension['ua']) . "\n";
+    $tooltip  = "\n\n" . _('Tech') . ": " . $tech;
+    $tooltip .= "\n"   . _('Registration') . ": " . ($reg ? _('Yes') : _('No'));
+
+    // User Agent
+    if (!empty($ua)) {
+        $tooltip .= "\n" . _('User Agent') . ":\n" . implode("\n", $ua) . "\n";
     }
 
-    // DND & Call Forward
-    $tooltip .= "\n" . _('Do Not Disturb') . ": " . ($extension['dnd'] ? _('Enabled') : _('Disabled'));
-    $tooltip .= "\n" . _('Call Forward') . ": ";
-    if (!empty($extension['cf']['CF']) || !empty($extension['cf']['CFB']) || !empty($extension['cf']['CFU'])) {
-        $tooltip .= _('Enabled');
-        foreach (array('CF','CFB','CFU') as $type) {
-            if (isset($extension['cf'][$type]) && !empty($extension['cf'][$type])) {
-                $tooltip .= "\n--$type: " . $extension['cf'][$type];
+    // -------------------------------
+    // DND (may be missing)
+    // -------------------------------
+    $dnd = isset($extension['dnd']) ? $extension['dnd'] : false;
+    $tooltip .= "\n" . _('Do Not Disturb') . ": " . ($dnd ? _('Enabled') : _('Disabled'));
+
+    // -------------------------------
+    // CALL FORWARD (may be missing)
+    // -------------------------------
+    $cf = isset($extension['cf']) ? (array)$extension['cf'] : [];
+    $hasCF = false;
+
+    foreach (['CF','CFB','CFU'] as $type) {
+        if (!empty($cf[$type])) {
+            $hasCF = true;
+            break;
+        }
+    }
+
+    $tooltip .= "\n" . _('Call Forward') . ": " . ($hasCF ? _('Enabled') : _('Disabled'));
+
+    if ($hasCF) {
+        foreach (['CF','CFB','CFU'] as $type) {
+            if (!empty($cf[$type])) {
+                $tooltip .= "\n--$type: " . $cf[$type];
             }
         }
-    } else {
-        $tooltip .= _('Disabled');
     }
 
-    // FMFM
-    if (isset($extension['fmfm'])) {
-        if ($extension['fmfm']['ddial'] === 'DIRECT') {
-            $confirm = (isset($extension['fmfm']['needsconf']) && $extension['fmfm']['needsconf'] === 'CHECKED') ? _('Yes') : _('No');
-            $tooltip .= "\n\nFMFM: " . _('Enabled') .
-                        "\n" . _('Initial Ring Time') . ": " . secondsToTimes($extension['fmfm']['pre_ring']) .
-                        "\n" . _('Ring Time') . ": " . secondsToTimes($extension['fmfm']['grptime']) .
-                        "\n" . _('Follow-Me List') . ": " . $extension['fmfm']['grplist'] .
-                        "\n" . _('Confirm Calls') . ": " . $confirm;
+    // -------------------------------
+    // FMFM (may be missing)
+    // -------------------------------
+    if (isset($extension['fmfm']) && is_array($extension['fmfm'])) {
+        $fm = $extension['fmfm'];
+
+        // no ddial key? treat as disabled
+        $ddial = isset($fm['ddial']) ? $fm['ddial'] : null;
+
+        if ($ddial === 'DIRECT') {
+            $tooltip .= "\n\nFMFM: " . _('Enabled');
+
+            $preRing = isset($fm['pre_ring']) ? secondsToTimes($fm['pre_ring']) : '0';
+            $grpTime = isset($fm['grptime'])  ? secondsToTimes($fm['grptime'])  : '0';
+            $grpList = isset($fm['grplist'])  ? $fm['grplist']                 : '';
+            $needsConf = (!empty($fm['needsconf']) && $fm['needsconf'] === 'CHECKED') ? _('Yes') : _('No');
+
+            $tooltip .= "\n" . _('Initial Ring Time') . ": " . $preRing;
+            $tooltip .= "\n" . _('Ring Time') . ": " . $grpTime;
+            $tooltip .= "\n" . _('Follow-Me List') . ": " . $grpList;
+            $tooltip .= "\n" . _('Confirm Calls') . ": " . $needsConf;
+
         } else {
             $tooltip .= "\n\nFMFM: " . _('Disabled');
         }
     } else {
-			$tooltip .= "\n\nFMFM: " . _('Disabled');
+        $tooltip .= "\n\nFMFM: " . _('Disabled');
     }
- 
-    // Voicemail
-		if (isset($extension['mailbox']) && !empty($extension['mailbox'])) {
-				$extemail = isset($extension['mailbox']['email']) ? $extension['mailbox']['email'] : '';
-				$context  = isset($extension['mailbox']['vmcontext']) ? $extension['mailbox']['vmcontext'] : '';
 
-				// Build message counts if not cached
-				if (!isset($extension['mailbox']['label'])) {
-						$inbox = countVmMessages($ext, $context, 'inbox');
-						$other = countVmMessages($ext, $context, 'other');
+    // -------------------------------
+    // VOICEMAIL section (may be missing entirely)
+    // -------------------------------
+    $mb = isset($extension['mailbox']) ? (array)$extension['mailbox'] : [];
 
-						$extension['mailbox']['label'] = sprintf(
-								"%s: %d  %s: %d  %s: %d",
-								_('INBOX'),
-								$inbox,
-								_('Other'),
-								$other,
-								_('Total'),
-								$inbox + $other
-						);
-				}
+    if (!empty($mb)) {
+        $tooltip .= "\n\n" . _('Voicemail') . ": " . _('Enabled');
 
-				// Build tooltip once
-				$tooltip .= "\n\n" . _('Voicemail') . ": " . _('Enabled') . "\n" . _('Email') . ": ";
+        // Email
+        $emailString = isset($mb['email']) ? trim($mb['email']) : '';
 
-				// Append email if present
-				if (!empty($extemail)) {
-						$emails = explode(',', $extemail);
-						$first  = true;
-						foreach ($emails as $e) {
-								$email = sanitizeLabels(trim($e));
-								if ($first) {
-										// First email, no leading line break
-										$tooltip .= " " . $email;
-										$first = false;
-								} else {
-										// Additional emails, line break + tab
-										$tooltip .= "\n    " . $email;
-								}
-						}
-				}
+        $tooltip .= "\n" . _('Email') . ":";
+        if (!empty($emailString)) {
+            $emails = array_map('trim', explode(',', $emailString));
+            $first = true;
+            foreach ($emails as $email) {
+                $email = sanitizeLabels($email);
+                $tooltip .= $first ? " $email" : "\n    $email";
+                $first = false;
+            }
+        }
 
-				// Append options if any
-				if (!empty($extension['mailbox']['options'])) {
-						foreach ($extension['mailbox']['options'] as $m => $mm) {
-								$tooltip .= "\n" . ucfirst($m) . ": " . ucfirst($mm);
-						}
-				}
+        // Misc VM Options
+        if (!empty($mb['options']) && is_array($mb['options'])) {
+            foreach ($mb['options'] as $k => $v) {
+                $tooltip .= "\n" . ucfirst($k) . ": " . ucfirst($v);
+            }
+        }
 
-				// Append message counts
-				$tooltip .= "\n" . $extension['mailbox']['label'];
+        // Count Messages (create if missing)
+        if (!isset($mb['label'])) {
+            $context = isset($mb['vmcontext']) ? $mb['vmcontext'] : '';
+            $inbox   = countVmMessages($ext, $context, 'inbox');
+            $other   = countVmMessages($ext, $context, 'other');
 
-		} else {
-				$tooltip .= "\n\n" . _('Voicemail') . ": " . _('Disabled');
-		}
+            $extension['mailbox']['label'] = sprintf(
+                "%s: %d  %s: %d  %s: %d",
+                _('INBOX'), $inbox,
+                _('Other'), $other,
+                _('Total'), $inbox + $other
+            );
+        }
 
+        $tooltip .= "\n" . $extension['mailbox']['label'];
 
-    // Cache and return
-    $tooltipCache[$ext] = $tooltip;
-    return $tooltip;
+    } else {
+        $tooltip .= "\n\n" . _('Voicemail') . ": " . _('Disabled');
+    }
+
+    // Cache & return
+    return $tooltipCache[$ext] = $tooltip;
 }
+
 
 
 function resolveExtensionStatus($extension, $context = 'queue', $flags = []) {
@@ -1084,21 +1293,7 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 				case 'ext-group':
 						return lazyFetchRow($route, $table, $id,
 								"SELECT * FROM ringgroups WHERE grpnum = " . q($id),
-								'grpnum',
-								false,
-								function($row) {
-										if (isset($row['grplist']) && strlen($row['grplist'])) {
-												$items = explode('-', $row['grplist']);
-												usort($items, function($a, $b) {
-														$numA = (int) rtrim($a, '#');
-														$numB = (int) rtrim($b, '#');
-														if ($numA == $numB) return 0;
-														return ($numA < $numB) ? -1 : 1;
-												});
-												$row['grplist'] = implode('-', $items);
-										}
-										return $row;
-								}
+								'grpnum'
 						);
 						
 				case 'featurecodes':
@@ -1244,15 +1439,38 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 										$row['members']['static'] = array();
 										$details = sql("SELECT * FROM queues_details WHERE id = " . q($id),
 																	 "getAll", DB_FETCHMODE_ASSOC);
+																	
+										$row['members']['static'] = array();
+										
+										$strategy = null;
+										foreach ($details as $qd) {
+												if ($qd['keyword'] === 'strategy') {
+														$strategy = $qd['data'];
+														break;
+												}
+										}
+										
 										if ($details && is_array($details)) {
 												foreach ($details as $qd) {
+
 														if ($qd['keyword'] == 'member') {
+
 																if (preg_match("/Local\/(\d+).*?,(\d+)/", $qd['data'], $m)) {
-																		addAndSortMembers($row['members']['static'], array($m[1] . ',' . $m[2]));
+
+																		if ($strategy === 'linear') {
+																				$row['members']['static'][$qd['flags']] = $m[1] . ',' . $m[2];
+																		} else {
+																				addAndSortMembers($row['members']['static'], array($m[1] . ',' . $m[2]));
+																		}
 																}
+
 														} else {
 																$row['data'][$qd['keyword']] = $qd['data'];
 														}
+													
+												}
+												if ($strategy === 'linear') {
+														ksort($row['members']['static']);
 												}
 										}
 										return $row;
@@ -1292,6 +1510,17 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 										// Fetch details for this group
 										$details = sql("SELECT * FROM timegroups_details WHERE timegroupid = " . q($id), "getAll", DB_FETCHMODE_ASSOC);
 										if (!DB::isError($details) && $details) {
+											//error_log('TZ: '.$route['currentTZ']);
+											
+											$simDT = sql("SELECT custom_datetime FROM dpviz WHERE id = 1", "getOne");
+											
+											if (timeGroupMatchesNow($details,$route['currentTZ'],$simDT)) {
+													$row['iscurrently'] = true;
+													//error_log('here');
+											} else {
+													$row['iscurrently'] = false;
+											}
+
 												$dowMap = array(
 														'mon' => _('Mon'),'tue' => _('Tue'),'wed' => _('Wed'),
 														'thu' => _('Thu'),'fri' => _('Fri'),'sat' => _('Sat'),'sun' => _('Sun'),
@@ -1323,20 +1552,19 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 														if ($a['_dow']   !== $b['_dow'])   return $a['_dow']   - $b['_dow'];
 														return $a['_time'] - $b['_time'];
 												});
-
+												
 												$row['time'] = '';
 												foreach ($details as $tgd) {
-														$exploded = explode("|", $tgd['time']);
-														$time  = ($exploded[0] !== "*") ? $exploded[0] : "";
-														$dow   = translateRange($exploded[1], $dowMap);
-														$day   = ($exploded[2] !== "*") ? $exploded[2] : "";
-														$month = translateRange($exploded[3], $monthMap);
-
-														if ($month && ($dow!='' || $day!='' || $time!='')) $month .= " | ";
-														if ($day   && ($dow!='' || $time!=''))             $day   .= " | ";
-														if ($dow   && ($time!=''))                         $dow   .= " | ";
-
-														$row['time'] .= $month . $day . $dow . $time . checkTimeGroupLogic($tgd['time']) . "\l";
+													$exploded = explode("|", $tgd['time']); 
+													$time = ($exploded[0] !== "*") ? $exploded[0] : ""; 
+													$dow = translateRange($exploded[1], $dowMap); 
+													$day = ($exploded[2] !== "*") ? $exploded[2] : ""; 
+													$month = translateRange($exploded[3], $monthMap); 
+													if ($month && ($dow!='' || $day!='' || $time!=''))$month .= " | "; 
+													if ($day && ($dow!='' || $time!='')) $day .= " | "; 
+													if ($dow && ($time!='')) $dow .= " | ";
+													
+													$row['time'] .= $month . $day . $dow . $time . checkTimeGroupLogic($tgd['time']) . "\l"; 
 												}
 										} else {
 												$row['time'] = "No times defined";
@@ -1550,6 +1778,160 @@ function getLabel($destination, &$route, &$unresolvedDestinations, $selectionId 
         'selection'   => $selectionId,
         'dest' => $destination
     ];
+
+    return false;
+}
+
+function inRange($value, $range) {
+    if ($range === "*") return true;
+    if (strpos($range, '-') !== false) {
+        list($start, $end) = explode('-', $range);
+        return $value >= $start && $value <= $end;
+    }
+    return $value == $range;
+}
+
+function timeInRange($now, $range) {
+    if ($range === "*") return true;
+
+    list($start, $end) = explode('-', $range);
+
+    return ($now >= $start && $now <= $end);
+}
+
+
+
+
+function timeGroupMatchesNow($details, $tz = 'default', $simDT = null) {
+    // Maps used for parsing FreePBX-style values
+    $dowOrder = [
+        '*'   => 0,
+        'sun' => 7, // ISO week: Sun=7
+        'mon' => 1,
+        'tue' => 2,
+        'wed' => 3,
+        'thu' => 4,
+        'fri' => 5,
+        'sat' => 6,
+    ];
+
+    $monthOrder = [
+        '*'   => 0,
+        'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4,
+        'may' => 5, 'jun' => 6, 'jul' => 7, 'aug' => 8,
+        'sep' => 9, 'oct' => 10, 'nov' => 11, 'dec' => 12,
+    ];
+
+		// Time helpers
+		// Determine current time based on timezone
+    if (!empty($simDT)) {
+				// Use simulated time
+				try {
+						if ($tz && strtolower($tz) !== 'default') {
+								$now = new DateTime($simDT, new DateTimeZone($tz));
+						} else {
+								$now = new DateTime($simDT);
+						}
+				} catch (Exception $e) {
+						error_log("Invalid simulated datetime '$simDT', falling back to real now()");
+						$now = new DateTime();
+				}
+		} else {
+				// Use real system time
+				if ($tz && strtolower($tz) !== 'default') {
+						try {
+								$now = new DateTime('now', new DateTimeZone($tz));
+						} catch (Exception $e) {
+								$now = new DateTime();
+						}
+				} else {
+						$now = new DateTime();
+				}
+		}
+
+    $currMonth = (int)$now->format('n');   // 1–12
+    $currDay   = (int)$now->format('j');   // 1–31
+    $currDow   = (int)$now->format('N');   // 1–7 (Mon=1)
+    $currTime  = $now->format('H:i');      // "13:45"
+
+    // ---- helpers for parsing ranges ----
+
+    $parseMonthRange = function($raw) use ($monthOrder) {
+        if ($raw === "*") return "*";
+        $raw = strtolower($raw);
+        if (strpos($raw, '-') !== false) {
+            list($a, $b) = explode('-', $raw);
+            return [$monthOrder[$a], $monthOrder[$b]];
+        }
+        return [$monthOrder[$raw], $monthOrder[$raw]];
+    };
+
+    $parseDowRange = function($raw) use ($dowOrder) {
+        if ($raw === "*") return "*";
+        $raw = strtolower($raw);
+        if (strpos($raw, '-') !== false) {
+            list($a, $b) = explode('-', $raw);
+            return [$dowOrder[$a], $dowOrder[$b]];
+        }
+        return [$dowOrder[$raw], $dowOrder[$raw]];
+    };
+
+    $parseNumericRange = function($raw) {
+        if ($raw === "*") return "*";
+        if (strpos($raw, '-') !== false) {
+            list($a, $b) = explode('-', $raw);
+            return [(int)$a, (int)$b];
+        }
+        return [(int)$raw, (int)$raw];
+    };
+
+    $timeInRange = function($now, $range) {
+        if ($range === "*") return true;
+				if (strpos($range, '-') === false) {
+					return $now === $range;
+				}
+        list($start, $end) = explode('-', $range);
+        return ($now >= $start && $now <= $end);
+    };
+
+    // ---- MAIN MATCHING LOOP ----
+
+    foreach ($details as $tgd) {
+        list($tRange, $dowRaw, $dayRaw, $monRaw) = explode("|", $tgd['time']);
+
+        $monthRange = $parseMonthRange($monRaw);
+        $dowRange   = $parseDowRange($dowRaw);
+        $dayRange   = $parseNumericRange($dayRaw);
+
+        // --- MONTH MATCH ---
+        $monthMatch = (
+            $monthRange === "*" ||
+            ($currMonth >= $monthRange[0] && $currMonth <= $monthRange[1])
+        );
+
+        // --- DAY MATCH ---
+        $dayMatch = (
+            $dayRange === "*" ||
+            ($currDay >= $dayRange[0] && $currDay <= $dayRange[1])
+        );
+
+        // --- DOW MATCH ---
+        $dowMatch = (
+            $dowRange === "*" ||
+            ($currDow >= $dowRange[0] && $currDow <= $dowRange[1])
+        );
+
+        // --- TIME MATCH ---
+        $timeMatch = (
+            $tRange === "*" ||
+            $timeInRange($currTime, $tRange)
+        );
+
+        // If ANY rule matches → timegroup is active
+        if ($monthMatch && $dayMatch && $dowMatch && $timeMatch) {
+            return true;
+        }
+    }
 
     return false;
 }

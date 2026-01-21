@@ -93,12 +93,12 @@ $sql = "SELECT queue_penalty FROM dpviz";
 $check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
 if(DB::IsError($check)) {
 	// add new field
-    $sql = "ALTER TABLE dpviz ADD queue_penalty TINYINT(1) NOT NULL DEFAULT 1;";
+    $sql = "ALTER TABLE dpviz ADD queue_penalty TINYINT(1) NOT NULL DEFAULT 0;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 		
 		// Only update row if the column was just added
-    $sql = "UPDATE dpviz SET queue_penalty = 1 WHERE id = 1;";
+    $sql = "UPDATE dpviz SET queue_penalty = 0 WHERE id = 1;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
@@ -141,7 +141,7 @@ if(DB::IsError($check)) {
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 		
 		// Only update row if the column was just added
-    $sql = "UPDATE dpviz SET autoplay = 1 WHERE id = 1;";
+    $sql = "UPDATE dpviz SET autoplay = 0 WHERE id = 1;";
     $result = $db->query($sql);
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
@@ -171,6 +171,7 @@ if(DB::IsError($check)) {
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
 
+// Version 0.30 adds inuseby
 $sql = "SELECT inuseby FROM dpviz";
 $check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
 if(DB::IsError($check)) {
@@ -185,6 +186,34 @@ if(DB::IsError($check)) {
     if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
 }
 
+// Version 0.32 adds insertnode and custom_datetime
+$sql = "SELECT insertnode FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD insertnode TINYINT(1) NOT NULL DEFAULT 0;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET insertnode = 0 WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+$sql = "SELECT custom_datetime FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+	// add new field
+    $sql = "ALTER TABLE dpviz ADD custom_datetime VARCHAR(20) DEFAULT NULL;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+		
+		// Only update row if the column was just added
+    $sql = "UPDATE dpviz SET custom_datetime = NULL WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
 
 // Check if table exists first
 $sql = "SHOW TABLES LIKE 'dpviz_views'";

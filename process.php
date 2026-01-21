@@ -4,7 +4,6 @@ header('Content-Type: application/json; charset=utf-8');
 $input = json_decode(file_get_contents('php://input'), true);
 
 // Basic check
-
 if (!is_array($input)) {
     http_response_code(400);
     echo json_encode(array('error' => 'Invalid JSON'));
@@ -43,6 +42,17 @@ try{
 $currentLocale = setlocale(LC_MESSAGES, 0);
 $currentLocale = preg_replace('/\..*$/', '', $currentLocale);
 $options['locale']=$currentLocale;
+$options['sections'] = [];
+
+if (isset($_SESSION['AMP_user']) && is_object($_SESSION['AMP_user'])
+    && method_exists($_SESSION['AMP_user'], 'getSections')) {
+
+    $sections = $_SESSION['AMP_user']->getSections();
+
+    if (is_array($sections)) {
+        $options['sections'] = $sections;
+    }
+}
 
 $options['hideall']=0;
 $options['skip'] = isset($input['skip']) ? $input['skip'] : array();
@@ -54,8 +64,6 @@ if ($options['inuseby']){
 }else{
 		$dproute['extension'] = $firstExt = $ext;
 }
-
-
 
 if (empty($dproute)) {
 $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."</h2></div>";
@@ -108,7 +116,7 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 			let name = sessionStorage.getItem("selectedName");
 			const headerSelected = document.getElementById("headerSelected");
 			if (headerSelected) {
-					headerSelected.textContent = name || "'._('No name selected').'";
+					headerSelected.textContent = name || "'._('New Destination').'";
 			}
 	}
 	updateHeaderSelected();
@@ -217,10 +225,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 	if ($minimal){
 		$patterns = array(
 			'/^play-system-recording/i',
-			'/^from-did-direct/i',
 			'/^qmember/i',
 			'/^rgmember/i',
-			'/^ext-local/i',
 		);
 		
 		foreach ($patterns as $pattern) {
@@ -372,11 +378,11 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				}
 			}
 			
-			$colors=array('core'=>'darkseagreen','ivr'=>'gold','timeconditions'=>'dodgerblue',
-										'queues'=>'mediumaquamarine','queueprio'=>'#ffc3a0','setcid'=>'#ed9581',
-										'announcement'=>'oldlace','ringgroups'=>'#92b8ef','languages'=>'#ed9581',
+			$colors=array('core'=>'#8fbc8f','ivr'=>'#ffd700','timeconditions'=>'#1e90ff',
+										'queues'=>'#66cdaa','queueprio'=>'#ffc3a0','setcid'=>'#ed9581',
+										'announcement'=>'#fdf5e6','ringgroups'=>'#92b8ef','languages'=>'#ed9581',
 										'daynight'=>'#f7a8a8','miscapps'=>'#5ffef7','callback'=>'#f7a8a8',
-										'callrecording'=>'burlywood','exten'=>'#c5a3ff','queuestatic'=>'#a5d4d4',
+										'callrecording'=>'#deb887','exten'=>'#c5a3ff','queuestatic'=>'#a5d4d4',
 										'queuedyn'=>'#bae1e7','ringmember'=>'#8adcff','directory'=>'#eb94e2',
 										'findmefollow'=>'#9ccc65'
 			);
@@ -416,6 +422,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 								if (strpos($label, 'Exten') === 0) {
 										$colorKey = 'exten';
 								}
+								$color = isset($colors[$colorKey]) ? $colors[$colorKey] : '#f0f0f0';
+								$outline = adjustHexColor($color, -45);
 
 								$dpgraph->node($usageId, [
 										'label'     => $label,
@@ -423,7 +431,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 										'URL'       => htmlentities('/admin/'.$item['edit_url']),
 										'target'    => '_blank',
 										'shape'     => 'rect',
-										'fillcolor' => isset($colors[$colorKey]) ? $colors[$colorKey] : '#f0f0f0',
+										'fillcolor' => $color,
+										'color'     => $outline,
+										'penwidth'  => '2',
 										'style'     => 'rounded,filled'
 								]);
 
@@ -460,12 +470,16 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			} else {
 
 				$usageId = "inuseby-none-" . md5($origNodeId);
+				$color= '#ffdddd';
+				$outline = adjustHexColor($color, -45);
 
 				$dpgraph->node($usageId, [
 						'label'     => _('Destination not in use'),
 						'tooltip'   => _('Destination not in use'),
 						'shape'     => 'rect',
-						'fillcolor' => '#ffdddd',
+						'fillcolor' => $color,
+						'color'     => $outline,
+						'penwidth'  => '2',
 						'style'     => 'rounded,filled'
 				]);
 
@@ -500,19 +514,42 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		$ptxt = $route['parent_node']->getAttribute('label', '');
 		$ntxt = $node->getAttribute('label', '');
 		
+		$edgeCases = ['TC', 'Call Flow Control'];
+		$containsEdgecase = false;
+
+		foreach ($edgeCases as $needle) {
+				if (strpos($ptxt, $needle) !== false) {
+						$containsEdgecase = true;
+						break;
+				}
+		}
+	
+		
 		if ($ntxt == '' ) { $ntxt = "(new node: $destination)"; }
 		if ($dpgraph->hasEdge(array($route['parent_node'], $node))) {
 			$edge= $dpgraph->beginEdge(array($route['parent_node'], $node));
 			$edge->attribute('label', sanitizeLabels($route['parent_edge_label']));
 			$edge->attribute('labeltooltip',sanitizeLabels($ptxt));
 			$edge->attribute('edgetooltip',sanitizeLabels($ptxt));
+			if (!$containsEdgecase) {
+				$route['parent_edge_color']='#000';
+			}else{
+				$edge->attribute('penwidth', '2');
+			}
+			$edge->attribute('color', $route['parent_edge_color']);
 			
 		} else {
 			$edge= $dpgraph->beginEdge(array($route['parent_node'], $node));
 			$edge->attribute('label', sanitizeLabels($route['parent_edge_label']));
 			$edge->attribute('labeltooltip',sanitizeLabels($ptxt));
 			$edge->attribute('edgetooltip',sanitizeLabels($ptxt));
-			
+			if (!$containsEdgecase) {
+				$route['parent_edge_color']='#000';
+			}else{
+				$edge->attribute('penwidth', '2');
+			}
+			$edge->attribute('color', $route['parent_edge_color']);
+
 			if (preg_match("/^(edgelink)/", $route['parent_edge_code'])){
 				$edge->attribute('URL', $route['parent_edge_url']);
 				$edge->attribute('target', $route['parent_edge_target']);
@@ -524,9 +561,11 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			}
 		
 			if (preg_match("/^( IVR Break| Queue Callback)./", $route['parent_edge_label'])){
+				$edge->attribute('color', '#000');
 				$edge->attribute('style', 'dashed');
 			}
 			if (preg_match("/^( Callback | Destination after)./", $route['parent_edge_label'])){
+				$edge->attribute('color', '#000');
 				$edge->attribute('style', 'dotted');
 			}
 			
@@ -547,6 +586,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
   if ($node->getAttribute('label', 'NONE') != 'NONE') {
     return;
   }
+
 
 	# Now look at the destination and figure out where to dig deeper.
 	
@@ -649,79 +689,80 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		$node->attribute('style', 'rounded,filled');
 		
 		//Optional Destinations
-		if ($extOptional && (!empty($extension['noanswer_dest']) || !empty($extension['busy_dest']) || !empty($extension['chanunavail_dest'])) ) {
+		if ($extOptional && (!empty($extension['user']['noanswer_dest']) || !empty($extension['user']['busy_dest']) || !empty($extension['user']['chanunavail_dest'])) ) {
+			
 			if (
-					$extension['noanswer_dest'] === $extension['busy_dest'] &&
-					$extension['noanswer_dest'] === $extension['chanunavail_dest']
+					$extension['user']['noanswer_dest'] === $extension['user']['busy_dest'] &&
+					$extension['user']['noanswer_dest'] === $extension['user']['chanunavail_dest']
 			) {
 					// All three are equal
 					$route['parent_edge_label'] = " "._('No Answer, Busy, Not Reachable');
 					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $extension['noanswer_dest'].','.$extLang,'',$options);
+					dpp_follow_destinations($route, $extension['user']['noanswer_dest'].','.$extLang,'',$options);
 			} elseif (
-					$extension['noanswer_dest'] === $extension['busy_dest']
-					&& $extension['chanunavail_dest'] !== $extension['noanswer_dest']
+					$extension['user']['noanswer_dest'] === $extension['user']['busy_dest']
+					&& $extension['user']['chanunavail_dest'] !== $extension['user']['noanswer_dest']
 			) {
-				if (!empty($extension['noanswer_dest'])) {
+				if (!empty($extension['user']['noanswer_dest'])) {
 					// No Answer and Busy are the same, but Not Reachable is different
 					$route['parent_edge_label'] = " "._('No Answer & Busy');
 					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $extension['noanswer_dest'].','.$extLang,'',$options);
+					dpp_follow_destinations($route, $extension['user']['noanswer_dest'].','.$extLang,'',$options);
 				}
 					//Not Reachable
-					if (!empty($extension['chanunavail_dest'])) {
+					if (!empty($extension['user']['chanunavail_dest'])) {
 							$route['parent_edge_label'] = " "._('Not Reachable');
 							$route['parent_node'] = $node;
-							dpp_follow_destinations($route, $extension['chanunavail_dest'].','.$extLang,'',$options);
+							dpp_follow_destinations($route, $extension['user']['chanunavail_dest'].','.$extLang,'',$options);
 					}
 			} elseif (
-					$extension['noanswer_dest'] === $extension['chanunavail_dest']
-					&& $extension['busy_dest'] !== $extension['noanswer_dest']
+					$extension['user']['noanswer_dest'] === $extension['user']['chanunavail_dest']
+					&& $extension['user']['busy_dest'] !== $extension['user']['noanswer_dest']
 			) {
-				if (!empty($extension['noanswer_dest'])) {
+				if (!empty($extension['user']['noanswer_dest'])) {
 					// No Answer and Not Reachable are the same
 					$route['parent_edge_label'] = " "._('No Answer & Not Reachable');
 					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $extension['noanswer_dest'].','.$extLang,'',$options);
+					dpp_follow_destinations($route, $extension['user']['noanswer_dest'].','.$extLang,'',$options);
 				}
 					//Busy
-					if (!empty($extension['busy_dest'])) {
+					if (!empty($extension['user']['busy_dest'])) {
 							$route['parent_edge_label'] = " "._('Busy');
 							$route['parent_node'] = $node;
-							dpp_follow_destinations($route, $extension['busy_dest'].','.$extLang,'',$options);
+							dpp_follow_destinations($route, $extension['user']['busy_dest'].','.$extLang,'',$options);
 					}
 			} elseif (
-					$extension['busy_dest'] === $extension['chanunavail_dest']
-					&& $extension['noanswer_dest'] !== $extension['busy_dest']
+					$extension['user']['busy_dest'] === $extension['user']['chanunavail_dest']
+					&& $extension['user']['noanswer_dest'] !== $extension['user']['busy_dest']
 			) {
-				if (!empty($extension['busy_dest'])) {
+				if (!empty($extension['user']['busy_dest'])) {
 					// Busy and Not Reachable are the same
 					$route['parent_edge_label'] = " "._('Busy & Not Reachable');
 					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $extension['busy_dest'].','.$extLang,'',$options);
+					dpp_follow_destinations($route, $extension['user']['busy_dest'].','.$extLang,'',$options);
 				}
 					//No Answer
-					if (!empty($extension['noanswer_dest'])) {
+					if (!empty($extension['user']['noanswer_dest'])) {
 							$route['parent_edge_label'] = " "._('No Answer');
 							$route['parent_node'] = $node;
-							dpp_follow_destinations($route, $extension['noanswer_dest'].','.$extLang,'',$options);
+							dpp_follow_destinations($route, $extension['user']['noanswer_dest'].','.$extLang,'',$options);
 					}
 			} else {
 					// All are different
-					if (!empty($extension['noanswer_dest'])) {
+					if (!empty($extension['user']['noanswer_dest'])) {
 							$route['parent_edge_label'] = " "._('No Answer');
 							$route['parent_node'] = $node;
-							dpp_follow_destinations($route, $extension['noanswer_dest'].','.$extLang,'',$options);
+							dpp_follow_destinations($route, $extension['user']['noanswer_dest'].','.$extLang,'',$options);
 					}
-					if (!empty($extension['busy_dest'])) {
+					if (!empty($extension['user']['busy_dest'])) {
 							$route['parent_edge_label'] = " "._('Busy');
 							$route['parent_node'] = $node;
-							dpp_follow_destinations($route, $extension['busy_dest'].','.$extLang,'',$options);
+							dpp_follow_destinations($route, $extension['user']['busy_dest'].','.$extLang,'',$options);
 					}
-					if (!empty($extension['chanunavail_dest'])) {
+					if (!empty($extension['user']['chanunavail_dest'])) {
 							$route['parent_edge_label'] = " "._('Not Reachable');
 							$route['parent_node'] = $node;
-							dpp_follow_destinations($route, $extension['chanunavail_dest'].','.$extLang,'',$options);
+							dpp_follow_destinations($route, $extension['user']['chanunavail_dest'].','.$extLang,'',$options);
 					}
 			}
 		}
@@ -770,7 +811,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				// Final label
 				$label = $speaker . $vmnum . " " . $extname . " (" . $vm_array[$vmtype] . ")" . $msgLabel . $extemail;
 
-				makeNode($module, $vmnum, $label, $tooltip, $node);
+				makeNode($module, $vmnum, $label, $tooltip, $node, '', $options['sections']);
 
 		} else {
 				notFound($module, $destination, $node);
@@ -810,7 +851,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						$qnum=$matches[1];
 						$failover=$vq['dest'];
 					}else{
-						makeNode($module,$vqnum,$label,$tooltip,$node);
+						makeNode($module,$vqnum,$label,$tooltip,$node, '', $options['sections']);
 						if ($stop){
 							$undoNode= stopNode($dpgraph,$destination);
 							$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -943,22 +984,32 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$maxwait = secondsToTimes($maxwait);
 			}
 			
-			$label.=$qnum . " " . sanitizeLabels($q['descr']).$qRecName;
-			$restrict=array('Call as Dialed','No Follow-Me or Call Forward','Extensions Only');
-			
-			$skipbusy=array('No','Yes','Yes + (ringinuse=no)','Queue calls only (ringinuse=no)');
-			$mohclass=array('MoH Only','Ring Only','Agent Ringing');
-			$joinarray=array(''=>_('Always'),'free'=>'No Free Agents','ready'=>'No Ready Agents');
+			$label.=$qnum . " " . sanitizeLabels($q['descr']) . "\n" . _('Strategy').": ".$q['data']['strategy']."\l" . $qRecName;
+			$restrict=array(_('Call as Dialed'),_('No Follow-Me or Call Forward'),_('Extensions Only'));
+			$skipbusy=array(_('No'),_('Yes'),'Yes + (ringinuse=no)','Queue calls only (ringinuse=no)');
+			$mohclass=array('MoH Only',_('Ring Only'),_('Agent Ringing'));
+			$joinarray=array(''=>_('Always'),'free'=>_('No Free Agents'),'ready'=>_('No Ready Agents'),'nofreeagent'=>_('There are both logged in and no free agents'));
 			$noyes=array(_('No'),_('Yes'));
 			$maxcallers = ($q['data']['maxlen'] == 0) ? _('Unlimited') : $q['data']['maxlen'];
 			
 			if ($q['data']['announce-frequency']==0){
 				$position="["._('Caller Position')."]\n"._('Disabled')."\n\n";
 			}else{
-				$position="["._('Caller Position')."]\n"._('Frequency').": ".secondsToTimes($q['data']['announce-frequency'])."\n"._('Minimum Announcement Interval').": ".secondsToTimes($q['data']['min-announce-frequency'])."\n"._('Announce Position').": ".ucfirst($q['data']['announce-position'])."\n"._('Announce Hold Time').": ".ucfirst($q['data']['announce-holdtime'])."\n\n";
+				$position="["._('Caller Position')."]\n"
+					._('Frequency').": ".secondsToTimes($q['data']['announce-frequency'])."\n"
+					._('Minimum Announcement Interval').": ".secondsToTimes($q['data']['min-announce-frequency'])."\n"
+					._('Announce Position').": ".ucfirst($q['data']['announce-position'])."\n"
+					._('Announce Hold Time').": ".ucfirst($q['data']['announce-holdtime'])."\n\n";
 			}
 
-			if ($q['data']['periodic-announce-frequency']==0){$repeat='Disabled';$edgeRepeat='';}else{$repeat=secondsToTimes($q['data']['periodic-announce-frequency']);$edgeRepeat=" (every ".$repeat.")";}
+			if ($q['data']['periodic-announce-frequency']==0){
+				$repeat='Disabled';
+				$edgeRepeat='';
+			}else{
+				$repeat=secondsToTimes($q['data']['periodic-announce-frequency']);
+				$edgeRepeat=" (" . _('every') . " ".$repeat.")";
+			}
+			
 			if (!empty($q['ivr_id']) && $q['ivr_id'] != 'none') {
 
 					// ensure breakout IVR is loaded
@@ -992,7 +1043,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				._('Skip Busy Agents').": ".$skipbusy[$q['cwignore']]."\n"
 				._('Music On Hold Class').": ".$music." (".$mohclass[$q['ringing']].")\n"
 				._('Join Announcement').": " . findRecording($route, $recID) . "\n"
-				. "When: " .$joinarray[$q['data']['skip_joinannounce']]. "\n"
+				._('When').": " .$joinarray[$q['data']['skip_joinannounce']]. "\n"
 				._('Call Recording').": ".$q['data']['recording']."\n"
 				._('Mark calls answered elsewhere').": ".$noyes[$q['data']['answered_elsewhere']]."\n
 				\n["._('Timing & Agent Options')."]\n"
@@ -1007,9 +1058,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				\n".$position.$periodic;
 			
 			
-			if (!empty($q['members']) && !$minimal){
-				if ($options['queue_member_display']==2){ //--option "Combine"
-						$label.="\n\n";
+			if (!empty($q['members'])){
+				if ($options['queue_member_display']==2 && !$minimal){ //--option "Combine"
+						$label.="\n";
 						foreach ($q['members'] as $types=>$members) {
 							if ($types=='static' && !empty($q['members']['static'])){
 								$label.="["._('Static')."]\n";
@@ -1047,7 +1098,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				}
 			}
 			
-			makeNode($module,$num,$label,$tooltip,$node,$recID);
+			makeNode($module,$num,$label,$tooltip,$node,$recID,$options['sections']);
 			
 			
 			if ($stop){
@@ -1059,9 +1110,35 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 			
+			$canAddSelection = hasSectionAccess($options['sections'], 'queues');
+			
+			if ($failover === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edgelabel= " ".sprintf(_('No Answer (%s)'), $maxwait);
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+			}elseif ($options['insertnode'] && $canAddSelection){
+				
+				$route['parent_edge_label'] = "";
+				
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$failover);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " ".sprintf(_('No Answer (%s)'), $maxwait);
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $failover.','.$qlang,'',$options);
+			}else{
 				$route['parent_edge_label'] = " ".sprintf(_('No Answer (%s)'), $maxwait);
 				$route['parent_node'] = $node;
 				dpp_follow_destinations($route, $failover.','.$qlang,'',$options);
+			}
 			
 			if (!empty($q['members']) && !$minimal){
 				if ($options['queue_member_display']==1){ //--option "Single"
@@ -1224,12 +1301,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 							$route['parent_edge_label'] = " Queue Callback " . $cbstart . " - " . $cbend . "\l" . $edgeRepeat;
 							$route['parent_node'] = $node;
 
-							dpp_follow_destinations(
-									$route,
-									'queuecallback-' . $q['callback_id'] . ',request,1,' . $qlang,
-									'',
-									$options
-							);
+							dpp_follow_destinations($route,'queuecallback-' . $q['callback_id'] . ',request,1,' . $qlang,'',$options);
 					} else {
 							notFound('Queue Callback', $destination, $node);
 					}
@@ -1308,13 +1380,12 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		#
 		# Ring Groups
 		#
-  } elseif (preg_match("/^(ext-group),(\d+),(\d+),(.+)/", $destination, $matches)) {
+  } elseif (preg_match("/^(ext-group),(\d+),\d+,(.+)/", $destination, $matches)) {
     $module     = "Ring Groups";
     $routetable = $matches[1];
     $rgnum      = $matches[2];
-    $rglang     = $matches[4];
+    $rglang     = $matches[3];
 
-    // Lazy load only that one group
     $rg = lazyLoadRow($route, $routetable, $rgnum);
 
     if ($rg) {
@@ -1336,7 +1407,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$rgRecName='';
 			}
 			
-			$label=$rgnum.' '.sanitizeLabels($rg['description']).$rgRecName;
+			$label=$rgnum.' '.sanitizeLabels($rg['description']). "\n" . _('Strategy') . ": " . $rg['strategy'] . "\l" . $rgRecName;
 			if ($rg['needsconf']!=''){$conf='Yes';}else{$conf="No";}
 			$tooltip=
 				_('Description') . ": " . sanitizeLabels($rg['description']) . "\n"
@@ -1348,12 +1419,13 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				. _('Call Recording') . ": " . $rg['recording'] . "\n"
 			;
 			
-			if ($options['ring_member_display']==2){  //--option "Combine"
+			
+			if ($options['ring_member_display']==2 && !$minimal){  //--option "Combine"
 			
 				$grplist=$rg['grplist'];
 				$grplist = preg_split("/-/", $grplist);
 				
-				$label.="\n\n";
+				$label.="\n";
 				foreach ($grplist as $member){
 					// Make sure extension is loaded/hydrated
 					$extension = hydrateExtension($route, $member);
@@ -1371,7 +1443,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				}
 			}
 			
-			makeNode($module,$rgnum,$label,$tooltip,$node,$recID);
+			makeNode($module,$rgnum,$label,$tooltip,$node,$recID,$options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1405,14 +1477,34 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 					//do not display members --option "Hide"
 				}
 			}
+
+			$canAddSelection = hasSectionAccess($options['sections'], 'ringgroups');
+			
+			if ($rg['postdest'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edgelabel=" ".sprintf(_('No Answer (%s)'), secondsToTimes($rg['grptime']));
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+			}elseif ($options['insertnode'] && $canAddSelection){
+				$route['parent_edge_label'] = "";
 				
-				# The destinations we need to follow are the no-answer destination
-				# (postdest) and the members of the group.
-				if ($rg['postdest'] != '') {
-					$route['parent_edge_label'] = " ".sprintf(_('No Answer (%s)'), secondsToTimes($rg['grptime']));
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $rg['postdest'].','.$rglang,'',$options);
-				}
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$rg['postdest']);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " ".sprintf(_('No Answer (%s)'), secondsToTimes($rg['grptime']));
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $rg['postdest'].','.$rglang,'',$options);
+			}else{
+				$route['parent_edge_label'] = " ".sprintf(_('No Answer (%s)'), secondsToTimes($rg['grptime']));
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $rg['postdest'].','.$rglang,'',$options);
+			}
 			
 		}else{
 			notFound($module,$destination,$node);
@@ -1472,13 +1564,11 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		#
 		# IVRs
 		#
-	} elseif (preg_match("/^ivr-(\d+),([a-z]+),(\d+),(.+)/", $destination, $matches)) {
+	} elseif (preg_match("/^ivr-(\d+),[a-z]+,\d+,(.+)/", $destination, $matches)) {
     $module   = "IVR";
     $routetable = "ivrs";
     $inum     = $matches[1];  // ivr id
-    $iflag    = $matches[2];
-    $iother   = $matches[3];
-    $ilang    = $matches[4];
+    $ilang    = $matches[2];
 
     // Lazy load just this IVR
     $ivr = lazyLoadRow($route, $routetable, $inum);
@@ -1503,7 +1593,6 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			
 			$label=sanitizeLabels($ivr['name'])."\n".$ivrRecName;
 			
-			// global (or pass by ref) array for later processing
 			$unresolvedDestinations = [];
 			if (!empty($ivr['entries'])){
 				$printedAny = false;
@@ -1523,21 +1612,61 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			}
 			
 			// Handle invalid
-			if (!empty($ivr['invalid_destination'])) {
-					$ivrLabel = getLabel($ivr['invalid_destination'], $route, $unresolvedDestinations, 'i');
-					if ($ivrLabel !== false) {
-							$label .= "Invalid: {$ivrLabel}\\l";
-					}
+			if ($ivr['invalid_destination'] === 'app-blackhole,zapateller,1' || empty($ivr['invalid_destination'])) {
+				$noDestNode= noDestination($dpgraph,$destination.'-invalid');
+				$edgelabel=" "._('Invalid Input') . " x " . $ivr['invalid_loops'];
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				
+			}else{
+				if (!empty($ivr['invalid_destination'])) {
+						$ivrLabel = getLabel($ivr['invalid_destination'], $route, $unresolvedDestinations, 'i');
+						if ($ivrLabel !== false) {
+								$label .= "Invalid: {$ivrLabel}\\l";
+						}
+				}
 			}
-
+		
 			// Handle timeout
-			if (!empty($ivr['timeout_destination'])) {
-					$ivrLabel = getLabel($ivr['timeout_destination'], $route, $unresolvedDestinations, 't');
-					if ($ivrLabel !== false) {
-							$label .= "Timeout: {$ivrLabel}\\l";
-					}
+			if ($ivr['timeout_destination'] === 'app-blackhole,zapateller,1'|| empty($ivr['timeout_destination'])) {
+				$noDestNode= noDestination($dpgraph,$destination.'-timeout');
+				$edgelabel = sprintf(
+						_('Timeout (%s secs x %s)'),
+						$ivr['timeout_time'],
+						$ivr['timeout_loops']
+				);
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+			
+				
+			}else{
+				if (!empty($ivr['timeout_destination'])) {
+						$ivrLabel = getLabel($ivr['timeout_destination'], $route, $unresolvedDestinations, 't');
+						if ($ivrLabel !== false) {
+								$label .= "Timeout: {$ivrLabel}\\l";
+						}
+				}
 			}
 			
+			$canAddSelection = hasSectionAccess($options['sections'], 'ivr');
+			
+			if ($canAddSelection && !$minimal && $options['insertnode']) {
+					$newSelectionNode = newSelection($dpgraph, $destination . '-newselection');
+
+					$edgelabel = ' ' . _('Add Selection');
+
+					$edge = $dpgraph->beginEdge([$node, $newSelectionNode]);
+					$edge->attribute('style', 'dotted');
+					$edge->attribute('labeltooltip', $edgelabel);
+					$edge->attribute('edgetooltip', $edgelabel);
+					$edge->attribute('label', $edgelabel);
+			}
 			
 			if ($ivr['directdial']=='ext-local'){
 				$ddial="Enabled";
@@ -1568,7 +1697,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				. _('Return to IVR after VM') . ": " . $retvm . "\n"
 			;
 			
-			makeNode($module,$inum,$label,$tooltip,$node,$recID);
+			makeNode($module,$inum,$label,$tooltip,$node,$recID,$options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1588,25 +1717,148 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
 			if (!empty($unresolvedDestinations)) {
 					foreach ($unresolvedDestinations as $ent) {
-							$dest = $ent['dest'] . ',' . $ilang;
+							$dest = $ent['dest'];
 							$sel  = $ent['selection'];
 
 							if ($sel === 'i') {
-									$grouped[$dest][] = _('Invalid Input');
+									$label = _('Invalid Input');
+									$label = sprintf(
+											_('Invalid Input x %s'),
+											$ivr['invalid_loops']
+									);
 							} elseif ($sel === 't') {
-									$grouped[$dest][] = sprintf(_('Timeout (%s secs)'), $ivr['timeout_time']);
+									$label = sprintf(
+											_('Timeout (%s secs x %s)'),
+											$ivr['timeout_time'],
+											$ivr['timeout_loops']
+									);
 							} else {
-									$grouped[$dest][] = sprintf(_('Selection %s'), $sel);
+									$label = sprintf(_('Selection %s'), $sel);
 							}
+
+							$grouped[$dest][] = [
+									'label' => $label,
+									'dest'  => $dest,
+									'sel'   => $sel
+							];
 					}
 			}
 
-			foreach ($grouped as $dest => $labels) {
-					$label = implode(",\n", $labels);
-					$route['parent_edge_label'] = " " . $label;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $dest, '', $options);
+			if (!empty($grouped)) {
+					uksort($grouped, function ($destA, $destB) use ($grouped) {
+
+							// helper that turns sel into a sortable weight
+							$getGroupWeight = function ($entries) {
+									$min = 9999; // large default
+
+									foreach ($entries as $e) {
+											$s = isset($e['sel']) ? $e['sel'] : '';
+
+											if ($s === 'i') {
+													$w = -2;          // Invalid Input first
+											} elseif ($s === 't') {
+													$w = -1;          // Timeout second
+											} elseif (is_numeric($s)) {
+													$w = (int)$s;     // normal digit
+											} else {
+													$w = 9999;        // weird stuff last
+											}
+
+											if ($w < $min) {
+													$min = $w;
+											}
+									}
+
+									return $min;
+							};
+
+							$wa = $getGroupWeight($grouped[$destA]);
+							$wb = $getGroupWeight($grouped[$destB]);
+
+							if ($wa == $wb) return 0;
+							return ($wa < $wb) ? -1 : 1;
+					});
 			}
+
+			$canAddSelection = hasSectionAccess($options['sections'], 'ivr');
+
+			foreach ($grouped as $dest => $entries) {
+
+					usort($entries, function ($a, $b) {
+
+							$sa = isset($a['sel']) ? $a['sel'] : '';
+							$sb = isset($b['sel']) ? $b['sel'] : '';
+
+							if ($sa === 'i') {
+									$wa = -2;
+							} elseif ($sa === 't') {
+									$wa = -1;
+							} elseif (is_numeric($sa)) {
+									$wa = (int)$sa;
+							} else {
+									$wa = 9999;
+							}
+
+							if ($sb === 'i') {
+									$wb = -2;
+							} elseif ($sb === 't') {
+									$wb = -1;
+							} elseif (is_numeric($sb)) {
+									$wb = (int)$sb;
+							} else {
+									$wb = 9999;
+							}
+
+							if ($wa == $wb) {
+									return 0;
+							}
+
+							return ($wa < $wb) ? -1 : 1;
+					});
+
+
+					$labelList = array_map(function ($e) {
+							return $e['label'];
+					}, $entries);
+
+					$label = implode(",\n", $labelList);
+
+					if (count($entries) === 1 && $options['insertnode'] && $canAddSelection) {
+
+							$route['parent_edge_label'] = "";
+							$sel = $entries[0]['sel'];
+							// Build insert node
+							$insertDestNode = insertDestination($dpgraph, 'sel-' . $inum . '&' . $sel . '|' . $dest);
+
+							// Create edge
+							$edge = $dpgraph->beginEdge([$node, $insertDestNode]);
+							$edgeLabel = " " . $label;
+
+							$edge->attribute('labeltooltip', $edgeLabel);
+							$edge->attribute('edgetooltip', $edgeLabel);
+							$edge->attribute('label', $edgeLabel);
+							$edge->attribute('dir', 'none');
+
+							// Update parent node for next follow
+							$route['parent_node'] = $insertDestNode;
+							
+							// Follow the actual destination
+							dpp_follow_destinations($route, $dest . ',' . $ilang, '', $options);
+
+							// Debug
+							//error_log($sel);
+
+					} else {
+						//$sel = $entries[0]['sel'];
+						//error_log($sel);
+						// Multiple labels → just assign combined label
+						$route['parent_edge_label'] = " " . $label;
+						$route['parent_node'] = $node;
+
+						dpp_follow_destinations($route, $dest . ',' . $ilang, '', $options);
+					}
+			}
+
 
 		}else{
 			notFound($module,$destination,$node);
@@ -1656,6 +1908,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$didTooltip.= !empty($incoming['mohclass']) ? _('Music on hold class').": " . $incoming['mohclass']."\n" : "";
 			$didTooltip.= !empty($incoming['language']) ? _('Language').": " . $incoming['language']."\n" : "";
 			
+			$color= '#8fbc8f';
+			$outline = adjustHexColor($color, -45);
+		
 			$node->attribute('label', sanitizeLabels($didLabel));
 			$node->attribute('tooltip',sanitizeLabels($didTooltip));
 			$node->attribute('width', 2);
@@ -1663,7 +1918,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$node->attribute('URL', htmlentities('/admin/config.php?display=did&view=form&extdisplay='.urlencode($didLink)));
 			$node->attribute('target', '_blank');
 			$node->attribute('shape', 'rect');
-			$node->attribute('fillcolor', 'darkseagreen');
+			$node->attribute('fillcolor', $color);
+			$node->attribute('color', $outline);
+			$node->attribute('penwidth', '2');
 			$node->attribute('style', 'rounded,filled');
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
@@ -1769,7 +2026,31 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			
 			$route['parent_edge_label']= $edgeLabel;
 			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $incoming['destination'].','.$numLang,'',$options);
+			
+			$canAddSelection = hasSectionAccess($options['sections'], 'did');
+			
+			if ($incoming['destination'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+			}elseif ($options['insertnode'] && $canAddSelection){
+				$route['parent_edge_label'] = "";
+				
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$incoming['destination']);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " "._('Always');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $incoming['destination'].','.$numLang,'',$options);
+			}else{
+				dpp_follow_destinations($route, $incoming['destination'].','.$numLang,'',$options);
+			}
+			
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -1816,7 +2097,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				. _('Don\'t Answer Channel') . ": " . $yesno[$an['noanswer']] . "\n";
 				
 			
-			makeNode($module,$annum,$label,$tooltip,$node,$recID);
+			makeNode($module,$annum,$label,$tooltip,$node,$recID,$options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1826,7 +2107,26 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 			
-			if ($an['post_dest'] != '') {
+			$canAddSelection = hasSectionAccess($options['sections'], 'announcement');
+			
+			if ($an['post_dest'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+			}elseif ($options['insertnode'] && $canAddSelection){
+				$route['parent_edge_label'] = "";
+				
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$an['post_dest']);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " "._('Continue');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $an['post_dest'].','.$anlang,'',$options);
+			}else{
 				$route['parent_edge_label'] = " "._('Continue');
 				$route['parent_node'] = $node;
 				dpp_follow_destinations($route, $an['post_dest'].','.$anlang,'',$options);
@@ -1840,27 +2140,65 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		#
 		# Time Conditions
 		#
-  }elseif (preg_match("/^timeconditions,(\d+),(\d+),(.+)/", $destination, $matches)) {
+  }elseif (preg_match("/^timeconditions,(\d+),\d+,(.+)/", $destination, $matches)) {
     $module   = "Time Conditions";
     $routetable = "timeconditions";
     $tcnum    = $matches[1];
-    $tcother  = $matches[2];
-    $tcLang   = $matches[3];
+    $tcLang   = $matches[2];
 
     // Lazy load only this timecondition
     $tc = lazyLoadRow($route, $routetable, $tcnum);
 
     if ($tc) {
 			if (!isset($tc['mode'])){$tc['mode']='time-group';}
+			$route['currentTZ']= $tc['timezone'];
+			$label=sanitizeLabels($tc['displayname']);
 			
 			$tcTooltip=$tc['displayname']."\n"._('Mode').": ".$tc['mode']."\n";
-			if (!empty($tc['timezone'])){
-				$tcTooltip.= ($tc['timezone'] !== 'default') ? _('Timezone').": " . $tc['timezone'] : '';
+		
+			if (!empty($tc['timezone']) && $tc['timezone'] !== 'default') {
+					// Use the Time Condition's timezone
+					$tzToUse = $tc['timezone'];
+					$showTZ  = true;
+			} else {
+					// Use system-local timezone
+					$tzToUse = date_default_timezone_get();
+					$showTZ  = false;
 			}
-			$label=sanitizeLabels($tc['displayname']);
+
+			if (!empty($options['custom_datetime'])) {
+					// Simulated time
+					try {
+							$now = new DateTime($options['custom_datetime'], new DateTimeZone($tzToUse));
+					} catch (Exception $e) {
+							$now = new DateTime('now', new DateTimeZone($tzToUse));
+					}
+			} else {
+					// Real time
+					try {
+							$now = new DateTime('now', new DateTimeZone($tzToUse));
+					} catch (Exception $e) {
+							$now = new DateTime(); // fallback
+					}
+			}
+
+			$formatted = $now->format('M d H:i D');
+
+
+			if ($showTZ) {
+					$label     .= "\n" . _('Timezone') . ": " . $tzToUse;
+					$tcTooltip .= _('Timezone') . ": " . $tzToUse;
+			}
+
+			if (!empty($options['custom_datetime'])) {
+					$label .= "\n" . _('Simulated time') . ": " . $formatted;
+			} else {
+					$label .= "\n" . _('Local Time') . ": " . $formatted;
+			}
+			
 			$tooltip=sanitizeLabels($tcTooltip);
 			
-			makeNode($module,$tcnum,$label,$tooltip,$node);
+			makeNode($module,$tcnum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1874,14 +2212,18 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			//TC modes
 			if ($tc['mode'] === 'time-group') {
 				$tg = lazyLoadRow($route, 'timegroups', $tc['time']);
+				
+			
 				$tgnum  = $tg['id'];
 				$tgname = !empty($tg['description']) ? sanitizeLabels($tg['description']) : '';
 				$tgtime = !empty($tg['time']) ? $tg['time'] : "No times defined";
 				$tgLabel= $tgname."\n".$tgtime;
 				$tgLink = '/admin/config.php?display=timegroups&view=form&extdisplay='.$tgnum;
 				$tgTooltip= $tgLabel;
+				
+				
 			} elseif ($tc['mode'] === 'calendar-group') {
-				$tgLabel='';
+				
 				if (!empty($tc['calendar_id'])) {
 						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_id']);
 						if (!empty($cal)) {
@@ -1923,6 +2265,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						}
 				}
 			}
+			$tgTooltip=sanitizeLabels($tgTooltip);
+			$canAddSelection = hasSectionAccess($options['sections'], 'timegroups');
 			
 			# Now set the current node to be the parent and recurse on both the true and false branches
 			$route['parent_edge_label'] = " "._('Match').": ".$tgLabel;
@@ -1931,16 +2275,100 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$route['parent_edge_code']='edgelink';
 			$route['parent_edge_labeltooltip']=" "._('Match').": ".$tgTooltip;
 			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $tc['truegoto'].','.$tcLang,'',$options);
+			
+			if ($tc['mode'] === 'time-group' && isset($tg['iscurrently']) && $tg['iscurrently']){
+				$route['parent_edge_color']='#228B22';
+			}elseif ($tc['mode'] === 'time-group' && isset($tg['iscurrently']) && !$tg['iscurrently']){
+				$route['parent_edge_color']='red';
+			}elseif ($tc['mode'] === 'calendar-group' ){
+				$route['parent_edge_color']='#000';
+			}	
 			
 			
-			$route['parent_edge_code']='edgelink';
+			
+			if ($tc['truegoto'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination.'-truegoto');
+				
+				$edgelabel= " "._('Match').": ".$tgTooltip;
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', " " . _('Match').": ".$tgLabel);
+				$edge->attribute('URL', htmlentities($tgLink));
+				$edge->attribute('target', '_blank');
+				
+			}elseif ($options['insertnode'] && $canAddSelection){
+				
+				$route['parent_edge_label'] ="";
+				$insertDestNode=insertDestination($dpgraph,$destination.'-truegoto|'.$tc['truegoto']);
+				
+				$edgelabel= " "._('Match').": ".$tgTooltip;
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', " " . _('Match').": ".$tgLabel);
+				$edge->attribute('URL', htmlentities($tgLink));
+				$edge->attribute('target', '_blank');
+				$edge->attribute('dir', 'none');
+				$edge->attribute('color', $route['parent_edge_color']);
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $tc['truegoto'].','.$tcLang,'',$options);
+			}else{
+				dpp_follow_destinations($route, $tc['truegoto'].','.$tcLang,'',$options);
+			}
+			
+			
 			$route['parent_edge_label'] = " "._('No Match');
-			$route['parent_edge_url'] = htmlentities($tgLink);
+			$route['parent_edge_url']    = htmlentities($tgLink);
 			$route['parent_edge_target'] = '_blank';
+			$route['parent_edge_code']   ='edgelink';
 			$route['parent_edge_labeltooltip']=" "._('No Match').": ".$tgTooltip;
 			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $tc['falsegoto'].','.$tcLang,'',$options);
+			
+			
+			
+			if ($tc['mode'] === 'time-group' && isset($tg['iscurrently']) && $tg['iscurrently']){
+					$route['parent_edge_color']='red';
+			}elseif ($tc['mode'] === 'time-group' && isset($tg['iscurrently']) && !$tg['iscurrently']){
+					$route['parent_edge_color']='#228B22';
+			}elseif ($tc['mode'] === 'calendar-group' ){
+				$route['parent_edge_color']='#000';
+			}
+			
+			if ($tc['falsegoto'] === 'app-blackhole,zapateller,1') {
+				
+				$noDestNode= noDestination($dpgraph,$destination.'-falsegoto');
+				
+				$edgelabel= " " . _('No Match');
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $tgTooltip);
+				$edge->attribute('edgetooltip', $tgTooltip);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('URL', htmlentities($tgLink));
+				$edge->attribute('target', '_blank');
+				
+			}elseif ($options['insertnode'] && $canAddSelection){
+				
+				$route['parent_edge_label'] ="";
+				$insertDestNode=insertDestination($dpgraph,$destination.'-falsegoto|'.$tc['falsegoto']);
+				
+				$edgelabel= " "._('No Match').": ".$tgTooltip;
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', " "._('No Match'));
+				$edge->attribute('URL', htmlentities($tgLink));
+				$edge->attribute('target', '_blank');
+				$edge->attribute('dir', 'none');
+				$edge->attribute('color', $route['parent_edge_color']);
+				$route['parent_node'] = $insertDestNode;
+				
+				dpp_follow_destinations($route, $tc['falsegoto'].','.$tcLang,'',$options);
+			}else{
+				dpp_follow_destinations($route, $tc['falsegoto'].','.$tcLang,'',$options);
+			}
 			
 		}else{
 			notFound($module,$destination,$node);
@@ -1976,8 +2404,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			}
 			
 			$label=sanitizeLabels($dynrt['name'])."\n".$dynRecName;
-			$tooltip='';
-			makeNode($module,$dynnum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$dynnum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -1987,32 +2415,130 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 			
-			if (!empty($dynrt['routes'])){
-				ksort($dynrt['routes']);
-				foreach ($dynrt['routes'] as $selid => $ent) {
-					$desc = isset($ent['description']) ? $ent['description'] : '';
-					
-					$route['parent_edge_label']= " "._('Match').": ".sanitizeLabels($ent['selection'])."\n".$desc;
-					$route['parent_node'] = $node;
-					dpp_follow_destinations($route, $ent['dest'].','.$dynLang,'',$options);
-				}
+			
+			$canAddSelection = hasSectionAccess($options['sections'], 'dynroute');
+			
+			if ($canAddSelection && !$minimal && $options['insertnode']) {
+				$newSelectionNode= newEntry($dpgraph,$destination.'-newentry');
+				$edgelabel=" "._('Add Entry');
+				$edge= $dpgraph->beginEdge(array($node, $newSelectionNode));
+				$edge->attribute('style', 'dotted');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
 			}
 			
+			if (!empty($dynrt['routes'])) {
+
+					// Step 1: Group entries by destination
+					$grouped = array();
+
+					foreach ($dynrt['routes'] as $selid => $ent) {
+
+							$dest = $ent['dest'];
+							$sel  = $ent['selection'];
+
+							// Format label similar to IVR, but can tweak wording if wanted
+							$label = sprintf(_('Match: %s'), sanitizeLabels($sel));
+
+							if (!empty($ent['description'])) {
+									$label .= "\n" . sanitizeLabels($ent['description']);
+							}
+
+							$grouped[$dest][] = [
+									'label' => $label,
+									'sel'   => $sel,
+									'dest'  => $dest
+							];
+					}
+
+					// Step 2: Process grouped destinations
+					foreach ($grouped as $dest => $entries) {
+
+							$labelList = array_map(function ($e) {
+									return $e['label'];
+							}, $entries);
+
+							// Combine labels
+							$edgeLabel = implode(",\n", $labelList);
+
+							// Case A: Single match AND insertnode enabled → insert node
+							if (count($entries) === 1 && !empty($options['insertnode'])) {
+
+									$route['parent_edge_label'] = "";
+									$sel  = $entries[0]['sel'];
+
+									// Create insert node
+									$insertDestNode = insertDestination(
+											$dpgraph,
+											'dyn-' . $dynnum . '&' . $sel . '|' . $dest
+									);
+
+									// Create edge
+									$edge = $dpgraph->beginEdge([$node, $insertDestNode]);
+
+									$edge->attribute('labeltooltip', $edgeLabel);
+									$edge->attribute('edgetooltip', $edgeLabel);
+									$edge->attribute('label', " " . $edgeLabel);
+									$edge->attribute('dir', 'none');
+
+									$route['parent_node']  = $insertDestNode;
+									
+									// Follow actual destination
+									dpp_follow_destinations($route, $dest . ',' . $dynLang, '', $options);
+
+							} else {
+									// Case B: Multiple matches → collapsed single edge
+									$route['parent_edge_label'] = " " . $edgeLabel;
+									$route['parent_node']       = $node;
+									
+									dpp_follow_destinations($route, $dest . ',' . $dynLang, '', $options);
+							}
+					}
+			}
+
 			//are the invalid and default destinations the same?
-			if ($dynrt['invalid_dest'] != '' && $dynrt['invalid_dest']==$dynrt['default_dest']){
-				 $route['parent_edge_label']= " ".sprintf(_('Invalid Input, Default (%s) secs'), $dynrt['timeout']);
-				 $route['parent_node'] = $node;
-				 dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
+			if ($dynrt['invalid_dest'] != '' && $dynrt['invalid_dest']==$dynrt['default_dest'] && $dynrt['invalid_dest'] != 'app-blackhole,zapateller,1'){
+				$route['parent_edge_label']= " ".sprintf(_('Invalid Input, Default (%s) secs'), $dynrt['timeout']);
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
+
 			}else{
 				if ($dynrt['invalid_dest'] != '') {
-					$route['parent_node'] = $node;
-					$route['parent_edge_label']= " "._('Invalid Input');
-					dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
+					if ($dynrt['invalid_dest'] === 'app-blackhole,zapateller,1') {
+						$noDestNode= noDestination($dpgraph,$destination.'-invalid');
+					
+						
+						$edgelabel= " ". sprintf(_('Invalid Input (%s secs)'), $dynrt['timeout']);
+						$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+						$edge->attribute('style', 'dashed');
+						$edge->attribute('labeltooltip', $edgelabel);
+						$edge->attribute('edgetooltip', $edgelabel);
+						$edge->attribute('label', $edgelabel);
+						
+					}else{
+							$route['parent_node'] = $node;
+							$route['parent_edge_label']= " ". sprintf(_('Invalid Input (%s secs)'), $dynrt['timeout']);
+							dpp_follow_destinations($route, $dynrt['invalid_dest'].','.$dynLang,'',$options);
+					}
 				}
+				
 				if ($dynrt['default_dest'] != '') {
-					$route['parent_node'] = $node;
-					$route['parent_edge_label']= " ". sprintf(_('Default (%s) secs'), $dynrt['timeout']);
-					dpp_follow_destinations($route, $dynrt['default_dest'].','.$dynLang,'',$options);
+					if ($dynrt['default_dest'] === 'app-blackhole,zapateller,1') {
+						$noDestNode= noDestination($dpgraph,$destination.'-default');
+					
+						$edgelabel= " "._('Default');
+						$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+						$edge->attribute('style', 'dashed');
+						$edge->attribute('labeltooltip', $edgelabel);
+						$edge->attribute('edgetooltip', $edgelabel);
+						$edge->attribute('label', $edgelabel);
+						
+					}else{
+						$route['parent_node'] = $node;
+						$route['parent_edge_label']= " "._('Default');
+						dpp_follow_destinations($route, $dynrt['default_dest'].','.$dynLang,'',$options);
+					}
 				}
 			}
 		}else{
@@ -2032,8 +2558,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
 		if (!empty($miscdest)) {
 			$label=sanitizeLabels($miscdest['description']).' ('.$miscdest['destdial'].')';
-			$tooltip='';
-			makeNode($module,$miscdestnum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$miscdestnum,$label,$tooltip,$node, '', $options['sections']);
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2057,13 +2583,17 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		
 		$blackholeother = $matches[2];
 		$previousURL=$route['parent_node']->getAttribute('URL', '');
-
+		$color= '#FF4500';
+		$outline = adjustHexColor($color, -45);
+		
 		$node->attribute('label', _('Terminate Call').': '.$translatedMap[$blackholetype]);
 		$node->attribute('tooltip', _('Terminate Call').': '.$translatedMap[$blackholetype]);
 		$node->attribute('URL', $previousURL);
     $node->attribute('target', '_blank');
 		$node->attribute('shape', 'rect');
-		$node->attribute('fillcolor', 'orangered');
+		$node->attribute('fillcolor', $color);
+		$node->attribute('color', $outline);
+		$node->attribute('penwidth', '2');
 		$node->attribute('style', 'rounded, filled');
 		
 		#end of Blackhole
@@ -2072,7 +2602,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		# Call Flow Control (daynight)
 		#
   } elseif (preg_match("/^app-daynight,(\d+),(\d+),(.+)/", $destination, $matches)) {
-    $module = "Call Flow";
+    $module = "Call Flow Control";
     $daynightnum   = $matches[1];
     $daynightother = $matches[2];
     $daynightLang  = $matches[3];
@@ -2102,23 +2632,31 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			} else {
 					$code = '';
 			}
-			$tooltip='';
+			
 			#check current status and set path to active
 			list($dactive, $nactive) = getDayNightStatus($daynightnum);
 			
+			if ($dactive) {
+					//$color = '#b6e3b6';
+					$cmode = _('Day');
+			} elseif ($nactive) {
+					//$color = '#f7a8a8';
+					$cmode = _('Night');
+			}
 			$daynightList = array();
 
 			foreach ($daynight as $d) {
 					switch ($d['dmode']) {
 							case 'fc_description':
-									$label = sanitizeLabels($d['dest']) . "\n" . _('Feature Code') . ": " . $code;
+									$label = sanitizeLabels($d['dest']) . "\n" . _('Feature Code') . ": " . $code . "\n\n" . _('Current Mode') .": " .$cmode;
 									break;
 
 							case 'night':
 									$daynightList[] = array(
 											'label'  => _('Night Mode'),
 											'dest'   => $d['dest'],
-											'active' => $nactive
+											'active' => $nactive,
+											'hidden' => '-night'
 									);
 									break;
 
@@ -2126,13 +2664,21 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 									$daynightList[] = array(
 											'label'  => _('Day Mode'),
 											'dest'   => $d['dest'],
-											'active' => $dactive
+											'active' => $dactive,
+											'hidden' => '-day'
 									);
 									break;
 					}
 			}
 
-			makeNode($module,$daynightnum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$daynightnum,$label,$tooltip,$node, '', $options['sections']);
+			
+			//experimenting node fillcolor based on current mode. green=day, red=night
+			//$outline = adjustHexColor($color, -45);
+			//$node->attribute('fillcolor', $color);
+			//$node->attribute('color', $outline);
+			
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2142,10 +2688,43 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 
+			$canAddSelection = hasSectionAccess($options['sections'], 'daynight');
+			
 			foreach ($daynightList as $dl){
-				$route['parent_edge_label'] = " ". $dl['label'] . ' ' . $dl['active'];
-				$route['parent_node'] = $node;
-				dpp_follow_destinations($route, $dl['dest'].','.$daynightLang,'',$options);
+				if (!empty($dl['active'])){
+					$route['parent_edge_color']='#228B22';
+				}else{
+					$route['parent_edge_color']='red';
+				}
+				
+				if ($dl['dest'] === 'app-blackhole,zapateller,1') {
+					$noDestNode= noDestination($dpgraph,$destination.$dl['hidden']);
+					$edgelabel= " " . _('Call Flow') . ": " . $label;
+					$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+					$edge->attribute('labeltooltip', $edgelabel);
+					$edge->attribute('edgetooltip', $edgelabel);
+					$edge->attribute('label', " ". $dl['label'] . ' ' . $dl['active']);
+					$edge->attribute('style', 'dashed');
+					$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				}elseif ($options['insertnode'] && $canAddSelection){
+					$route['parent_edge_label'] = "";
+					
+					$insertDestNode=insertDestination($dpgraph,$destination.$dl['hidden'].'|'.$dl['dest']);
+					$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+					$edgelabel= " " . _('Call Flow') . ": " . $label;
+					$edge->attribute('labeltooltip', $edgelabel);
+					$edge->attribute('edgetooltip', $edgelabel);
+					$edge->attribute('label', " ". $dl['label'] . ' ' . $dl['active']);
+					$edge->attribute('color', $route['parent_edge_color']);
+					$edge->attribute('dir', 'none');
+					$route['parent_node'] = $insertDestNode;
+					dpp_follow_destinations($route, $dl['dest'].','.$daynightLang,'',$options);
+				}else{
+					$route['parent_edge_label'] = " ". $dl['label'] . ' ' . $dl['active'];
+					$route['parent_node'] = $node;
+					dpp_follow_destinations($route, $dl['dest'].','.$daynightLang,'',$options);
+				}
+				
 			}
 
 		}else{
@@ -2174,7 +2753,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				_('Timeout').": ".$callback['timeout'];
 			
 			
-			makeNode($module,$callbackId,$label,$tooltip,$node);
+			makeNode($module,$callbackId,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2190,7 +2769,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		}else{
 			notFound($module,$destination,$node);
 		}
-		#end of Call Recording
+		#end of Callback
 		#
 		
 		#
@@ -2208,9 +2787,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$callMode= ucfirst($callRec['callrecording_mode']);
 			$callMode = str_replace("Dontcare", _('Don\'t Care'), $callMode);
 			$label=sanitizeLabels($callRec['description'])."\n"._('Mode').": ".$callMode;
-			$tooltip='';
+			$tooltip=$label;
 			
-			makeNode($module,$callrecID,$label,$tooltip,$node);
+			makeNode($module,$callrecID,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2220,9 +2799,36 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 			
-			$route['parent_edge_label']= " "._('Continue');
-			$route['parent_node'] = $node;
-			dpp_follow_destinations($route, $callRec['dest'].','.$callLang,'',$options);
+			$canAddSelection = hasSectionAccess($options['sections'], 'callrecording');
+			
+			if ($callRec['dest'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edgelabel=" "._('Continue');
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+			}elseif ($options['insertnode'] && $canAddSelection){
+				$route['parent_edge_label'] = "";
+				
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$callRec['dest']);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " "._('Continue');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $callRec['dest'].','.$callLang,'',$options);
+			}else{
+				$route['parent_edge_label'] = " "._('Continue');
+				$route['parent_node'] = $node;
+				dpp_follow_destinations($route, $callRec['dest'].','.$callLang,'',$options);
+			}
+			
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2240,8 +2846,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
     if ($meetme) {
 			$label = $meetme['exten']."\n".sanitizeLabels($meetme['description']);
-			$tooltip='';
-			makeNode($module,$meetmenum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$meetmenum,$label,$tooltip,$node, '', $options['sections']);
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2260,8 +2866,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
     if ($directory) {
 			$label=sanitizeLabels($directory['dirname']);
-			$tooltip='';
-			makeNode($module,$directorynum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$directorynum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2294,8 +2900,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
     if ($disa) {
 			$label=sanitizeLabels($disa['displayname']);
-			$tooltip='';
-			makeNode($module,$disanum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$disanum,$label,$tooltip,$node, '', $options['sections']);
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2318,7 +2924,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
         $label      = sanitizeLabels($feature['description']) . " <" . $displaynum . ">";
         $tooltip    = '';
 
-        makeNode($module, '', $label, $tooltip, $node);
+        makeNode($module, '', $label, $tooltip, $node, '', $options['sections']);
     } else {
         notFound($module, $destination, $node);
     }
@@ -2332,11 +2938,11 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		$langnum = $matches[1];
 		$langother = $matches[2];
 		$langArray = lazyLoadRow($route, 'languages', $langnum);
-
+		
 		if (!empty($langArray)) {
-			$label=sanitizeLabels($langArray['description']);
-			$tooltip='';
-			makeNode($module,$langnum,$label,$tooltip,$node);
+			$label=sanitizeLabels($langArray['description']) . "\n" . _('Language Code') . ": " . $langArray['lang_code'];
+			$tooltip=$label;
+			makeNode($module,$langnum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2345,11 +2951,38 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				
 				return;
 			}
-			if ($langArray['dest'] != '') {
-				$route['parent_edge_label'] =" "._('Continue');
+			
+			
+			$canAddSelection = hasSectionAccess($options['sections'], 'languages');
+			
+			if ($langArray['dest'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edgelabel=" "._('Continue');
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+			}elseif ($options['insertnode'] && $canAddSelection){
+				$route['parent_edge_label'] = "";
+				
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$langArray['dest']);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " "._('Continue');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $langArray['dest'].','.$langArray['lang_code'],'',$options);
+			}else{
+				$route['parent_edge_label'] = " "._('Continue');
 				$route['parent_node'] = $node;
 				dpp_follow_destinations($route, $langArray['dest'].','.$langArray['lang_code'],'',$options);
 			}
+			
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2369,8 +3002,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$enabled = isMiscAppEnabled($miscapps['ext']) ? '' : '(disabled)';
 			
 			$label=sanitizeLabels($miscapps['description']).' ('.$miscapps['ext'].') '.$enabled;
-			$tooltip='';
-			makeNode($module,$miscappsnum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$miscappsnum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2420,8 +3053,13 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			
 			$busyArray=array(_('Skip'),_('Force'),_('Whisper'));
 			$duplexArray=array(_('No'),_('Yes'));
-			$label=$paging['page_group']." ".sanitizeLabels($paging['description']).$pageRecName;
-			$tooltip=_('Page Group').": ".$paging['page_group']."\n"._('Description').": ".sanitizeLabels($paging['description'])."\n".$pageRecName."\n"._('Busy Extensions').": ".$busyArray[$paging['force_page']]."\n"._('Duplex').": ".$duplexArray[$paging['duplex']];
+			$label= $paging['page_group']." ".sanitizeLabels($paging['description']).$pageRecName;
+			$tooltip= _('Page Group') . ": " . $paging['page_group'] . "\n" .
+								_('Description') . ": " . sanitizeLabels($paging['description']) . "\n" . 
+								$pageRecName . "\n" .
+								_('Busy Extensions') . ": " . $busyArray[$paging['force_page']] . "\n" .
+								_('Duplex') . ": " . $duplexArray[$paging['duplex']]
+			;
 			
 			if (!empty($paging['members']) && !$minimal){
 				$label.="\n\nPage Group ".$pagenum." "._('members').":\n";
@@ -2441,7 +3079,9 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
 				}
 			}
-			makeNode($module,$pagenum,$label,$tooltip,$node);
+			
+			$recordingid = is_numeric($recID) ? $recID : '';
+			makeNode($module,$pagenum,$label,$tooltip,$node, $recordingid, $options['sections']);
 
 		}else{
 			notFound($module,$destination,$node);
@@ -2455,7 +3095,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		$module="Phonebook";
 		$label="Asterisk";
 		$tooltip="";
-		makeNode($module,'',$label,$tooltip,$node);
+		makeNode($module,'',$label,$tooltip,$node, '', $options['sections']);
 		#end of Phonebook
 		
 		# Play Recording
@@ -2474,12 +3114,17 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$playName= $playName."\nFeature Code: ".$featureCode;
 			
 			$label = "🔊 ". _('Recording') . " (" . $recLang . "): " . sanitizeLabels($playName);
+			$color = '#ffc3a0';
+			$outline = adjustHexColor($color, -45);
 
 			$node->attribute('label', $label);
 			$node->attribute('tooltip', $node->getAttribute('label'));
 			$node->attribute('URL', '#');
 			$node->attribute('shape', 'rect');
-			$node->attribute('fillcolor', '#ffc3a0');
+			$node->attribute('fillcolor', $color);
+			$node->attribute('color', $outline);
+			$node->attribute('penwidth', '2');
+	
 			$node->attribute('style', 'rounded,filled');
 		}else{
 			notFound($module,$destination,$node);
@@ -2499,8 +3144,8 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 
 		if (!empty($queueprio)) {
 			$label=sanitizeLabels($queueprio['description']."\n"._('Priority').": ".$queueprio['queue_priority']);
-			$tooltip='';
-			makeNode($module,$queueprioID,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$queueprioID,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2560,7 +3205,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$label=sanitizeLabels($qcallback['name'])."\n".$qcbRecName;
 			$tooltip = "Caller ID: ".$qcallback['cid']."\n"._('Timeout').": ".secondsToTimes($qcallback['timeout'])."\n"._('Retries').": ".$qcallback['retries']."\n"._('Retry Delay').": ".secondsToTimes($qcallback['retrydelay']);
 			
-			makeNode($module,$qcallbackId,$label,$tooltip,$node);
+			makeNode($module,$qcallbackId,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2582,18 +3227,17 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		#
 		# Set CID
 		#
-  } elseif (preg_match("/^app-setcid,(\d+),(\d+),(.+)/", $destination, $matches)) {
+  } elseif (preg_match("/^app-setcid,(\d+),\d+,(.+)/", $destination, $matches)) {
 		$module="Set CID";
 		$cidnum = $matches[1];
-		$cidother = $matches[2];
-		$cidLang = $matches[3];
+		$cidLang = $matches[2];
 		
 		$cid = lazyLoadRow($route, 'setcid', $cidnum);
 
 		if (!empty($cid)) {
 			$label= sanitizeLabels($cid['description'])." ".sanitizeLabels("\nName= ".preg_replace('/\${CALLERID\(name\)}/i', '<name>', $cid['cid_name'])."\nNumber= ".preg_replace('/\${CALLERID\(num\)}/i', '<number>', $cid['cid_num']));
-			$tooltip='';
-			makeNode($module,$cidnum,$label,$tooltip,$node);
+			$tooltip=$label;
+			makeNode($module,$cidnum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2603,11 +3247,36 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				return;
 			}
 			
-			if ($cid['dest'] != '') {
+			$canAddSelection = hasSectionAccess($options['sections'], 'setcid');
+			
+			if ($cid['dest'] === 'app-blackhole,zapateller,1') {
+				$noDestNode= noDestination($dpgraph,$destination);
+				$edgelabel=" "._('Continue');
+				$edge= $dpgraph->beginEdge(array($node, $noDestNode));
+				$edge->attribute('style', 'dashed');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('edgetooltip',$node->getAttribute('label', ''));
+				
+			}elseif ($options['insertnode'] && $canAddSelection){
+				$route['parent_edge_label'] = "";
+				
+				$insertDestNode=insertDestination($dpgraph,$destination.'|'.$cid['dest']);
+				$edge= $dpgraph->beginEdge(array($node, $insertDestNode));
+				$edgelabel= " "._('Continue');
+				$edge->attribute('labeltooltip', $edgelabel);
+				$edge->attribute('edgetooltip', $edgelabel);
+				$edge->attribute('label', $edgelabel);
+				$edge->attribute('dir', 'none');
+				$route['parent_node'] = $insertDestNode;
+				dpp_follow_destinations($route, $cid['dest'].','.$cidLang,'',$options);
+			}else{
 				$route['parent_edge_label'] = " "._('Continue');
 				$route['parent_node'] = $node;
 				dpp_follow_destinations($route, $cid['dest'].','.$cidLang,'',$options);
 			}
+
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2626,7 +3295,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		if (!empty($tts)) {
 			$label= sanitizeLabels($tts['name']);
 			$tooltip = _('Engine').": ".$tts['engine']."\n"._('Description').": ".$tts['text'];
-			makeNode($module,$ttsnum,$label,$tooltip,$node);
+			makeNode($module,$ttsnum,$label,$tooltip,$node, '', $options['sections']);
 			if ($stop){
 				$undoNode= stopNode($dpgraph,$destination);
 				$edge= $dpgraph->beginEdge(array($node, $undoNode));
@@ -2661,14 +3330,26 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$status = ($trunk['disabled'] == 'off') ? "Enabled" : "Disabled";
 			$continue = ($trunk['continue'] == 'on') ? _('Yes') : _('No');
 			$busy=$trunk['continue'];
-			$cidArray=array("off"=>"Allow Any CID","on"=>"Block Foreign CID","cnum"=>"Remove CNAM","all"=>"Force Trunk CID");
+			$cidArray=array(
+					"off"=>"Allow Any CID",
+					"on"=>"Block Foreign CID",
+					"cnum"=>"Remove CNAM",
+					"all"=>"Force Trunk CID"
+			);
 			$modId=$trunk['tech'].','.$trunkId;
 			
 			$label=sanitizeLabels($trunk['name'])." (Status: ".$status.")\lCallerID: ".sanitizeLabels($trunk['outcid']);
-			$tooltip="Name: ".sanitizeLabels($trunk['name'])."\n"._('Tech').": ".$trunk['tech']."\n"._('Outbound CallerID').": ".sanitizeLabels($trunk['outcid'])."\n"._('Status').": ".$status."\n"._('CID Options').": ".$cidArray[$trunk['keepcid']]."\n"._('Max Channels').": ".$trunk['maxchans']."\n"._('Continue If Busy').": ".$continue;
+			$tooltip="Name: ".sanitizeLabels($trunk['name']) . "\n" . 
+					_('Tech') . ": " . $trunk['tech'] . "\n" .
+					_('Outbound CallerID') . ": " . sanitizeLabels($trunk['outcid']) . "\n" .
+					_('Status') . ": " . $status . "\n" .
+					_('CID Options') . ": " . $cidArray[$trunk['keepcid']] . "\n" .
+					_('Max Channels') . ": " . $trunk['maxchans'] . "\n" .
+					_('Continue If Busy') . ": " . $continue
+			;
 			$node->attribute('width', 2);
 			$node->attribute('margin','.13');
-			makeNode($module,$modId,$label,$tooltip,$node);
+			makeNode($module,$modId,$label,$tooltip,$node, '', $options['sections']);
 		}else{
 			notFound($module,$destination,$node);
 		}
@@ -2737,7 +3418,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				}
 			}
 			
-			makeNode($module,$vmblastnum,$label,$tooltip,$node);
+			makeNode($module,$vmblastnum,$label,$tooltip,$node, '', $options['sections']);
 
 		}else{
 			notFound($module,$destination,$node);
@@ -2780,7 +3461,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				. "\n---\n" . sanitizeLabels($dpText)
 			;
 
-			makeNode($module,$custId,$label,$tooltip,$node);
+			makeNode($module,$custId,$label,$tooltip,$node, '', $options['sections']);
 			
 			if ($custDest['destret']){
 				$route['parent_edge_label']=" "._('Return');
@@ -2796,12 +3477,17 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		# blacklistnotset
 		#
 	} elseif (preg_match("/^blacklistnotset/", $destination)) {
+		$color= '#ff4500';
+		$outline = adjustHexColor($color, -45);
+		
 		$node->attribute('label',_('Bad Dest: Blacklist'));
 		$node->attribute('tooltip', $node->getAttribute('label'));
 		$node->attribute('URL', htmlentities('/admin/config.php?display=blacklist'));
 		$node->attribute('target','_blank');
 		$node->attribute('shape', 'rect');
-		$node->attribute('fillcolor', 'orangered');
+		$node->attribute('fillcolor', $color);
+		$node->attribute('color', $outline);
+		$node->attribute('penwidth', '2');
 		$node->attribute('style', 'rounded,filled');
 		#end of blacklistnotset
 		
@@ -2858,7 +3544,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						. _('Return') . ": " . $custReturn
 						. "\n---\n" . sanitizeLabels($dpText);
 
-				makeNode($module, $custId, $label, $tooltip, $node);
+				makeNode($module, $custId, $label, $tooltip, $node, '', $options['sections']);
 
 				if ($custDest['destret']) {
 						$route['parent_edge_label'] = " "._('Return');
@@ -2869,7 +3555,12 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				notFound($module,$destination,$node);
 			}
 		}else{
-			$node->attribute('fillcolor', '#92b8ef');
+			$color= '#92b8ef';
+			$outline = adjustHexColor($color, -45);
+		
+			$node->attribute('fillcolor', $color);
+			$node->attribute('color', $outline);
+			$node->attribute('penwidth', '2');
 			$node->attribute('label', sanitizeLabels($destination));
 			$node->attribute('shape', 'rect');
 			$node->attribute('style', 'rounded,filled');
@@ -2907,3 +3598,4 @@ function dpp_load_tables(&$dproute) {
     }
 }
 # END load Custom Destinations
+

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-21 21:55-0400\n"
+"POT-Creation-Date: 2026-01-21 10:48-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:28
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:351
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:375
 msgid "Highlight Paths"
 msgstr ""
 
@@ -49,11 +49,11 @@ msgid ""
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:35
-#: /var/www/html/admin/modules/dpviz/process.php:1799
-#: /var/www/html/admin/modules/dpviz/process.php:1801
-#: /var/www/html/admin/modules/dpviz/process.php:1804
-#: /var/www/html/admin/modules/dpviz/process.php:1812
-#: /var/www/html/admin/modules/dpviz/process.php:2476
+#: /var/www/html/admin/modules/dpviz/process.php:2080
+#: /var/www/html/admin/modules/dpviz/process.php:2082
+#: /var/www/html/admin/modules/dpviz/process.php:2085
+#: /var/www/html/admin/modules/dpviz/process.php:2093
+#: /var/www/html/admin/modules/dpviz/process.php:3116
 msgid "Recording"
 msgstr ""
 
@@ -86,7 +86,7 @@ msgid "View Deleted Successfully"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:43
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:354
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:378
 msgid "Sanitize Labels"
 msgstr ""
 
@@ -111,19 +111,19 @@ msgid "System Recording"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:49
-#: /var/www/html/admin/modules/dpviz/process.php:1331
-#: /var/www/html/admin/modules/dpviz/process.php:1496
-#: /var/www/html/admin/modules/dpviz/process.php:1498
-#: /var/www/html/admin/modules/dpviz/process.php:1501
-#: /var/www/html/admin/modules/dpviz/process.php:1970
-#: /var/www/html/admin/modules/dpviz/process.php:1972
-#: /var/www/html/admin/modules/dpviz/process.php:1975
-#: /var/www/html/admin/modules/dpviz/process.php:2413
-#: /var/www/html/admin/modules/dpviz/process.php:2415
-#: /var/www/html/admin/modules/dpviz/process.php:2418
-#: /var/www/html/admin/modules/dpviz/process.php:2552
-#: /var/www/html/admin/modules/dpviz/process.php:2554
-#: /var/www/html/admin/modules/dpviz/process.php:2557
+#: /var/www/html/admin/modules/dpviz/process.php:1402
+#: /var/www/html/admin/modules/dpviz/process.php:1586
+#: /var/www/html/admin/modules/dpviz/process.php:1588
+#: /var/www/html/admin/modules/dpviz/process.php:1591
+#: /var/www/html/admin/modules/dpviz/process.php:2398
+#: /var/www/html/admin/modules/dpviz/process.php:2400
+#: /var/www/html/admin/modules/dpviz/process.php:2403
+#: /var/www/html/admin/modules/dpviz/process.php:3046
+#: /var/www/html/admin/modules/dpviz/process.php:3048
+#: /var/www/html/admin/modules/dpviz/process.php:3051
+#: /var/www/html/admin/modules/dpviz/process.php:3197
+#: /var/www/html/admin/modules/dpviz/process.php:3199
+#: /var/www/html/admin/modules/dpviz/process.php:3202
 msgid "Announcement"
 msgstr ""
 
@@ -132,20 +132,20 @@ msgid "IVR"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:51
-#: /var/www/html/admin/modules/dpviz/process.php:741
-#: /var/www/html/admin/modules/dpviz/process.inc.php:874
-#: /var/www/html/admin/modules/dpviz/process.inc.php:904
+#: /var/www/html/admin/modules/dpviz/process.php:782
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1074
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1114
 msgid "Voicemail"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:52
-#: /var/www/html/admin/modules/dpviz/process.php:368
+#: /var/www/html/admin/modules/dpviz/process.php:374
 msgid "Ring Group"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:53
-#: /var/www/html/admin/modules/dpviz/process.php:336
-#: /var/www/html/admin/modules/dpviz/process.php:355
+#: /var/www/html/admin/modules/dpviz/process.php:342
+#: /var/www/html/admin/modules/dpviz/process.php:361
 msgid "Queue"
 msgstr ""
 
@@ -154,7 +154,7 @@ msgid "Voicemail Blast"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:55
-#: /var/www/html/admin/modules/dpviz/process.php:2424
+#: /var/www/html/admin/modules/dpviz/process.php:3057
 msgid "Page Group"
 msgstr ""
 
@@ -163,1010 +163,1178 @@ msgid "Dynamic Route"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/page.dpviz.php:57
-#: /var/www/html/admin/modules/dpviz/process.php:979
+#: /var/www/html/admin/modules/dpviz/process.php:1030
 msgid "Queue Callback"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:63
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:72
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:58
+#: /var/www/html/admin/modules/dpviz/process.php:119
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:423
+msgid "New Destination"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:59
+msgid "Insert New Destination"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:60
+msgid "Simulated date & time applied."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:61
+msgid "Simulated date & time cleared."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:62
+msgid "You do not have permission to create new destinations."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:69
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:78
 msgid "Dial Plan"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:77
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:83
 msgid "Navigation & Usage"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:82
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:88
 msgid "Settings"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:93
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:99
 msgid "Loading..."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:114
-#: /var/www/html/admin/modules/dpviz/process.php:1342
-#: /var/www/html/admin/modules/dpviz/process.php:1559
-#: /var/www/html/admin/modules/dpviz/process.php:1653
-#: /var/www/html/admin/modules/dpviz/process.php:1811
-#: /var/www/html/admin/modules/dpviz/process.php:1892
-#: /var/www/html/admin/modules/dpviz/process.php:2424
-#: /var/www/html/admin/modules/dpviz/process.php:2628
-#: /var/www/html/admin/modules/dpviz/process.php:2776
-#: /var/www/html/admin/modules/dpviz/process.php:2855
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:138
+#: /var/www/html/admin/modules/dpviz/process.php:1413
+#: /var/www/html/admin/modules/dpviz/process.php:1688
+#: /var/www/html/admin/modules/dpviz/process.php:1905
+#: /var/www/html/admin/modules/dpviz/process.php:2092
+#: /var/www/html/admin/modules/dpviz/process.php:2234
+#: /var/www/html/admin/modules/dpviz/process.php:3058
+#: /var/www/html/admin/modules/dpviz/process.php:3297
+#: /var/www/html/admin/modules/dpviz/process.php:3457
+#: /var/www/html/admin/modules/dpviz/process.php:3541
 msgid "Description"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:117
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:141
 msgid "Delete View"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:118
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:357
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:142
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:384
 msgid "Save View"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:126
-msgid "Dial Plan Not Selected"
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:153
+msgid "Simulate Date & Time"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/page.dpviz.php:126
-msgid "Use the dropdown to select a dial plan."
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:161
+msgid "Select Date & Time"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:61
-msgid "Error: Could not find inbound route for"
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:169
+msgid "Click Reset to return to the real system time."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:73
-#: /var/www/html/admin/modules/dpviz/process.php:74
-#: /var/www/html/admin/modules/dpviz/process.php:247
-#: /var/www/html/admin/modules/dpviz/process.php:248
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:175
+msgid "Apply"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:178
+#: /var/www/html/admin/modules/dpviz/process.php:81
+#: /var/www/html/admin/modules/dpviz/process.php:82
+#: /var/www/html/admin/modules/dpviz/process.php:253
+#: /var/www/html/admin/modules/dpviz/process.php:254
 #: /var/www/html/admin/modules/dpviz/views/options.php:28
+#: /var/www/html/admin/modules/dpviz/views/options.php:570
 msgid "Reset"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:111
-msgid "No name selected"
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:187
+msgid "Dial Plan Not Selected"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:273
-#: /var/www/html/admin/modules/dpviz/process.php:951
-#: /var/www/html/admin/modules/dpviz/process.php:1760
+#: /var/www/html/admin/modules/dpviz/page.dpviz.php:187
+msgid "Use the dropdown to select a dial plan."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:69
+msgid "Error: Could not find inbound route for"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:279
+#: /var/www/html/admin/modules/dpviz/process.php:991
+#: /var/www/html/admin/modules/dpviz/process.php:2017
+#: /var/www/html/admin/modules/dpviz/process.php:2043
 msgid "Always"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:336
+#: /var/www/html/admin/modules/dpviz/process.php:342
 msgid "Static Agent"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:355
+#: /var/www/html/admin/modules/dpviz/process.php:361
 msgid "Dynamic Agent"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:368
+#: /var/www/html/admin/modules/dpviz/process.php:374
 msgid "Member"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:451
+#: /var/www/html/admin/modules/dpviz/process.php:461
 msgid "In Use By"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:465
-#: /var/www/html/admin/modules/dpviz/process.php:466
-msgid "Destination not in use"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:476
-msgid "Not in Use"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:477
 #: /var/www/html/admin/modules/dpviz/process.php:478
+msgid "Destination not in use"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:490
+msgid "Not in Use"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:491
+#: /var/www/html/admin/modules/dpviz/process.php:492
 msgid "This destination has no references"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:568
-#: /var/www/html/admin/modules/dpviz/process.php:594
-#: /var/www/html/admin/modules/dpviz/process.php:1260
+#: /var/www/html/admin/modules/dpviz/process.php:608
+#: /var/www/html/admin/modules/dpviz/process.php:634
+#: /var/www/html/admin/modules/dpviz/process.php:1332
 msgid "Extension"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:594
-#: /var/www/html/admin/modules/dpviz/process.php:1260
-#: /var/www/html/admin/modules/dpviz/process.php:1433
-#: /var/www/html/admin/modules/dpviz/process.php:1558
-#: /var/www/html/admin/modules/dpviz/process.php:1891
-#: /var/www/html/admin/modules/dpviz/process.php:1918
+#: /var/www/html/admin/modules/dpviz/process.php:634
+#: /var/www/html/admin/modules/dpviz/process.php:1332
+#: /var/www/html/admin/modules/dpviz/process.php:1525
+#: /var/www/html/admin/modules/dpviz/process.php:1687
+#: /var/www/html/admin/modules/dpviz/process.php:2233
+#: /var/www/html/admin/modules/dpviz/process.php:2260
 msgid "Name"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:606
+#: /var/www/html/admin/modules/dpviz/process.php:646
 #, php-format
 msgid "(%s secs)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:613
+#: /var/www/html/admin/modules/dpviz/process.php:653
 #, php-format
 msgid "No Answer (%s secs)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:624
+#: /var/www/html/admin/modules/dpviz/process.php:664
 msgid "Call Forward All"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:629
+#: /var/www/html/admin/modules/dpviz/process.php:669
 msgid "Call Forward Busy"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:634
+#: /var/www/html/admin/modules/dpviz/process.php:674
 msgid "Call Forward Unavailable"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:658
+#: /var/www/html/admin/modules/dpviz/process.php:699
 msgid "No Answer, Busy, Not Reachable"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:667
+#: /var/www/html/admin/modules/dpviz/process.php:708
 msgid "No Answer & Busy"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:673
-#: /var/www/html/admin/modules/dpviz/process.php:722
+#: /var/www/html/admin/modules/dpviz/process.php:714
+#: /var/www/html/admin/modules/dpviz/process.php:763
 msgid "Not Reachable"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:683
+#: /var/www/html/admin/modules/dpviz/process.php:724
 msgid "No Answer & Not Reachable"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:689
-#: /var/www/html/admin/modules/dpviz/process.php:717
-#: /var/www/html/admin/modules/dpviz/process.php:2052
+#: /var/www/html/admin/modules/dpviz/process.php:730
+#: /var/www/html/admin/modules/dpviz/process.php:758
+#: /var/www/html/admin/modules/dpviz/process.php:2578
 msgid "Busy"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:699
+#: /var/www/html/admin/modules/dpviz/process.php:740
 msgid "Busy & Not Reachable"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:705
-#: /var/www/html/admin/modules/dpviz/process.php:712
+#: /var/www/html/admin/modules/dpviz/process.php:746
+#: /var/www/html/admin/modules/dpviz/process.php:753
 msgid "No Answer"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:739
+#: /var/www/html/admin/modules/dpviz/process.php:780
 msgid "Busy Message"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:739
+#: /var/www/html/admin/modules/dpviz/process.php:780
 msgid "Instructions Only"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:739
+#: /var/www/html/admin/modules/dpviz/process.php:780
 msgid "No Message"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:739
+#: /var/www/html/admin/modules/dpviz/process.php:780
 msgid "Unavailable Message"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:801
-#: /var/www/html/admin/modules/dpviz/process.php:988
-#: /var/www/html/admin/modules/dpviz/process.php:1346
-#: /var/www/html/admin/modules/dpviz/process.php:1655
+#: /var/www/html/admin/modules/dpviz/process.php:842
+#: /var/www/html/admin/modules/dpviz/process.php:1039
+#: /var/www/html/admin/modules/dpviz/process.php:1417
+#: /var/www/html/admin/modules/dpviz/process.php:1907
 msgid "CID Prefix"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:802
-#: /var/www/html/admin/modules/dpviz/process.php:1654
+#: /var/www/html/admin/modules/dpviz/process.php:843
+#: /var/www/html/admin/modules/dpviz/process.php:1906
 msgid "Alert Info"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:803
+#: /var/www/html/admin/modules/dpviz/process.php:844
 msgid "Music on hold Class"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:804
-#: /var/www/html/admin/modules/dpviz/process.php:1657
+#: /var/www/html/admin/modules/dpviz/process.php:845
+#: /var/www/html/admin/modules/dpviz/process.php:1909
 msgid "Language"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:822
-#: /var/www/html/admin/modules/dpviz/process.php:1830
-#: /var/www/html/admin/modules/dpviz/process.php:2223
-#: /var/www/html/admin/modules/dpviz/process.php:2349
-#: /var/www/html/admin/modules/dpviz/process.php:2384
-#: /var/www/html/admin/modules/dpviz/process.php:2514
-#: /var/www/html/admin/modules/dpviz/process.php:2607
-#: /var/www/html/admin/modules/dpviz/process.php:2640
+#: /var/www/html/admin/modules/dpviz/process.php:863
+#: /var/www/html/admin/modules/dpviz/process.php:2122
+#: /var/www/html/admin/modules/dpviz/process.php:2130
+#: /var/www/html/admin/modules/dpviz/process.php:2806
+#: /var/www/html/admin/modules/dpviz/process.php:2819
+#: /var/www/html/admin/modules/dpviz/process.php:2827
+#: /var/www/html/admin/modules/dpviz/process.php:2960
+#: /var/www/html/admin/modules/dpviz/process.php:2973
+#: /var/www/html/admin/modules/dpviz/process.php:2981
+#: /var/www/html/admin/modules/dpviz/process.php:3017
+#: /var/www/html/admin/modules/dpviz/process.php:3159
+#: /var/www/html/admin/modules/dpviz/process.php:3254
+#: /var/www/html/admin/modules/dpviz/process.php:3267
+#: /var/www/html/admin/modules/dpviz/process.php:3275
+#: /var/www/html/admin/modules/dpviz/process.php:3309
 msgid "Continue"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:831
-#: /var/www/html/admin/modules/dpviz/process.php:1165
+#: /var/www/html/admin/modules/dpviz/process.php:872
+#: /var/www/html/admin/modules/dpviz/process.php:1242
 msgid "Caller Post Hangup"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:836
-#: /var/www/html/admin/modules/dpviz/process.php:1170
+#: /var/www/html/admin/modules/dpviz/process.php:877
+#: /var/www/html/admin/modules/dpviz/process.php:1247
 msgid "Agent Post Hangup"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:841
-#: /var/www/html/admin/modules/dpviz/process.php:1175
+#: /var/www/html/admin/modules/dpviz/process.php:882
+#: /var/www/html/admin/modules/dpviz/process.php:1252
 msgid "Queue Fail Over on FULL"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:846
-#: /var/www/html/admin/modules/dpviz/process.php:1180
+#: /var/www/html/admin/modules/dpviz/process.php:887
+#: /var/www/html/admin/modules/dpviz/process.php:1257
 msgid "Queue Fail Over on JOINEMPTY"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:851
-#: /var/www/html/admin/modules/dpviz/process.php:1185
+#: /var/www/html/admin/modules/dpviz/process.php:892
+#: /var/www/html/admin/modules/dpviz/process.php:1262
 msgid "Queue Fail Over on LEAVEEMPTY"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:856
-#: /var/www/html/admin/modules/dpviz/process.php:1190
+#: /var/www/html/admin/modules/dpviz/process.php:897
+#: /var/www/html/admin/modules/dpviz/process.php:1267
 msgid "Queue Fail Over on JOINUNAVAIL"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:861
-#: /var/www/html/admin/modules/dpviz/process.php:1195
+#: /var/www/html/admin/modules/dpviz/process.php:902
+#: /var/www/html/admin/modules/dpviz/process.php:1272
 msgid "Queue Fail Over on LEAVEUNAVAIL"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:890
-#: /var/www/html/admin/modules/dpviz/process.php:994
+#: /var/www/html/admin/modules/dpviz/process.php:931
+#: /var/www/html/admin/modules/dpviz/process.php:1045
 msgid "Join Announcement"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:890
-#: /var/www/html/admin/modules/dpviz/process.php:1331
-#: /var/www/html/admin/modules/dpviz/process.php:1496
-#: /var/www/html/admin/modules/dpviz/process.php:1799
-#: /var/www/html/admin/modules/dpviz/process.php:1970
-#: /var/www/html/admin/modules/dpviz/process.php:2114
-#: /var/www/html/admin/modules/dpviz/process.php:2413
-#: /var/www/html/admin/modules/dpviz/process.php:2552
-#: /var/www/html/admin/modules/dpviz/process.php:2700
+#: /var/www/html/admin/modules/dpviz/process.php:931
+#: /var/www/html/admin/modules/dpviz/process.php:1402
+#: /var/www/html/admin/modules/dpviz/process.php:1586
+#: /var/www/html/admin/modules/dpviz/process.php:2080
+#: /var/www/html/admin/modules/dpviz/process.php:2398
+#: /var/www/html/admin/modules/dpviz/process.php:2651
+#: /var/www/html/admin/modules/dpviz/process.php:3046
+#: /var/www/html/admin/modules/dpviz/process.php:3197
+#: /var/www/html/admin/modules/dpviz/process.php:3381
 msgid "Feature Code"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:941
-#: /var/www/html/admin/modules/dpviz/process.php:953
+#: /var/www/html/admin/modules/dpviz/process.php:982
+#: /var/www/html/admin/modules/dpviz/process.php:993
 msgid "Unlimited"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:952
-#: /var/www/html/admin/modules/dpviz/process.php:1556
-#: /var/www/html/admin/modules/dpviz/process.php:1687
-#: /var/www/html/admin/modules/dpviz/process.php:1808
-#: /var/www/html/admin/modules/dpviz/process.php:2422
-#: /var/www/html/admin/modules/dpviz/process.php:2662
-#: /var/www/html/admin/modules/dpviz/process.php:2757
-#: /var/www/html/admin/modules/dpviz/process.php:2836
-#: /var/www/html/admin/modules/dpviz/process.inc.php:816
-#: /var/www/html/admin/modules/dpviz/process.inc.php:839
+#: /var/www/html/admin/modules/dpviz/process.php:987
+#: /var/www/html/admin/modules/dpviz/process.php:1040
+#: /var/www/html/admin/modules/dpviz/process.php:1410
+#: /var/www/html/admin/modules/dpviz/process.php:1414
+msgid "Strategy"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:988
+msgid "Call as Dialed"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:988
+msgid "No Follow-Me or Call Forward"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:988
+msgid "Extensions Only"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:989
+#: /var/www/html/admin/modules/dpviz/process.php:992
+#: /var/www/html/admin/modules/dpviz/process.php:1685
+#: /var/www/html/admin/modules/dpviz/process.php:1944
+#: /var/www/html/admin/modules/dpviz/process.php:2089
+#: /var/www/html/admin/modules/dpviz/process.php:3055
+#: /var/www/html/admin/modules/dpviz/process.php:3331
+#: /var/www/html/admin/modules/dpviz/process.php:3438
+#: /var/www/html/admin/modules/dpviz/process.php:3522
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1003
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1054
 #: /var/www/html/admin/modules/dpviz/views/options.php:79
 #: /var/www/html/admin/modules/dpviz/views/options.php:106
 #: /var/www/html/admin/modules/dpviz/views/options.php:133
 #: /var/www/html/admin/modules/dpviz/views/options.php:160
 #: /var/www/html/admin/modules/dpviz/views/options.php:187
 #: /var/www/html/admin/modules/dpviz/views/options.php:214
-#: /var/www/html/admin/modules/dpviz/views/options.php:276
-#: /var/www/html/admin/modules/dpviz/views/options.php:307
-#: /var/www/html/admin/modules/dpviz/views/options.php:365
+#: /var/www/html/admin/modules/dpviz/views/options.php:241
+#: /var/www/html/admin/modules/dpviz/views/options.php:303
+#: /var/www/html/admin/modules/dpviz/views/options.php:334
 #: /var/www/html/admin/modules/dpviz/views/options.php:392
-#: /var/www/html/admin/modules/dpviz/views/options.php:450
+#: /var/www/html/admin/modules/dpviz/views/options.php:419
 #: /var/www/html/admin/modules/dpviz/views/options.php:477
 #: /var/www/html/admin/modules/dpviz/views/options.php:504
+#: /var/www/html/admin/modules/dpviz/views/options.php:531
 msgid "No"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:952
-#: /var/www/html/admin/modules/dpviz/process.php:1556
-#: /var/www/html/admin/modules/dpviz/process.php:1687
-#: /var/www/html/admin/modules/dpviz/process.php:1808
-#: /var/www/html/admin/modules/dpviz/process.php:2422
-#: /var/www/html/admin/modules/dpviz/process.php:2662
-#: /var/www/html/admin/modules/dpviz/process.php:2757
-#: /var/www/html/admin/modules/dpviz/process.php:2836
-#: /var/www/html/admin/modules/dpviz/process.inc.php:816
-#: /var/www/html/admin/modules/dpviz/process.inc.php:839
+#: /var/www/html/admin/modules/dpviz/process.php:989
+#: /var/www/html/admin/modules/dpviz/process.php:992
+#: /var/www/html/admin/modules/dpviz/process.php:1685
+#: /var/www/html/admin/modules/dpviz/process.php:1944
+#: /var/www/html/admin/modules/dpviz/process.php:2089
+#: /var/www/html/admin/modules/dpviz/process.php:3055
+#: /var/www/html/admin/modules/dpviz/process.php:3331
+#: /var/www/html/admin/modules/dpviz/process.php:3438
+#: /var/www/html/admin/modules/dpviz/process.php:3522
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1003
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1054
 #: /var/www/html/admin/modules/dpviz/views/options.php:77
 #: /var/www/html/admin/modules/dpviz/views/options.php:104
 #: /var/www/html/admin/modules/dpviz/views/options.php:131
 #: /var/www/html/admin/modules/dpviz/views/options.php:158
 #: /var/www/html/admin/modules/dpviz/views/options.php:185
 #: /var/www/html/admin/modules/dpviz/views/options.php:212
-#: /var/www/html/admin/modules/dpviz/views/options.php:273
-#: /var/www/html/admin/modules/dpviz/views/options.php:305
-#: /var/www/html/admin/modules/dpviz/views/options.php:363
+#: /var/www/html/admin/modules/dpviz/views/options.php:239
+#: /var/www/html/admin/modules/dpviz/views/options.php:300
+#: /var/www/html/admin/modules/dpviz/views/options.php:332
 #: /var/www/html/admin/modules/dpviz/views/options.php:390
-#: /var/www/html/admin/modules/dpviz/views/options.php:448
+#: /var/www/html/admin/modules/dpviz/views/options.php:417
 #: /var/www/html/admin/modules/dpviz/views/options.php:475
 #: /var/www/html/admin/modules/dpviz/views/options.php:502
+#: /var/www/html/admin/modules/dpviz/views/options.php:529
 msgid "Yes"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:956
-#: /var/www/html/admin/modules/dpviz/process.php:958
-msgid "Caller Position"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:956
-#: /var/www/html/admin/modules/dpviz/process.php:983
-#: /var/www/html/admin/modules/dpviz/process.php:1807
-#: /var/www/html/admin/modules/dpviz/process.php:2100
-#: /var/www/html/admin/modules/dpviz/process.inc.php:460
-#: /var/www/html/admin/modules/dpviz/process.inc.php:465
-#: /var/www/html/admin/modules/dpviz/process.inc.php:472
-#: /var/www/html/admin/modules/dpviz/process.inc.php:486
-#: /var/www/html/admin/modules/dpviz/process.inc.php:823
-#: /var/www/html/admin/modules/dpviz/process.inc.php:833
-#: /var/www/html/admin/modules/dpviz/process.inc.php:846
-#: /var/www/html/admin/modules/dpviz/process.inc.php:849
-#: /var/www/html/admin/modules/dpviz/process.inc.php:904
-msgid "Disabled"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:958
-msgid "Frequency"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:958
-msgid "Minimum Announcement Interval"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:958
-msgid "Announce Position"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:958
-msgid "Announce Hold Time"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:968
-#: /var/www/html/admin/modules/dpviz/process.php:978
-#: /var/www/html/admin/modules/dpviz/process.php:983
-msgid "Periodic Announcements"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:970
-#: /var/www/html/admin/modules/dpviz/process.php:980
-msgid "Repeat Frequency"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:987
-msgid "General Settings"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:989
-#: /var/www/html/admin/modules/dpviz/process.php:1343
-msgid "Strategy"
+#: /var/www/html/admin/modules/dpviz/process.php:990
+msgid "Ring Only"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:990
-msgid "Agent Restrictions"
+msgid "Agent Ringing"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:991
-msgid "Autofill"
+msgid "No Free Agents"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:992
-msgid "Skip Busy Agents"
+#: /var/www/html/admin/modules/dpviz/process.php:991
+msgid "No Ready Agents"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:993
-msgid "Music On Hold Class"
+#: /var/www/html/admin/modules/dpviz/process.php:991
+msgid "There are both logged in and no free agents"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:996
-#: /var/www/html/admin/modules/dpviz/process.php:1348
-msgid "Call Recording"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:997
-msgid "Mark calls answered elsewhere"
-msgstr ""
-
 #: /var/www/html/admin/modules/dpviz/process.php:998
-msgid "Timing & Agent Options"
+msgid "Caller Position"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:996
+#: /var/www/html/admin/modules/dpviz/process.php:1034
+#: /var/www/html/admin/modules/dpviz/process.php:2088
+#: /var/www/html/admin/modules/dpviz/process.php:2630
+#: /var/www/html/admin/modules/dpviz/process.inc.php:609
+#: /var/www/html/admin/modules/dpviz/process.inc.php:614
+#: /var/www/html/admin/modules/dpviz/process.inc.php:621
+#: /var/www/html/admin/modules/dpviz/process.inc.php:635
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1014
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1029
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1062
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1065
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1114
+msgid "Disabled"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:999
-msgid "Max Wait Time"
+msgid "Frequency"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:1000
-msgid "Agent Timeout"
+msgid "Minimum Announcement Interval"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:1001
-msgid "Agent Retry"
+msgid "Announce Position"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:1002
+msgid "Announce Hold Time"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1010
+msgid "every"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1019
+#: /var/www/html/admin/modules/dpviz/process.php:1029
+#: /var/www/html/admin/modules/dpviz/process.php:1034
+msgid "Periodic Announcements"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1021
+#: /var/www/html/admin/modules/dpviz/process.php:1031
+msgid "Repeat Frequency"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1038
+msgid "General Settings"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1041
+msgid "Agent Restrictions"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1042
+msgid "Autofill"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1043
+msgid "Skip Busy Agents"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1044
+msgid "Music On Hold Class"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1046
+msgid "When"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1047
+#: /var/www/html/admin/modules/dpviz/process.php:1419
+msgid "Call Recording"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1048
+msgid "Mark calls answered elsewhere"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1049
+msgid "Timing & Agent Options"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1050
+msgid "Max Wait Time"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1051
+msgid "Agent Timeout"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1052
+msgid "Agent Retry"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1053
 msgid "Wrap Up Time"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1003
+#: /var/www/html/admin/modules/dpviz/process.php:1054
 msgid "Capacity Options"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1004
+#: /var/www/html/admin/modules/dpviz/process.php:1055
 msgid "Max Callers"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1005
+#: /var/www/html/admin/modules/dpviz/process.php:1056
 msgid "Join Empty"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1006
+#: /var/www/html/admin/modules/dpviz/process.php:1057
 msgid "Leave Empty"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1015
-#: /var/www/html/admin/modules/dpviz/process.php:1105
-#: /var/www/html/admin/modules/dpviz/process.php:1110
+#: /var/www/html/admin/modules/dpviz/process.php:1066
+#: /var/www/html/admin/modules/dpviz/process.php:1182
+#: /var/www/html/admin/modules/dpviz/process.php:1187
 msgid "Static"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1017
-#: /var/www/html/admin/modules/dpviz/process.php:1136
+#: /var/www/html/admin/modules/dpviz/process.php:1068
+#: /var/www/html/admin/modules/dpviz/process.php:1213
 msgid "Dynamic"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1062
-#: /var/www/html/admin/modules/dpviz/process.php:1412
+#: /var/www/html/admin/modules/dpviz/process.php:1117
+#: /var/www/html/admin/modules/dpviz/process.php:1130
+#: /var/www/html/admin/modules/dpviz/process.php:1138
+#: /var/www/html/admin/modules/dpviz/process.php:1485
+#: /var/www/html/admin/modules/dpviz/process.php:1496
+#: /var/www/html/admin/modules/dpviz/process.php:1504
 #, php-format
 msgid "No Answer (%s)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1075
+#: /var/www/html/admin/modules/dpviz/process.php:1152
 msgid "Penalty"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1259
-#: /var/www/html/admin/modules/dpviz/process.php:1432
-#: /var/www/html/admin/modules/dpviz/process.php:1433
-#: /var/www/html/admin/modules/dpviz/process.php:2436
-#: /var/www/html/admin/modules/dpviz/process.php:2724
-#: /var/www/html/admin/modules/dpviz/process.php:2735
+#: /var/www/html/admin/modules/dpviz/process.php:1331
+#: /var/www/html/admin/modules/dpviz/process.php:1524
+#: /var/www/html/admin/modules/dpviz/process.php:1525
+#: /var/www/html/admin/modules/dpviz/process.php:3074
+#: /var/www/html/admin/modules/dpviz/process.php:3405
+#: /var/www/html/admin/modules/dpviz/process.php:3416
 msgid "Ext"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1344
-#: /var/www/html/admin/modules/dpviz/process.inc.php:842
+#: /var/www/html/admin/modules/dpviz/process.php:1415
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1057
 msgid "Ring Time"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1345
-#: /var/www/html/admin/modules/dpviz/process.php:2049
+#: /var/www/html/admin/modules/dpviz/process.php:1416
+#: /var/www/html/admin/modules/dpviz/process.php:2575
 msgid "Music On Hold"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1347
-#: /var/www/html/admin/modules/dpviz/process.inc.php:844
+#: /var/www/html/admin/modules/dpviz/process.php:1418
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1059
 msgid "Confirm Calls"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1498
-#: /var/www/html/admin/modules/dpviz/process.php:1501
-#: /var/www/html/admin/modules/dpviz/process.php:1801
-#: /var/www/html/admin/modules/dpviz/process.php:1804
-#: /var/www/html/admin/modules/dpviz/process.php:1972
-#: /var/www/html/admin/modules/dpviz/process.php:1975
-#: /var/www/html/admin/modules/dpviz/process.php:2702
-#: /var/www/html/admin/modules/dpviz/process.inc.php:384
-#: /var/www/html/admin/modules/dpviz/process.inc.php:387
-#: /var/www/html/admin/modules/dpviz/views/options.php:239
+#: /var/www/html/admin/modules/dpviz/process.php:1588
+#: /var/www/html/admin/modules/dpviz/process.php:1591
+#: /var/www/html/admin/modules/dpviz/process.php:2082
+#: /var/www/html/admin/modules/dpviz/process.php:2085
+#: /var/www/html/admin/modules/dpviz/process.php:2400
+#: /var/www/html/admin/modules/dpviz/process.php:2403
+#: /var/www/html/admin/modules/dpviz/process.php:3383
+#: /var/www/html/admin/modules/dpviz/process.inc.php:535
+#: /var/www/html/admin/modules/dpviz/process.inc.php:538
+#: /var/www/html/admin/modules/dpviz/views/options.php:266
 msgid "None"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1521
-#: /var/www/html/admin/modules/dpviz/process.php:1599
+#: /var/www/html/admin/modules/dpviz/process.php:1610
+#: /var/www/html/admin/modules/dpviz/process.php:1736
 #, php-format
 msgid "Selection %s"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1560
-msgid "Enable Direct Dial"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1561
-#: /var/www/html/admin/modules/dpviz/process.php:2174
-#: /var/www/html/admin/modules/dpviz/process.php:2561
-msgid "Timeout"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1562
-msgid "Invalid Retries"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1563
-msgid "Invalid Retry Recording"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1564
-msgid "Invalid Recording"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1565
-msgid "Timeout Retries"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1566
-msgid "Timeout Retry Recording"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1567
-msgid "Timeout Recording"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1568
-msgid "Return to IVR after VM"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1595
-#: /var/www/html/admin/modules/dpviz/process.php:2009
-#: /var/www/html/admin/modules/dpviz/process.php:2275
+#: /var/www/html/admin/modules/dpviz/process.php:1617
+#: /var/www/html/admin/modules/dpviz/process.php:1724
+#: /var/www/html/admin/modules/dpviz/process.php:2881
 msgid "Invalid Input"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1597
+#: /var/www/html/admin/modules/dpviz/process.php:1637
+#: /var/www/html/admin/modules/dpviz/process.php:1731
 #, php-format
-msgid "Timeout (%s secs)"
+msgid "Timeout (%s secs x %s)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1652
-msgid "Caller ID Number"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1656
-msgid "Music on hold class"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:1688
-msgid "Block Unknown/Blocked Caller ID"
+#: /var/www/html/admin/modules/dpviz/process.php:1662
+msgid "Add Selection"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/process.php:1689
-#: /var/www/html/admin/modules/dpviz/process.php:1735
+msgid "Enable Direct Dial"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1690
+#: /var/www/html/admin/modules/dpviz/process.php:2753
+#: /var/www/html/admin/modules/dpviz/process.php:3206
+msgid "Timeout"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1691
+msgid "Invalid Retries"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1692
+msgid "Invalid Retry Recording"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1693
+msgid "Invalid Recording"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1694
+msgid "Timeout Retries"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1695
+msgid "Timeout Retry Recording"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1696
+msgid "Timeout Recording"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1697
+msgid "Return to IVR after VM"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1726
+#, php-format
+msgid "Invalid Input x %s"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1904
+msgid "Caller ID Number"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1908
+msgid "Music on hold class"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1945
+msgid "Block Unknown/Blocked Caller ID"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:1946
+#: /var/www/html/admin/modules/dpviz/process.php:1992
 msgid "Number: Description"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1699
-#: /var/www/html/admin/modules/dpviz/process.php:1743
+#: /var/www/html/admin/modules/dpviz/process.php:1956
+#: /var/www/html/admin/modules/dpviz/process.php:2000
 msgid "additional entries"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1705
+#: /var/www/html/admin/modules/dpviz/process.php:1962
 msgid "Blacklist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1707
+#: /var/www/html/admin/modules/dpviz/process.php:1964
 msgid "Disallowed by Blacklist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1710
+#: /var/www/html/admin/modules/dpviz/process.php:1967
 msgid "Click to edit Blacklist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1749
+#: /var/www/html/admin/modules/dpviz/process.php:2006
 msgid "Allowlist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1751
+#: /var/www/html/admin/modules/dpviz/process.php:2008
 msgid "Disallowed by Allowlist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1754
-#: /var/www/html/admin/modules/dpviz/process.php:1767
+#: /var/www/html/admin/modules/dpviz/process.php:2011
+#: /var/www/html/admin/modules/dpviz/process.php:2024
 msgid "Click to edit Allowlist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1813
+#: /var/www/html/admin/modules/dpviz/process.php:2094
 msgid "Repeat Key"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1814
+#: /var/www/html/admin/modules/dpviz/process.php:2095
 msgid "Allow Skip"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1815
+#: /var/www/html/admin/modules/dpviz/process.php:2096
 msgid "Return to IVR"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1816
+#: /var/www/html/admin/modules/dpviz/process.php:2097
 msgid "Don't Answer Channel"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1856
-#: /var/www/html/admin/modules/dpviz/process.php:2210
+#: /var/www/html/admin/modules/dpviz/process.php:2157
+#: /var/www/html/admin/modules/dpviz/process.php:2789
 msgid "Mode"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1858
-#: /var/www/html/admin/modules/dpviz/process.php:1890
+#: /var/www/html/admin/modules/dpviz/process.php:2189
+#: /var/www/html/admin/modules/dpviz/process.php:2190
+#: /var/www/html/admin/modules/dpviz/process.php:2232
 msgid "Timezone"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1893
+#: /var/www/html/admin/modules/dpviz/process.php:2194
+msgid "Simulated time"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2196
+msgid "Local Time"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2235
 msgid "Type"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1902
+#: /var/www/html/admin/modules/dpviz/process.php:2244
 msgid "Calendars"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1910
-#: /var/www/html/admin/modules/dpviz/process.php:1913
+#: /var/www/html/admin/modules/dpviz/process.php:2252
+#: /var/www/html/admin/modules/dpviz/process.php:2255
 msgid "All"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1911
+#: /var/www/html/admin/modules/dpviz/process.php:2253
 msgid "Categories"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1914
+#: /var/www/html/admin/modules/dpviz/process.php:2256
 msgid "Events"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1922
+#: /var/www/html/admin/modules/dpviz/process.php:2264
 msgid "Expand"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1928
-#: /var/www/html/admin/modules/dpviz/process.php:1932
-#: /var/www/html/admin/modules/dpviz/process.php:1995
+#: /var/www/html/admin/modules/dpviz/process.php:2272
+#: /var/www/html/admin/modules/dpviz/process.php:2276
+#: /var/www/html/admin/modules/dpviz/process.php:2292
+#: /var/www/html/admin/modules/dpviz/process.php:2297
+#: /var/www/html/admin/modules/dpviz/process.php:2306
+#: /var/www/html/admin/modules/dpviz/process.php:2310
 msgid "Match"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:1938
-#: /var/www/html/admin/modules/dpviz/process.php:1941
+#: /var/www/html/admin/modules/dpviz/process.php:2322
+#: /var/www/html/admin/modules/dpviz/process.php:2326
+#: /var/www/html/admin/modules/dpviz/process.php:2343
+#: /var/www/html/admin/modules/dpviz/process.php:2357
+#: /var/www/html/admin/modules/dpviz/process.php:2361
 msgid "No Match"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2003
+#: /var/www/html/admin/modules/dpviz/process.php:2423
+msgid "Add Entry"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2442
+#, php-format
+msgid "Match: %s"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2502
 #, php-format
 msgid "Invalid Input, Default (%s) secs"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2014
+#: /var/www/html/admin/modules/dpviz/process.php:2512
+#: /var/www/html/admin/modules/dpviz/process.php:2521
 #, php-format
-msgid "Default (%s) secs"
+msgid "Invalid Input (%s secs)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2050
-msgid "Play Ringtones"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2051
-msgid "Play No Service Message"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2053
-msgid "Hang Up"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2054
-msgid "Congestion"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2061
-#: /var/www/html/admin/modules/dpviz/process.php:2062
-msgid "Terminate Call"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2119
-msgid "Night Mode"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2127
-msgid "Day Mode"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2171
-msgid "Callback Number"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2172
-msgid "Delay Before Callback"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2173
-msgid "Caller ID"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2187
-msgid "Destination after Callback"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2209
-msgid "Don't Care"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2421
-msgid "Skip"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2421
-msgid "Force"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2421
-msgid "Whisper"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2424
-msgid "Busy Extensions"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2424
-msgid "Duplex"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2427
-#: /var/www/html/admin/modules/dpviz/process.php:2718
-msgid "members"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2501
-msgid "Priority"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/process.php:2554
-#: /var/www/html/admin/modules/dpviz/process.php:2557
+#: /var/www/html/admin/modules/dpviz/process.php:2530
+#: /var/www/html/admin/modules/dpviz/process.php:2539
+#: /var/www/html/admin/modules/dpviz/process.php:3199
+#: /var/www/html/admin/modules/dpviz/process.php:3202
 msgid "Default"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2561
+#: /var/www/html/admin/modules/dpviz/process.php:2576
+msgid "Play Ringtones"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2577
+msgid "Play No Service Message"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2579
+msgid "Hang Up"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2580
+msgid "Congestion"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2589
+#: /var/www/html/admin/modules/dpviz/process.php:2590
+msgid "Terminate Call"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2641
+msgid "Day"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2644
+msgid "Night"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2651
+msgid "Current Mode"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2656
+msgid "Night Mode"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2665
+msgid "Day Mode"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2702
+#: /var/www/html/admin/modules/dpviz/process.php:2714
+msgid "Call Flow"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2750
+msgid "Callback Number"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2751
+msgid "Delay Before Callback"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2752
+msgid "Caller ID"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2766
+msgid "Destination after Callback"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2788
+msgid "Don't Care"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:2943
+msgid "Language Code"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3054
+msgid "Skip"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3054
+msgid "Force"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3054
+msgid "Whisper"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3060
+msgid "Busy Extensions"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3061
+msgid "Duplex"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3065
+#: /var/www/html/admin/modules/dpviz/process.php:3399
+msgid "members"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3146
+msgid "Priority"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.php:3206
 msgid "Retries"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2561
+#: /var/www/html/admin/modules/dpviz/process.php:3206
 msgid "Retry Delay"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2574
+#: /var/www/html/admin/modules/dpviz/process.php:3219
 msgid "Callback Queue"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2628
+#: /var/www/html/admin/modules/dpviz/process.php:3297
 msgid "Engine"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2668
-#: /var/www/html/admin/modules/dpviz/process.inc.php:815
+#: /var/www/html/admin/modules/dpviz/process.php:3343
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1002
 msgid "Tech"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2668
+#: /var/www/html/admin/modules/dpviz/process.php:3344
 msgid "Outbound CallerID"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2668
+#: /var/www/html/admin/modules/dpviz/process.php:3345
 msgid "Status"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2668
+#: /var/www/html/admin/modules/dpviz/process.php:3346
 msgid "CID Options"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2668
+#: /var/www/html/admin/modules/dpviz/process.php:3347
 msgid "Max Channels"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2668
+#: /var/www/html/admin/modules/dpviz/process.php:3348
 msgid "Continue If Busy"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2698
-#: /var/www/html/admin/modules/dpviz/process.php:2702
-#: /var/www/html/admin/modules/dpviz/process.php:2706
-#: /var/www/html/admin/modules/dpviz/process.php:2709
+#: /var/www/html/admin/modules/dpviz/process.php:3379
+#: /var/www/html/admin/modules/dpviz/process.php:3383
+#: /var/www/html/admin/modules/dpviz/process.php:3387
+#: /var/www/html/admin/modules/dpviz/process.php:3390
 msgid "Audio Label"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2706
+#: /var/www/html/admin/modules/dpviz/process.php:3387
 msgid "Read Group Number"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2709
+#: /var/www/html/admin/modules/dpviz/process.php:3390
 msgid "Beep Only - No Confirmation"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2770
-#: /var/www/html/admin/modules/dpviz/process.php:2849
+#: /var/www/html/admin/modules/dpviz/process.php:3451
+#: /var/www/html/admin/modules/dpviz/process.php:3535
 msgid "No dialplan found"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2773
-#: /var/www/html/admin/modules/dpviz/process.php:2777
-#: /var/www/html/admin/modules/dpviz/process.php:2852
-#: /var/www/html/admin/modules/dpviz/process.php:2856
+#: /var/www/html/admin/modules/dpviz/process.php:3454
+#: /var/www/html/admin/modules/dpviz/process.php:3458
+#: /var/www/html/admin/modules/dpviz/process.php:3538
+#: /var/www/html/admin/modules/dpviz/process.php:3542
 msgid "Target"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2774
-#: /var/www/html/admin/modules/dpviz/process.php:2779
-#: /var/www/html/admin/modules/dpviz/process.php:2786
-#: /var/www/html/admin/modules/dpviz/process.php:2853
-#: /var/www/html/admin/modules/dpviz/process.php:2858
-#: /var/www/html/admin/modules/dpviz/process.php:2864
+#: /var/www/html/admin/modules/dpviz/process.php:3455
+#: /var/www/html/admin/modules/dpviz/process.php:3460
+#: /var/www/html/admin/modules/dpviz/process.php:3467
+#: /var/www/html/admin/modules/dpviz/process.php:3539
+#: /var/www/html/admin/modules/dpviz/process.php:3544
+#: /var/www/html/admin/modules/dpviz/process.php:3550
 msgid "Return"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2778
-#: /var/www/html/admin/modules/dpviz/process.php:2857
+#: /var/www/html/admin/modules/dpviz/process.php:3459
+#: /var/www/html/admin/modules/dpviz/process.php:3543
 msgid "Notes"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.php:2799
+#: /var/www/html/admin/modules/dpviz/process.php:3483
 msgid "Bad Dest: Blacklist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:347
+#: /var/www/html/admin/modules/dpviz/process.inc.php:371
+msgid "Click to choose destination"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.inc.php:448
+msgid "Click to insert new destination"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.inc.php:464
+msgid "Click to add selection"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.inc.php:480
+msgid "Click to add entry"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/process.inc.php:496
 msgid "Click to continue..."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:369
-#: /var/www/html/admin/modules/dpviz/process.inc.php:370
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1530
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1537
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1544
+#: /var/www/html/admin/modules/dpviz/process.inc.php:518
+#: /var/www/html/admin/modules/dpviz/process.inc.php:519
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1758
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1765
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1772
 msgid "Bad Dest"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:414
+#: /var/www/html/admin/modules/dpviz/process.inc.php:565
 msgid "month inverted"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:430
+#: /var/www/html/admin/modules/dpviz/process.inc.php:581
 msgid "day-of-month inverted"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:776
-#: /var/www/html/admin/modules/dpviz/process.inc.php:864
+#: /var/www/html/admin/modules/dpviz/process.inc.php:953
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1105
 msgid "INBOX"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:777
-#: /var/www/html/admin/modules/dpviz/process.inc.php:866
+#: /var/www/html/admin/modules/dpviz/process.inc.php:954
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1106
 msgid "Other"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:778
-#: /var/www/html/admin/modules/dpviz/process.inc.php:868
+#: /var/www/html/admin/modules/dpviz/process.inc.php:955
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1107
 msgid "Total"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:816
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1003
 msgid "Registration"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:819
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1007
 msgid "User Agent"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:823
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1014
 msgid "Do Not Disturb"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:823
-#: /var/www/html/admin/modules/dpviz/process.inc.php:826
-#: /var/www/html/admin/modules/dpviz/process.inc.php:840
-#: /var/www/html/admin/modules/dpviz/process.inc.php:874
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1014
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1029
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1049
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1074
 msgid "Enabled"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:824
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1029
 msgid "Call Forward"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:841
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1056
 msgid "Initial Ring Time"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:843
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1058
 msgid "Follow-Me List"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:874
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1079
 msgid "Email"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:918
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1127
 msgid "DND/CF"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:939
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1148
 msgid "Paused"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1296
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1525
 msgid "Mon"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1296
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1525
 msgid "Tue"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1296
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1525
 msgid "Wed"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1297
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1526
 msgid "Thu"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1297
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1526
 msgid "Fri"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1297
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1526
 msgid "Sat"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1297
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1526
 msgid "Sun"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1300
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1529
 msgid "Jan"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1300
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1529
 msgid "Feb"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1300
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1529
 msgid "Mar"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1300
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1529
 msgid "Apr"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1301
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1530
 msgid "May"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1301
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1530
 msgid "Jun"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1301
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1530
 msgid "Jul"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1301
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1530
 msgid "Aug"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1302
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1531
 msgid "Sep"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1302
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1531
 msgid "Oct"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1302
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1531
 msgid "Nov"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1302
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1531
 msgid "Dec"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1484
-#: /var/www/html/admin/modules/dpviz/process.inc.php:1486
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1712
+#: /var/www/html/admin/modules/dpviz/process.inc.php:1714
 msgid "Active"
 msgstr ""
 
@@ -1208,6 +1376,10 @@ msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/views/options.php:52
 msgid "Give Feedback"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/options.php:58
+msgid "Current version"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/views/options.php:72
@@ -1253,218 +1425,243 @@ msgid "Inbound Routes will show the destination."
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/views/options.php:207
-msgid "Display In Use By Nodes"
+msgid "Display Insert and Add Selection Nodes"
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/views/options.php:222
-msgid "Display nodes where the selected destination is used."
+msgid ""
+"Displays a + between nodes. Clicking it creates a new destination and "
+"automatically links it to the current destination. Also Displays Add "
+"Selection (IVRs) and Add Entry (Dynamic Routes) "
 msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/views/options.php:234
+msgid "Display In Use By Nodes"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/options.php:249
+msgid "Display nodes where the selected destination is used."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/options.php:261
 msgid "Shared extension node handling"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:242
+#: /var/www/html/admin/modules/dpviz/views/options.php:269
 msgid "Queues and Ring Groups Only"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:245
+#: /var/www/html/admin/modules/dpviz/views/options.php:272
 msgid "All Destinations"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:253
+#: /var/www/html/admin/modules/dpviz/views/options.php:280
 msgid ""
 "\"None\" displays individual extension nodes. \"Queues and Ring Groups Only"
 "\" combines them into one node. \"All\" merges all destinations into a "
 "single extension node."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:267
+#: /var/www/html/admin/modules/dpviz/views/options.php:294
 msgid "Show Allowlist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:285
+#: /var/www/html/admin/modules/dpviz/views/options.php:312
 msgid "Displays the Allowlist information and destination."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:287
+#: /var/www/html/admin/modules/dpviz/views/options.php:314
 msgid "Allowlist module is not installed."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:300
+#: /var/www/html/admin/modules/dpviz/views/options.php:327
 msgid "Show Blacklist"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:315
+#: /var/www/html/admin/modules/dpviz/views/options.php:342
 msgid "Displays the Blacklist information and destination."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:327
+#: /var/www/html/admin/modules/dpviz/views/options.php:354
 msgid "Show Queue Agents"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:332
-#: /var/www/html/admin/modules/dpviz/views/options.php:417
+#: /var/www/html/admin/modules/dpviz/views/options.php:359
+#: /var/www/html/admin/modules/dpviz/views/options.php:444
 msgid "Single"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:335
-#: /var/www/html/admin/modules/dpviz/views/options.php:420
+#: /var/www/html/admin/modules/dpviz/views/options.php:362
+#: /var/www/html/admin/modules/dpviz/views/options.php:447
 msgid "Combine"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:338
-#: /var/www/html/admin/modules/dpviz/views/options.php:423
+#: /var/www/html/admin/modules/dpviz/views/options.php:365
+#: /var/www/html/admin/modules/dpviz/views/options.php:450
 msgid "Hide"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:346
+#: /var/www/html/admin/modules/dpviz/views/options.php:373
 msgid ""
 "\"Single\" displays individual agent nodes. \"Combine\" displays all agents "
 "in a single node. \"Hide\" does not display queue agents."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:358
+#: /var/www/html/admin/modules/dpviz/views/options.php:385
 msgid "Show Dynamic Members for Queues"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:373
+#: /var/www/html/admin/modules/dpviz/views/options.php:400
 msgid "Displays the list of dynamic agents currently assigned to the queues."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:385
+#: /var/www/html/admin/modules/dpviz/views/options.php:412
 msgid "Show Queue Agent Penalties"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:400
+#: /var/www/html/admin/modules/dpviz/views/options.php:427
 msgid "Displays the penalty value for queue agents."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:412
+#: /var/www/html/admin/modules/dpviz/views/options.php:439
 msgid "Show Ring Group Members"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:431
+#: /var/www/html/admin/modules/dpviz/views/options.php:458
 msgid ""
 "\"Single\" displays individual member nodes. \"Combine\" displays all "
 "members in a single node. \"Hide\" does not display members."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:443
+#: /var/www/html/admin/modules/dpviz/views/options.php:470
 msgid "Show Find Me Follow Me for Extensions"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:458
+#: /var/www/html/admin/modules/dpviz/views/options.php:485
 msgid "Displays Find Me Follow Me data for extensions."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:470
+#: /var/www/html/admin/modules/dpviz/views/options.php:497
 msgid "Show Extension Optional Destinations"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:485
+#: /var/www/html/admin/modules/dpviz/views/options.php:512
 msgid ""
 "Displays and follows the optional destinations (No Answer, Busy, Not "
 "Reachable) set for the extension in the Advanced tab."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:497
+#: /var/www/html/admin/modules/dpviz/views/options.php:524
 msgid "Show Minimal View"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:512
+#: /var/www/html/admin/modules/dpviz/views/options.php:539
 msgid ""
 "Shows (default) or hides the following types of nodes: Extensions, Queue "
 "Members, Ring Group Members, Recordings, Voicemail, and Voicemail Blasting "
 "Members."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:520
+#: /var/www/html/admin/modules/dpviz/views/options.php:553
+msgid "Mouse Wheel Zoom Sensitivity"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/options.php:580
+msgid ""
+"Controls mouse wheel zoom sensitivity. This preference is saved in your "
+"browser and does not affect other users."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/options.php:589
 msgid "Saved!"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/options.php:521
+#: /var/www/html/admin/modules/dpviz/views/options.php:590
 msgid "Save"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:8
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:9
 msgid "destination"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:192
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:76
+msgid "Undefined Destination"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:217
 msgid "Saved Views"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:207
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:232
 msgid "Inbound Routes"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:227
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:252
 msgid "Time Conditions"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:237
-msgid "Call Flows"
-msgstr ""
-
 #: /var/www/html/admin/modules/dpviz/views/toolbar.php:262
-msgid "Virtual Queues"
+msgid "Call Flow Control"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:271
-msgid "Queues"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:280
-msgid "Ring Groups"
-msgstr ""
-
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:289
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:278
 msgid "Dynamic Routes"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:298
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:295
+msgid "Virtual Queues"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:304
+msgid "Queues"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:313
+msgid "Ring Groups"
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:322
 msgid "Announcements"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:307
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:331
 msgid "Languages"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:317
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:341
 msgid "Misc Applications"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:326
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:350
 msgid "Extensions"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:364
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:392
 msgid "Reload"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:382
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:420
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:410
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:454
 msgid "Choose Dial Plan"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:387
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:415
 msgid "Previous"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:390
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:418
 msgid "Next"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:404
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:438
 msgid "Super"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:405
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:439
 msgid "High"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/toolbar.php:406
+#: /var/www/html/admin/modules/dpviz/views/toolbar.php:440
 msgid "Standard"
 msgstr ""
 
@@ -1496,56 +1693,63 @@ msgstr ""
 
 #: /var/www/html/admin/modules/dpviz/views/nav.php:16
 msgid ""
+"Simulate Date & Time: Preview how call routing will behave at a future date "
+"or time - useful for holidays, early closures, seasonal hours, or testing "
+"new time conditions."
+msgstr ""
+
+#: /var/www/html/admin/modules/dpviz/views/nav.php:19
+msgid ""
 "Save View: Save the current dial plan layout. This button appears after "
 "modifying the view using CTRL or Shift + click on one or more nodes."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:19
+#: /var/www/html/admin/modules/dpviz/views/nav.php:22
 msgid "Hover: Move your cursor over a path to highlight it."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:22
+#: /var/www/html/admin/modules/dpviz/views/nav.php:25
 msgid "Open Destinations: Click a destination to open it in a new tab."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:25
+#: /var/www/html/admin/modules/dpviz/views/nav.php:28
 msgid ""
 "Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
 "details in a new tab. Time Groups"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:28
+#: /var/www/html/admin/modules/dpviz/views/nav.php:31
 msgid "Pan: Click and drag to move around the view."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:31
+#: /var/www/html/admin/modules/dpviz/views/nav.php:34
 msgid "Zoom: Use the mouse wheel to zoom in and out."
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:34
+#: /var/www/html/admin/modules/dpviz/views/nav.php:37
 msgid "Extension Node Status"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:36
+#: /var/www/html/admin/modules/dpviz/views/nav.php:39
 msgid "Registered extension (green border)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:38
+#: /var/www/html/admin/modules/dpviz/views/nav.php:41
 msgid "Dynamic agent logged into queue (blue border)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:39
+#: /var/www/html/admin/modules/dpviz/views/nav.php:42
 msgid "Paused queue member"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:41
+#: /var/www/html/admin/modules/dpviz/views/nav.php:44
 msgid "DND or Call Forwarding enabled (yellow border)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:42
+#: /var/www/html/admin/modules/dpviz/views/nav.php:45
 msgid "Unregistered extension (red border)"
 msgstr ""
 
-#: /var/www/html/admin/modules/dpviz/views/nav.php:43
+#: /var/www/html/admin/modules/dpviz/views/nav.php:46
 msgid "Virtual or non-extension node (no border)"
 msgstr ""
