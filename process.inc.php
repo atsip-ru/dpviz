@@ -345,7 +345,7 @@ function makeNode($module,$id,$label,$tooltip,$node,$rec,$sections,$active=true)
 	$node->attribute('tooltip', $tooltip);
 	//$ignoreRaw=array('ringgroups');
 	//if (hasSectionAccess($sections, $rawname) && in_array($rawname,$ignoreRaw)){
-		$node->attribute('URL', htmlentities('/admin/config.php?display='.$url));
+		$node->attribute('URL', htmlentities('config.php?display='.$url));
 		$node->attribute('target', '_blank');
 	//}
 	$node->attribute('shape', $shape);

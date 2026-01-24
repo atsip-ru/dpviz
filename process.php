@@ -428,7 +428,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 								$dpgraph->node($usageId, [
 										'label'     => $label,
 										'tooltip'   => $label,
-										'URL'       => htmlentities('/admin/'.$item['edit_url']),
+										'URL'       => htmlentities($item['edit_url']),
 										'target'    => '_blank',
 										'shape'     => 'rect',
 										'fillcolor' => $color,
@@ -632,7 +632,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			
 			$node->attribute('label', $label);
 			$node->attribute('tooltip', _('Extension').": ".$extnum."\n"._('Name').": ".$extname.$tooltip);
-			$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$extnum));
+			$node->attribute('URL', htmlentities('config.php?display=extensions&extdisplay='.$extnum));
 			$node->attribute('target', '_blank');
 			
 			//FMFM
@@ -1355,7 +1355,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						default:  $node->attribute('color', 'red'); break;        // offline
 				}
 
-				$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$qextension));
+				$node->attribute('URL', htmlentities('config.php?display=extensions&extdisplay='.$qextension));
 				$node->attribute('target', '_blank');
 
 		} else {
@@ -1547,7 +1547,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						default:  $node->attribute('color', 'red'); break;      // offline
 				}
 
-				$node->attribute('URL', htmlentities('/admin/config.php?display=extensions&extdisplay='.$rgext));
+				$node->attribute('URL', htmlentities('config.php?display=extensions&extdisplay='.$rgext));
 				$node->attribute('target', '_blank');
 
 		} else {
@@ -1915,7 +1915,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			$node->attribute('tooltip',sanitizeLabels($didTooltip));
 			$node->attribute('width', 2);
 			$node->attribute('margin','.13');
-			$node->attribute('URL', htmlentities('/admin/config.php?display=did&view=form&extdisplay='.urlencode($didLink)));
+			$node->attribute('URL', htmlentities('config.php?display=did&view=form&extdisplay='.urlencode($didLink)));
 			$node->attribute('target', '_blank');
 			$node->attribute('shape', 'rect');
 			$node->attribute('fillcolor', $color);
@@ -1962,7 +1962,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 					$edgeLabel=" "._('Blacklist');
 					$route['parent_edge_code']='edgelink';
 					$route['parent_edge_label'] = " "._('Disallowed by Blacklist');
-					$route['parent_edge_url'] = htmlentities('/admin/config.php?display=blacklist');
+					$route['parent_edge_url'] = htmlentities('config.php?display=blacklist');
 					$route['parent_edge_target'] = '_blank';
 					$route['parent_edge_labeltooltip']=" "._('Click to edit Blacklist')."\n".$tooltip;
 					$route['parent_node'] = $node;
@@ -2006,7 +2006,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$edgeLabel=" "._('Allowlist');
 				$route['parent_edge_code']='edgelink';
 				$route['parent_edge_label'] =" "._('Disallowed by Allowlist');
-				$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
+				$route['parent_edge_url'] = htmlentities('config.php?display=allowlist');
 				$route['parent_edge_target'] = '_blank';
 				$route['parent_edge_labeltooltip']=" "._('Click to edit Allowlist')."\n";
 				
@@ -2019,7 +2019,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 			
 			if ($options['allowlist'] && $allowCheck && !empty($allowList)){
 				$route['parent_edge_code']='edgelink';
-				$route['parent_edge_url'] = htmlentities('/admin/config.php?display=allowlist');
+				$route['parent_edge_url'] = htmlentities('config.php?display=allowlist');
 				$route['parent_edge_target'] = '_blank';
 				$route['parent_edge_labeltooltip']=" "._('Click to edit Allowlist')."\n".$tooltip;
 			}
@@ -2218,7 +2218,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 				$tgname = !empty($tg['description']) ? sanitizeLabels($tg['description']) : '';
 				$tgtime = !empty($tg['time']) ? $tg['time'] : "No times defined";
 				$tgLabel= $tgname."\n".$tgtime;
-				$tgLink = '/admin/config.php?display=timegroups&view=form&extdisplay='.$tgnum;
+				$tgLink = 'config.php?display=timegroups&view=form&extdisplay='.$tgnum;
 				$tgTooltip= $tgLabel;
 				
 				
@@ -2228,7 +2228,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_id']);
 						if (!empty($cal)) {
 								$tgLabel = sanitizeLabels($cal['name']);
-								$tgLink  = '/admin/config.php?display=calendar&action=view&type=calendar&id='.$tc['calendar_id'];
+								$tgLink  = 'config.php?display=calendar&action=view&type=calendar&id='.$tc['calendar_id'];
 								$tz      = !empty($cal['timezone']) ? _('Timezone').": ".$cal['timezone'] : '';
 								$tgTooltip = _('Name').": ".$cal['name']."\n"
 													 . _('Description').": ".$cal['description']."\n"
@@ -2239,7 +2239,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 						$cal = lazyLoadRow($route, 'calendar', $tc['calendar_group_id']);
 						if (!empty($cal)) {
 								$tgLabel = sanitizeLabels($cal['name']);
-								$tgLink  = '/admin/config.php?display=calendargroups&action=edit&id='.$tc['calendar_group_id'];
+								$tgLink  = 'config.php?display=calendargroups&action=edit&id='.$tc['calendar_group_id'];
 
 								$calNames = _('Calendars').": ";
 								if (!empty($cal['calendars'])) {
@@ -3482,7 +3482,7 @@ function dpp_follow_destinations (&$route, $destination, $optional, $options) {
 		
 		$node->attribute('label',_('Bad Dest: Blacklist'));
 		$node->attribute('tooltip', $node->getAttribute('label'));
-		$node->attribute('URL', htmlentities('/admin/config.php?display=blacklist'));
+		$node->attribute('URL', htmlentities('config.php?display=blacklist'));
 		$node->attribute('target','_blank');
 		$node->attribute('shape', 'rect');
 		$node->attribute('fillcolor', $color);

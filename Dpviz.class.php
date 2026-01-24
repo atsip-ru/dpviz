@@ -1068,8 +1068,9 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 														//$freepbx = \FreePBX::create();
 														//$freepbx->Modules->loadFunctionsInc('queues');
 														global $amp_conf;
-														
-														require_once($amp_conf['AMPWEBROOT'] . '/admin/modules/queues/functions.inc/geters_seters.php');
+														$base=$_SERVER['SCRIPT_NAME'];
+														$base = preg_replace('#/[^/]+$#', '', $base);
+														require_once($amp_conf['AMPWEBROOT'] . $base . '/modules/queues/functions.inc/geters_seters.php');
 														$strategy= $input['qstrategy'];
 														$maxwait= $input['maxwait'];
 														
