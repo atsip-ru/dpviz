@@ -1507,12 +1507,12 @@ function lazyLoadRow(&$route, $table, $id, $cidnum = '') {
 								'id',
 								false,
 								function ($row) use (&$route, $id) {
+										global $options;
 										// Fetch details for this group
 										$details = sql("SELECT * FROM timegroups_details WHERE timegroupid = " . q($id), "getAll", DB_FETCHMODE_ASSOC);
 										if (!DB::isError($details) && $details) {
 											//error_log('TZ: '.$route['currentTZ']);
-											
-											$simDT = sql("SELECT custom_datetime FROM dpviz WHERE id = 1", "getOne");
+											$simDT = !empty($options['custom_datetime']) ? $options['custom_datetime'] : null;
 											
 											if (timeGroupMatchesNow($details,$route['currentTZ'],$simDT)) {
 													$row['iscurrently'] = true;
@@ -1806,7 +1806,7 @@ function timeGroupMatchesNow($details, $tz = 'default', $simDT = null) {
     // Maps used for parsing FreePBX-style values
     $dowOrder = [
         '*'   => 0,
-        'sun' => 7, // ISO week: Sun=7
+        'sun' => 0,
         'mon' => 1,
         'tue' => 2,
         'wed' => 3,
@@ -1849,9 +1849,9 @@ function timeGroupMatchesNow($details, $tz = 'default', $simDT = null) {
 				}
 		}
 
-    $currMonth = (int)$now->format('n');   // 1–12
-    $currDay   = (int)$now->format('j');   // 1–31
-    $currDow   = (int)$now->format('N');   // 1–7 (Mon=1)
+    $currMonth = (int)$now->format('n');   // 1-12
+    $currDay   = (int)$now->format('j');   // 1-31
+    $currDow   = (int)$now->format('w');   // 0-6 (Sun=0)
     $currTime  = $now->format('H:i');      // "13:45"
 
     // ---- helpers for parsing ranges ----
@@ -1935,5 +1935,3 @@ function timeGroupMatchesNow($details, $tz = 'default', $simDT = null) {
 
     return false;
 }
-
-

@@ -357,11 +357,11 @@ if (isset($otherroutes['extensions']) && count($otherroutes['extensions']) > 0){
 
 ?>
 <div style="border-radius: 10px; background-color:#F5F5F5; margin: 10px; padding: 10px;">
-  <div class="row">
+  <div class="row dpviz-toolbar-row">
     
     <!-- Left Side: Reload & Highlight -->
-    <div class="col-sm-2">
-      <div style="display: inline-flex; gap: 5px;">
+    <div class="col-sm-2 dpviz-toolbar-left">
+      <div class="dpviz-toolbar-actions">
       
 				<div style="position: relative; display: inline-block;">
 					<!-- Hamburger button -->
@@ -396,11 +396,11 @@ if (isset($otherroutes['extensions']) && count($otherroutes['extensions']) > 0){
     </div>
 
     <!-- Middle: Dialplan -->
-		<div class="col-sm-7">
-			<div class="input-group" style="width: 90%; display: flex; flex-wrap: nowrap;">
+		<div class="col-sm-7 dpviz-toolbar-middle">
+			<div class="input-group dpviz-toolbar-group">
 
 				<!-- Label -->
-				<div class="input-group-label" style="display: flex; align-items: center; min-width: 150px; white-space: nowrap; padding: 0 5px; border: 1px solid #ccc; border-right: none; background-color: #e9ecef;">
+				<div class="input-group-label dpviz-toolbar-label">
 					<i class="fa fa-sitemap" aria-hidden="true"></i>
 					<span id="dialplanLabel" style="margin-left:5px;"></span>
 				</div>
@@ -426,20 +426,28 @@ if (isset($otherroutes['extensions']) && count($otherroutes['extensions']) > 0){
 				<?php } ?>
 			</div>
 		</div>
-
     <!-- Right Side: Export -->
-    <div class="col-sm-3" style="margin-left:-75px;">
-      <input type="text" id="filenameInput" name="nohistory" autocomplete="off" value="" class="form-control" disabled style="width: 100%;">
-      <div class="input-group-btn" style="position: absolute; top: 0; right: 10px; height: 100%;">
-        <button id="downloadButton" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled style="height: 100%; white-space: nowrap;">
-          <i class="fa fa-download"></i> <span class="caret"></span>
+    <div class="col-sm-3 dpviz-toolbar-right dpviz-export-col">
+      <div class="dpviz-export-shell">
+        <button id="downloadButton" type="button" class="btn btn-default" aria-expanded="false" disabled title="<?php echo _('Export'); ?>">
+          <i class="fa fa-download"></i>
         </button>
-        <ul class="dropdown-menu">
-					<li><a class="dropdown-item" href="#" onclick="exportImage(8)"><i class="fa fa-certificate"></i> <?php echo _('Super'); ?> .png</a></li>
-          <li><a class="dropdown-item" href="#" onclick="exportImage(4)"><i class="fa fa-star"></i> <?php echo _('High'); ?> .png</a></li>
-          <li><a class="dropdown-item" href="#" onclick="exportImage(2)"><i class="fa fa-circle"></i> <?php echo _('Standard'); ?> .png</a></li>
-          <li id="svgExButton"><a class="dropdown-item" href="#" onclick="handleSVGExport()"><i class="fa fa-code"></i> SVG .svg</a></li>
-        </ul>
+        <div id="exportPanel" class="dpviz-export-panel" hidden>
+          <label for="filenameInput" class="dpviz-export-label"><?php echo _('Filename'); ?></label>
+          <input type="text" id="filenameInput" name="nohistory" autocomplete="off" value="" class="form-control" disabled>
+
+          <label for="exportType" class="dpviz-export-label"><?php echo _('Format'); ?></label>
+          <select id="exportType" class="form-control" disabled>
+            <option value="png-2"><?php echo _('Standard'); ?> PNG</option>
+            <option value="png-4"><?php echo _('High'); ?> PNG</option>
+            <option value="png-8"><?php echo _('Super'); ?> PNG</option>
+            <option value="svg">SVG</option>
+          </select>
+
+          <button id="exportConfirmButton" type="button" class="btn btn-default" disabled>
+            <i class="fa fa-download"></i> <?php echo _('Download'); ?>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -527,22 +535,13 @@ $(document).ready(function() {
 		const savedDescription = document.getElementById('savedDescription');
 		const viewId = document.getElementById('viewId');
 
-		if (optgroupLabel) {
-			const label = optgroupLabel.replace(/\s\[.*?\]/, '').replace(/(\w+)s\b/, '$1').trim();
-			dialplanLabel.textContent = label;
-			filenameInput.value = sanitizeFilename(label + '_' + cleaned);
-			sessionStorage.setItem("selectedName", label + ': ' + selectedText);
-		} else {
-			dialplanLabel.textContent = '';
-			filenameInput.value = sanitizeFilename(selectedText);
-		}
+		updateExportFilename(selectedText, optionElement);
 
 		reloadButton.disabled = false;
 		hamburgerButton.disabled = false;
 		focusButton.disabled = false;
 		sanitizeButton.disabled = false;
-		filenameInput.disabled = false;
-		downloadButton.disabled = false;
+		setExportControlsEnabled(true);
 		resetFocusMode();
 		
 		let id= '', ext = '', jump = '', skips = [];
@@ -648,15 +647,229 @@ $('#prevBtn').on('click', function() {
 <?php
 	$lang = isset($options['lang']) ? $options['lang'] : 'en';
 	echo 'const currentLang = "' . addslashes($lang) . '";';
+	echo 'var exportPrefix = ' . json_encode(trim(isset($options['exportprefix']) ? $options['exportprefix'] : '')) . ';';
 ?>
 
 function sanitizeFilename(filename) {
-    return filename
-        .replace(/[\/\\:*?"<>|]/g, '_')        // Replace illegal characters with _
-        .replace(/[\x00-\x1F\x7F]/g, '')       // Remove control characters
-        .replace(/\s+/g, '_')                  // Replace spaces with _
-        .trim();
+    filename = (filename || '').replace(/[\/\:*?"<>|]/g, '_').replace(/\s+/g, '_');
+
+    return filename.split('').filter(function (ch) {
+        var code = ch.charCodeAt(0);
+        return code >= 32 && code !== 127;
+    }).join('').trim();
 }
+
+function applyExportPrefix(filename) {
+    var base = sanitizeFilename(filename || '');
+    var prefix = sanitizeFilename(exportPrefix || '');
+
+    if (!prefix) {
+        return base;
+    }
+    if (!base) {
+        return prefix;
+    }
+    if (base === prefix || base.indexOf(prefix + '_') === 0) {
+        return base;
+    }
+
+    return prefix + '_' + base;
+}
+
+function updateExportFilename(selectedText, optionElement) {
+    var filenameInput = document.getElementById('filenameInput');
+    var dialplanLabel = document.getElementById('dialplanLabel');
+    var optionNode = optionElement || ($('#dialPlan').find('option:selected').get(0) || null);
+    var optionText = selectedText || (optionNode ? optionNode.text : '');
+
+    if (!filenameInput || !optionNode || !optionText) {
+        return;
+    }
+
+    var cleaned = optionText.replace(/\s\[.*?\]/, '').replace(/(\w+)s\b/, '$1').trim();
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    var $option = $(optionNode);
+    var $optgroup = $option.parent('optgroup');
+    var optgroupLabel = $optgroup.length ? $optgroup.attr('label') : null;
+
+    if (optgroupLabel) {
+        var label = optgroupLabel.replace(/\s\[.*?\]/, '').replace(/(\w+)s\b/, '$1').trim();
+        if (dialplanLabel) {
+            dialplanLabel.textContent = label;
+        }
+        filenameInput.value = applyExportPrefix(label + '_' + cleaned);
+        sessionStorage.setItem('selectedName', label + ': ' + optionText);
+    } else {
+        if (dialplanLabel) {
+            dialplanLabel.textContent = '';
+        }
+        filenameInput.value = applyExportPrefix(optionText);
+    }
+}
+
+function setExportControlsEnabled(enabled) {
+  const filenameInput = document.getElementById('filenameInput');
+  const downloadButton = document.getElementById('downloadButton');
+  const exportType = document.getElementById('exportType');
+  const exportConfirmButton = document.getElementById('exportConfirmButton');
+  const exportPanel = document.getElementById('exportPanel');
+
+  if (filenameInput) filenameInput.disabled = !enabled;
+  if (downloadButton) downloadButton.disabled = !enabled;
+  if (exportType) exportType.disabled = !enabled;
+  if (exportConfirmButton) exportConfirmButton.disabled = !enabled;
+
+  if (!enabled && exportPanel && downloadButton) {
+    exportPanel.setAttribute('hidden', 'hidden');
+    downloadButton.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function dpvizExportImage(scale, onComplete) {
+  const container = document.querySelector('#vizContainer');
+  if (!container) {
+    alert(<?php echo json_encode(_('Container not found!')); ?>);
+    if (typeof onComplete === 'function') onComplete(false);
+    return;
+  }
+
+  const clone = container.cloneNode(true);
+  const svg = clone.querySelector('svg');
+  if (svg) svg.style.transform = 'none';
+
+  clone.style.position = 'absolute';
+  clone.style.left = '-99999px';
+  document.body.appendChild(clone);
+
+  html2canvas(clone, {
+    scale: scale || 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff'
+  }).then(function (canvas) {
+    const input = document.getElementById('filenameInput');
+    const filename = ((input && input.value ? input.value.trim() : '') || 'export') + '.png';
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    document.body.removeChild(clone);
+    if (typeof onComplete === 'function') onComplete(true);
+  }).catch(function (error) {
+    console.error('Export failed:', error);
+    if (clone.parentNode) document.body.removeChild(clone);
+    if (typeof onComplete === 'function') onComplete(false);
+  });
+}
+
+function dpvizExportCleanedSVG(svgElement, filename) {
+  const clonedSVG = svgElement.cloneNode(true);
+  clonedSVG.querySelectorAll('a').forEach(function (link) {
+    const parent = link.parentNode;
+    while (link.firstChild) parent.insertBefore(link.firstChild, link);
+    parent.removeChild(link);
+  });
+
+  const svgData = new XMLSerializer().serializeToString(clonedSVG);
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename && filename.slice(-4) === '.svg' ? filename : filename + '.svg';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
+function dpvizHandleSVGExport(onComplete) {
+  const svgElement = document.querySelector('#vizContainer svg');
+  if (!svgElement) {
+    alert(<?php echo json_encode(_('SVG not found!')); ?>);
+    if (typeof onComplete === 'function') onComplete(false);
+    return;
+  }
+
+  const input = document.getElementById('filenameInput');
+  const filename = ((input && input.value ? input.value.trim() : '') || 'graph') + '.svg';
+  dpvizExportCleanedSVG(svgElement, filename);
+  if (typeof onComplete === 'function') onComplete(true);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const downloadButton = document.getElementById('downloadButton');
+  const exportPanel = document.getElementById('exportPanel');
+  const exportType = document.getElementById('exportType');
+  const exportConfirmButton = document.getElementById('exportConfirmButton');
+  const filenameInput = document.getElementById('filenameInput');
+
+  if (downloadButton && exportPanel) {
+    downloadButton.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (downloadButton.disabled) return;
+
+      const isHidden = exportPanel.hasAttribute('hidden');
+      if (isHidden) {
+        exportPanel.removeAttribute('hidden');
+        downloadButton.setAttribute('aria-expanded', 'true');
+        if (filenameInput) {
+          filenameInput.focus();
+          filenameInput.select();
+        }
+      } else {
+        exportPanel.setAttribute('hidden', 'hidden');
+        downloadButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  if (exportConfirmButton && exportType) {
+    exportConfirmButton.addEventListener('click', function () {
+      if (exportConfirmButton.disabled) return;
+
+      if (filenameInput) {
+        filenameInput.value = applyExportPrefix(filenameInput.value || '');
+      }
+
+      const originalButtonHtml = exportConfirmButton.innerHTML;
+      exportConfirmButton.disabled = true;
+      exportConfirmButton.textContent = <?php echo json_encode(_('Downloading...')); ?>;
+
+      function finishExport(started) {
+        window.setTimeout(function () {
+          exportConfirmButton.disabled = false;
+          exportConfirmButton.innerHTML = originalButtonHtml;
+
+          if (started && exportPanel && downloadButton) {
+            exportPanel.setAttribute('hidden', 'hidden');
+            downloadButton.setAttribute('aria-expanded', 'false');
+          }
+        }, started ? 180 : 0);
+      }
+
+      const selectedType = exportType.value;
+      const runExport = function () {
+        if (selectedType === 'svg') {
+          dpvizHandleSVGExport(finishExport);
+        } else {
+          const scale = parseInt(selectedType.split('-')[1], 10) || 2;
+          dpvizExportImage(scale, finishExport);
+        }
+      };
+
+      if (window.requestAnimationFrame) {
+        window.requestAnimationFrame(function () {
+          window.setTimeout(runExport, 30);
+        });
+      } else {
+        window.setTimeout(runExport, 30);
+      }
+    });
+  }
+});
 
 $(document).on('click', '#addNewDestBtn', function() {
   const vizGraph = document.getElementById('vizGraph');
@@ -690,8 +903,7 @@ $(document).on('click', '#addNewDestBtn', function() {
   hamburgerButton.disabled = true;
   focusButton.disabled = true;
   sanitizeButton.disabled = true;
-  filenameInput.disabled = true;
-  downloadButton.disabled = true;
+  setExportControlsEnabled(false);
   saveModalBtn.style.display = 'none';
 	recordingModal.style.display = 'none';
 	customtimemodal.style.display = 'none';

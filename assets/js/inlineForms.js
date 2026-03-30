@@ -5,8 +5,8 @@ function showInlineForm(moduleName) {
   $('#inlineNewForm').remove();
 	
   let fieldsHtml = `
-    <div class="form-group mb-3 row align-items-center">
-			<label for="new_desc" class="col-md-4 col-form-label control-label">
+    <div class="form-group dpviz-inline-row">
+			<label for="new_desc" class="col-md-4 dpviz-col-form-label control-label">
 				Name / Description
 			</label>
 			<div class="col-md-8">
@@ -24,12 +24,12 @@ function showInlineForm(moduleName) {
   switch (moduleName) {
     case 'Announcements':
       fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="recordingsSelect" class="col-md-4 col-form-label control-label">Recording</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="recordingsSelect" class="col-md-4 dpviz-col-form-label control-label">Recording</label>
 					<div class="col-md-8">
 						<select id="recordingsSelect"
 										name="recordingsSelect"
-										class="form-control form-select"
+										class="form-control dpviz-select"
 										style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
@@ -42,11 +42,11 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Call Flow Control':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="currentmode" class="col-md-4 col-form-label control-label">
+				<div class="form-group dpviz-inline-row">
+					<label for="currentmode" class="col-md-4 dpviz-col-form-label control-label">
 						Current Mode
 					</label>
-					<div class="col-md-8 text-end">
+					<div class="col-md-8 dpviz-text-end">
 						<div class="btn-group radioset mode-buttons" role="group" aria-label="Current Mode">
 							<input type="radio" name="currentmode" id="day_mode" value="DAY" autocomplete="off">
 							<label class="btn" for="day_mode">
@@ -66,24 +66,24 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Call Recording':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="recordingmode" class="col-md-4 col-form-label control-label">Call Recording Mode</label>
-					<div class="col-md-8 text-end">
+				<div class="form-group dpviz-inline-row">
+					<label for="recordingmode" class="col-md-4 dpviz-col-form-label control-label">Call Recording Mode</label>
+					<div class="col-md-8 dpviz-text-end">
 						<div class="btn-group radioset mode-buttons" role="group" aria-label="Mode">
 
-								<input type="radio" class="btn-check" name="recordingmode" id="rec_force" value="force">
+								<input type="radio" class="dpviz-btn-check" name="recordingmode" id="rec_force" value="force">
 								<label class="btn" for="rec_force">Force</label>
 
-								<input type="radio" class="btn-check" name="recordingmode" id="rec_yes" value="yes">
+								<input type="radio" class="dpviz-btn-check" name="recordingmode" id="rec_yes" value="yes">
 								<label class="btn" for="rec_yes">Yes</label>
 
-								<input type="radio" class="btn-check" name="recordingmode" id="rec_dontcare" value="dontcare" checked>
+								<input type="radio" class="dpviz-btn-check" name="recordingmode" id="rec_dontcare" value="dontcare" checked>
 								<label class="btn" for="rec_dontcare">Don't Care</label>
 
-								<input type="radio" class="btn-check" name="recordingmode" id="rec_no" value="no">
+								<input type="radio" class="dpviz-btn-check" name="recordingmode" id="rec_no" value="no">
 								<label class="btn" for="rec_no">No</label>
 
-								<input type="radio" class="btn-check" name="recordingmode" id="rec_never" value="never">
+								<input type="radio" class="dpviz-btn-check" name="recordingmode" id="rec_never" value="never">
 								<label class="btn" for="rec_never">Never</label>
 
 						</div>
@@ -96,21 +96,21 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Dynamic Routes':
       fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="recordingsSelect" class="col-md-4 col-form-label control-label">
+				<div class="form-group dpviz-inline-row">
+					<label for="recordingsSelect" class="col-md-4 dpviz-col-form-label control-label">
 						Recording
 					</label>
 					<div class="col-md-8">
 						<select id="recordingsSelect"
 										name="recordingsSelect"
-										class="form-control form-select"
+										class="form-control dpviz-select"
 										style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
 					</div>
 				</div>
-				<div class="form-group mb-3 row align-items-center">
-					<label for="dyn_timeout" class="col-md-4 col-form-label control-label">
+				<div class="form-group dpviz-inline-row">
+					<label for="dyn_timeout" class="col-md-4 dpviz-col-form-label control-label">
 						Timeout
 					</label>
 					<div class="col-md-8">
@@ -119,23 +119,25 @@ function showInlineForm(moduleName) {
 				</div>
 				
 				<!-- DYN Entries -->
-				<div class="entries-scroll">
-					<label class="col-form-label">Dynamic Route Entries</label>
+				<div class="entries-block">
+					<label class="dpviz-col-form-label">Dynamic Route Entries</label>
 
-					<table class="table table-bordered table-sm" id="dynEntriesTable">
-						<thead>
-							<tr>
-								<th style="width:100px">Match</th>
-								<th>Destination</th>
-								<th style="width:60px"></th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
+					<div class="entries-scroll">
+						<table class="table table-bordered dpviz-table-sm" id="dynEntriesTable">
+							<thead>
+								<tr>
+									<th style="width:100px">Match</th>
+									<th>Destination</th>
+									<th style="width:60px"></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
 
 					<button type="button"
 									id="addDYNEntryBtn"
-									class="btn btn-outline-primary btn-sm">
+									class="btn btn-default btn-sm dpviz-outline-primary">
 						+ Add Entry
 					</button>
 				</div>`;
@@ -146,28 +148,28 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Inbound Routes':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="did" class="col-md-4 col-form-label control-label">DID Number</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="did" class="col-md-4 dpviz-col-form-label control-label">DID Number</label>
 					<div class="col-md-8">
 						<input type="text" id="did" name="did" class="form-control" placeholder="DID Number" autocomplete="off">
 					</div>
 				</div>
-				<div class="form-group mb-3 row align-items-center">
-					<label for="cidnum" class="col-md-4 col-form-label control-label">CallerID Number</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="cidnum" class="col-md-4 dpviz-col-form-label control-label">CallerID Number</label>
 					<div class="col-md-8">
 						<input type="text" id="cidnum" name="cidnum" class="form-control" placeholder="ANY" autocomplete="off">
 					</div>
 				</div>
-				<div class="form-group mb-3 row align-items-center">
-					<label for="grppre" class="col-md-4 col-form-label control-label">CID name prefix</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="grppre" class="col-md-4 dpviz-col-form-label control-label">CID name prefix</label>
 					<div class="col-md-8">
 						<input type="text" id="grppre" name="grppre" class="form-control" autocomplete="off">
 					</div>
 				</div>
-				<div class="form-group mb-3 row align-items-center">
-					<label for="musicSelect" class="col-md-4 col-form-label control-label">Music On Hold</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="musicSelect" class="col-md-4 dpviz-col-form-label control-label">Music On Hold</label>
 					<div class="col-md-8">
-						<select id="musicSelect" name="musicSelect" class="form-control form-select" style="width:100%">
+						<select id="musicSelect" name="musicSelect" class="form-control dpviz-select" style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
 					</div>
@@ -179,21 +181,21 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'IVR':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="recordingsSelect" class="col-md-4 col-form-label control-label">
+				<div class="form-group dpviz-inline-row">
+					<label for="recordingsSelect" class="col-md-4 dpviz-col-form-label control-label">
 						Recording
 					</label>
 					<div class="col-md-8">
 						<select id="recordingsSelect"
 										name="recordingsSelect"
-										class="form-control form-select"
+										class="form-control dpviz-select"
 										style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
 					</div>
 				</div>
-				<div class="form-group mb-3 row align-items-center">
-					<label for="timeout_time" class="col-md-4 col-form-label control-label">
+				<div class="form-group dpviz-inline-row">
+					<label for="timeout_time" class="col-md-4 dpviz-col-form-label control-label">
 						Timeout
 					</label>
 					<div class="col-md-8">
@@ -202,23 +204,25 @@ function showInlineForm(moduleName) {
 				</div>
 				
 				<!-- IVR Entries -->
-				<div class="entries-scroll">
-					<label class="col-form-label">IVR Entries</label>
+				<div class="entries-block">
+					<label class="dpviz-col-form-label">IVR Entries</label>
 
-					<table class="table table-bordered table-sm" id="ivrEntriesTable">
-						<thead>
-							<tr>
-								<th style="width:100px">Digit</th>
-								<th>Destination</th>
-								<th style="width:60px"></th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
+					<div class="entries-scroll">
+						<table class="table table-bordered dpviz-table-sm" id="ivrEntriesTable">
+							<thead>
+								<tr>
+									<th style="width:100px">Digit</th>
+									<th>Destination</th>
+									<th style="width:60px"></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
 
 					<button type="button"
 									id="addIVREntryBtn"
-									class="btn btn-outline-primary btn-sm">
+									class="btn btn-default btn-sm dpviz-outline-primary">
 						+ Add Entry
 					</button>
 				</div>`;
@@ -229,12 +233,12 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Languages':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="languageSelect" class="col-md-4 col-form-label control-label">Language Code</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="languageSelect" class="col-md-4 dpviz-col-form-label control-label">Language Code</label>
 					<div class="col-md-8">
 						<select id="langSelect"
 										name="langSelect"
-										class="form-control form-select"
+										class="form-control dpviz-select"
 										style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
@@ -247,8 +251,8 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Misc Destinations':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="account" class="col-md-4 col-form-label control-label">Dial</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="account" class="col-md-4 dpviz-col-form-label control-label">Dial</label>
 					<div class="col-md-8">
 						<input type="text" name="destdial" id="destdial" class="form-control" maxlength="100" autocomplete="off">
 					</div>
@@ -260,41 +264,41 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Queues':
 			fieldsHtml = `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="account" class="col-md-5 col-form-label control-label">Queue Number</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="account" class="col-md-5 dpviz-col-form-label control-label">Queue Number</label>
 					<div class="col-md-7">
 						<input type="text" name="account" id="qaccount" class="form-control" maxlength="20" autocomplete="off">
 					</div>
 				</div>
 				
-				<div class="form-group mb-3 row align-items-center">
-					<label for="new_desc" class="col-md-5 col-form-label control-label">Name / Description</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="new_desc" class="col-md-5 dpviz-col-form-label control-label">Name / Description</label>
 					<div class="col-md-7">
 						<input type="text" id="new_desc" name="new_desc" class="form-control"
 									 maxlength="50" placeholder="Description" autocomplete="off">
 					</div>
 				</div>
 				
-				<div class="form-group mb-3 row align-items-center">
-					<label for="staticlist" class="col-md-5 col-form-label control-label">Static Agents (comma separated)</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="staticlist" class="col-md-5 dpviz-col-form-label control-label">Static Agents (comma separated)</label>
 					<div class="col-md-7">
 						<input type="text" id="staticlist" name="staticlist" class="form-control"
 									 placeholder="101,102,103" autocomplete="off">
 					</div>
 				</div>
 				
-				<div class="form-group mb-3 row align-items-center">
-					<label for="dynlist" class="col-md-5 col-form-label control-label">Dynamic Agents (comma separated)</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="dynlist" class="col-md-5 dpviz-col-form-label control-label">Dynamic Agents (comma separated)</label>
 					<div class="col-md-7">
 						<input type="text" id="dynlist" name="dynlist" class="form-control"
 									 placeholder="101,102,103" autocomplete="off">
 					</div>
 				</div>
 				
-				<div class="form-group mb-3 row align-items-center">
-					<label for="qstrategy" class="col-md-5 col-form-label control-label">Ring Strategy</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="qstrategy" class="col-md-5 dpviz-col-form-label control-label">Ring Strategy</label>
 					<div class="col-md-7">
-						<select name="qstrategy" id="qstrategy" class="form-control form-select">
+						<select name="qstrategy" id="qstrategy" class="form-control dpviz-select">
 							<option value="ringall" selected="">ringall</option>
 							<option value="leastrecent">leastrecent</option>
 							<option value="fewestcalls">fewestcalls</option>
@@ -307,8 +311,8 @@ function showInlineForm(moduleName) {
 					</div>
 				</div>
 				
-				<div class="form-group mb-3 row align-items-center">
-					<label for="maxwait" class="col-md-5 col-form-label control-label">Max Wait Time</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="maxwait" class="col-md-5 dpviz-col-form-label control-label">Max Wait Time</label>
 					<div class="col-md-7">
 						<select name="maxwait" id="maxwait" class="form-control">
 							<option value="0" selected>Unlimited</option>
@@ -407,33 +411,33 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Ring Groups':
 			fieldsHtml = `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="account" class="col-md-5 col-form-label control-label">Ring-Group Number</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="account" class="col-md-5 dpviz-col-form-label control-label">Ring-Group Number</label>
 					<div class="col-md-7">
 						<input type="text" name="account" id="rgaccount" class="form-control" maxlength="20" autocomplete="off">
 					</div>
 				</div>
 
-				<div class="form-group mb-3 row align-items-center">
-					<label for="new_desc" class="col-md-5 col-form-label control-label">Name / Description</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="new_desc" class="col-md-5 dpviz-col-form-label control-label">Name / Description</label>
 					<div class="col-md-7">
 						<input type="text" id="new_desc" name="new_desc" class="form-control"
 									 maxlength="50" placeholder="Description" autocomplete="off">
 					</div>
 				</div>
 
-				<div class="form-group mb-3 row align-items-center">
-					<label for="grplist" class="col-md-5 col-form-label control-label">Extensions (comma separated)</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="grplist" class="col-md-5 dpviz-col-form-label control-label">Extensions (comma separated)</label>
 					<div class="col-md-7">
 						<input type="text" id="grplist" name="grplist" class="form-control"
 									 placeholder="101,102,103" autocomplete="off">
 					</div>
 				</div>
 
-				<div class="form-group mb-3 row align-items-center">
-					<label for="rgstrategy" class="col-md-5 col-form-label control-label">Ring Strategy</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="rgstrategy" class="col-md-5 dpviz-col-form-label control-label">Ring Strategy</label>
 					<div class="col-md-7">
-						<select name="rgstrategy" id="rgstrategy" class="form-control form-select">
+						<select name="rgstrategy" id="rgstrategy" class="form-control dpviz-select">
 							<option value="ringall">ringall</option>
 							<option value="ringall-prim">ringall-prim</option>
 							<option value="hunt">hunt</option>
@@ -447,8 +451,8 @@ function showInlineForm(moduleName) {
 					</div>
 				</div>
 
-				<div class="form-group mb-3 row align-items-center">
-					<label for="grptime" class="col-md-5 col-form-label control-label">Ring Time (max 300 sec)</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="grptime" class="col-md-5 dpviz-col-form-label control-label">Ring Time (max 300 sec)</label>
 					<div class="col-md-7">
 						<input type="number" min="0" max="300" id="grptime" name="grptime"
 									 class="form-control" value="20">
@@ -461,15 +465,15 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Set CallerID':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="calleridName" class="col-md-4 col-form-label control-label">CallerID Name</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="calleridName" class="col-md-4 dpviz-col-form-label control-label">CallerID Name</label>
 					<div class="col-md-8">
 						<input type="text" id="calleridName" name="calleridName"
 									 class="form-control" value="\${CALLERID(name)}" autocomplete="off">
 					</div>
 				</div>
-				<div class="form-group mb-3 row align-items-center">
-					<label for="calleridNumber" class="col-md-4 col-form-label control-label">CallerID Number</label>
+				<div class="form-group dpviz-inline-row">
+					<label for="calleridNumber" class="col-md-4 dpviz-col-form-label control-label">CallerID Number</label>
 					<div class="col-md-8">
 						<input type="text" id="calleridNumber" name="calleridNumber"
 									 class="form-control" value="\${CALLERID(num)}" autocomplete="off">
@@ -482,47 +486,47 @@ function showInlineForm(moduleName) {
 		 * ──────────────────────────────── */
 		case 'Time Conditions':
 			fieldsHtml += `
-				<div class="form-group mb-3 row align-items-center">
-					<label for="mode" class="col-md-3 col-form-label control-label">Mode</label>
-					<div class="col-md-9 text-end">
+				<div class="form-group dpviz-inline-row">
+					<label for="mode" class="col-md-3 dpviz-col-form-label control-label">Mode</label>
+					<div class="col-md-9 dpviz-text-end">
 						<div class="btn-group radioset mode-buttons" role="group" aria-label="Mode">
-							<input type="radio" class="btn-check" name="mode" id="mode_legacy" value="time-group" checked>
+							<input type="radio" class="dpviz-btn-check" name="mode" id="mode_legacy" value="time-group" checked>
 							<label class="btn" for="mode_legacy">Time Group Mode</label>
 
-							<input type="radio" class="btn-check" name="mode" id="mode_calendar" value="calendar">
+							<input type="radio" class="dpviz-btn-check" name="mode" id="mode_calendar" value="calendar">
 							<label class="btn" for="mode_calendar">Calendar Mode</label>
 
-							<input type="radio" class="btn-check" name="mode" id="mode_groups" value="calendar-group">
+							<input type="radio" class="dpviz-btn-check" name="mode" id="mode_groups" value="calendar-group">
 							<label class="btn" for="mode_groups">Calendar Group Mode</label>
 						</div>
 					</div>
 				</div>
 
-				<div id="timeGroupContainer" class="form-group mb-3 row align-items-center">
-					<label for="timegroupSelect" class="col-md-3 col-form-label control-label">Time Group</label>
+				<div id="timeGroupContainer" class="form-group dpviz-inline-row">
+					<label for="timegroupSelect" class="col-md-3 dpviz-col-form-label control-label">Time Group</label>
 					<div class="col-md-9">
 						<select id="timegroupSelect" name="timegroup_id"
-										class="form-control form-select" style="width:100%">
+										class="form-control dpviz-select" style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
 					</div>
 				</div>
 
-				<div id="calendarContainer" class="form-group mb-3 row align-items-center" style="display:none;">
-					<label for="calendarSelect" class="col-md-3 col-form-label control-label">Calendar</label>
+				<div id="calendarContainer" class="form-group dpviz-inline-row" style="display:none;">
+					<label for="calendarSelect" class="col-md-3 dpviz-col-form-label control-label">Calendar</label>
 					<div class="col-md-9">
 						<select id="calendarSelect" name="calendar_id"
-										class="form-control form-select" style="width:100%">
+										class="form-control dpviz-select" style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
 					</div>
 				</div>
 
-				<div id="calendarGroupContainer" class="form-group mb-3 row align-items-center" style="display:none;">
-					<label for="calendarGroupSelect" class="col-md-3 col-form-label control-label">Calendar Groups</label>
+				<div id="calendarGroupContainer" class="form-group dpviz-inline-row" style="display:none;">
+					<label for="calendarGroupSelect" class="col-md-3 dpviz-col-form-label control-label">Calendar Groups</label>
 					<div class="col-md-9">
 						<select id="calendarGroupSelect" name="calendar_group"
-										class="form-control form-select" style="width:100%">
+										class="form-control dpviz-select" style="width:100%">
 							<option value="">-- Loading... --</option>
 						</select>
 					</div>
@@ -592,6 +596,16 @@ $(document).on('change', '.btn-group.radioset input[type="radio"]', function () 
   const $group = $(this).closest('.btn-group.radioset');
   $group.find('label.btn').removeClass('active');
   $(this).next('label.btn').addClass('active');
+});
+
+$('#inlineNewForm .btn-group.radioset').each(function () {
+  const $group = $(this);
+  const $checked = $group.find('input[type="radio"]:checked').first();
+
+  $group.find('label.btn').removeClass('active');
+  if ($checked.length) {
+    $checked.next('label.btn').addClass('active');
+  }
 });
 
 	if (moduleName === 'Announcements' || moduleName === 'Dynamic Routes' || moduleName === 'IVR') {
@@ -1379,7 +1393,7 @@ function addIVREntryRow() {
       <td>
 				<div class="ivr-select-wrapper">
 					<!-- Module Select -->
-					<select class="form-control form-select form-select-sm ivr-module"
+					<select class="form-control dpviz-select dpviz-select-sm ivr-module"
 									data-row="${rowId}"
 									style="width:100%;">
 						<option value="">== choose one ==</option>
@@ -1387,7 +1401,7 @@ function addIVREntryRow() {
 
 					<!-- Destination wrapper (starts hidden) -->
 					<div class="ivr-dest-wrapper" style="display:none; margin-top:1px;">
-						<select class="form-control form-select form-select-sm ivr-dest"
+						<select class="form-control dpviz-select dpviz-select-sm ivr-dest"
 										id="ivrEntrySelect_${rowId}"
 										name="ivrEntry[${rowId}]"
 										data-row="${rowId}"
@@ -1511,7 +1525,7 @@ function addDYNEntryRow() {
       <td>
 				<div class="dyn-select-wrapper">
 					<!-- Module Select -->
-					<select class="form-control form-select form-select-sm dyn-module"
+					<select class="form-control dpviz-select dpviz-select-sm dyn-module"
 									data-row="${rowId}"
 									style="width:100%;">
 						<option value="">== choose one ==</option>
@@ -1519,7 +1533,7 @@ function addDYNEntryRow() {
 
 					<!-- Destination wrapper (starts hidden) -->
 					<div class="dyn-dest-wrapper" style="display:none; margin-top:1px;">
-						<select class="form-control form-select form-select-sm dyn-dest"
+						<select class="form-control dpviz-select dpviz-select-sm dyn-dest"
 										id="dynEntrySelect_${rowId}"
 										name="dynEntry[${rowId}]"
 										data-row="${rowId}"
@@ -1618,6 +1632,4 @@ function initDYNSelect2($select) {
     dropdownCssClass: 's2-limit-height'
   });
 }
-
-
 

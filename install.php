@@ -8,6 +8,23 @@ global $db;
 global $amp_conf;
 
 $autoincrement = (($amp_conf["AMPDBENGINE"] == "sqlite") || ($amp_conf["AMPDBENGINE"] == "sqlite3")) ? "AUTOINCREMENT":"AUTO_INCREMENT";
+
+// Persistent install identity table.
+// Keep this outside normal module KV so install_uuid survives remove/uninstall + reinstall.
+$sql = "SHOW TABLES LIKE 'dpviz_persist'";
+$exists = $db->getOne($sql);
+
+if (empty($exists)) {
+    $sql = "CREATE TABLE dpviz_persist (
+        id INTEGER NOT NULL PRIMARY KEY,
+        install_uuid VARCHAR(36) NOT NULL
+    )";
+    $check = $db->query($sql);
+    if (DB::IsError($check)) {
+        die_freepbx("Can not create dpviz_persist table");
+    }
+}
+
 // Check if table exists first
 $sql = "SHOW TABLES LIKE 'dpviz'";
 $exists = $db->getOne($sql);
@@ -290,5 +307,73 @@ if (function_exists('get_framework_version') && version_compare(get_framework_ve
         if (function_exists('out')) {
             out("Public key file not found: $localKeyFile");
         }
+    }
+}
+
+
+// Version 1.0.33 adds exportprefix
+$sql = "SELECT exportprefix FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+    $sql = "ALTER TABLE dpviz ADD exportprefix VARCHAR(60) DEFAULT ''";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+
+    $sql = "UPDATE dpviz SET exportprefix = '' WHERE id = 1;";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+// Version 1.0.33 adds hidewhatsnew and resets it on install/upgrade
+$sql = "SELECT hidewhatsnew FROM dpviz";
+$check = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+if(DB::IsError($check)) {
+    $sql = "ALTER TABLE dpviz ADD hidewhatsnew TINYINT(1) NOT NULL DEFAULT 0";
+    $result = $db->query($sql);
+    if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+}
+
+$sql = "UPDATE dpviz SET hidewhatsnew = 0 WHERE id = 1;";
+$result = $db->query($sql);
+if(DB::IsError($result)) { die_freepbx($result->getDebugInfo()); }
+
+// Migrate legacy module-KV install_uuid into the persistent table once.
+$sql = "SELECT install_uuid FROM dpviz_persist WHERE id = 1";
+$persistedUuid = $db->getOne($sql);
+if (DB::IsError($persistedUuid)) {
+    $persistedUuid = '';
+}
+
+if (empty($persistedUuid)) {
+    $legacyUuid = '';
+    $sql = "SHOW TABLES LIKE 'kvstore_FreePBX_modules_Dpviz'";
+    $kvExists = $db->getOne($sql);
+    if (!DB::IsError($kvExists) && !empty($kvExists)) {
+        $sql = "SELECT val FROM kvstore_FreePBX_modules_Dpviz WHERE id = 'noid' AND `key` = 'install_uuid'";
+        $legacyUuid = $db->getOne($sql);
+        if (DB::IsError($legacyUuid)) {
+            $legacyUuid = '';
+        }
+    }
+
+    if (!empty($legacyUuid)) {
+        $sql = "REPLACE INTO dpviz_persist (id, install_uuid) VALUES (1, " . $db->quoteSmart($legacyUuid) . ")";
+        $check = $db->query($sql);
+        if (DB::IsError($check)) {
+            die_freepbx("Failed to migrate install_uuid into dpviz_persist");
+        }
+    }
+}
+
+
+try {
+    $dpviz = \FreePBX::Dpviz();
+    if ($dpviz) {
+        $dpviz->restoreSettingsRowFromKv();
+        $dpviz->syncSettingsRowToKv();
+    }
+} catch (\Exception $e) {
+    if (function_exists('out')) {
+        out('dpviz KV restore skipped: ' . $e->getMessage());
     }
 }

@@ -91,6 +91,12 @@ $('#dpvizForm').submit(function(event) {
 		url: $form.attr('action'),
 		data: formData,
 		success: function(response) {
+			if (typeof exportPrefix !== 'undefined') {
+				exportPrefix = ($('#exportprefix').val() || '').trim();
+			}
+			if (typeof updateExportFilename === 'function') {
+				updateExportFilename();
+			}
 			var saveButton = document.getElementById("saveButton");
 			const savedText = saveButton.dataset.savedLabel;
 			var originalContent = saveButton.innerHTML;
@@ -448,7 +454,9 @@ function generateVisualization(ext, jump, skips) {
 														delete header.dataset.prevBg;
 														censor(header);
 												}
-												svgExButton.style.display = 'none';
+												if (svgExButton) {
+														svgExButton.style.display = 'none';
+												}
 
 												setSanitizeButton("restore");
 
@@ -459,7 +467,9 @@ function generateVisualization(ext, jump, skips) {
 												texts.forEach(t => uncensor(t));
 
 												if (header) uncensor(header);
-												svgExButton.style.display = 'block';
+												if (svgExButton) {
+														svgExButton.style.display = 'block';
+												}
 
 												restoreLinks();
 												setSanitizeButton("sanitize");
@@ -695,7 +705,7 @@ function getRecording(titleid) {
 				const audioUrl = URL.createObjectURL(blob);
 
 				const container = document.createElement('div');
-				container.classList.add('card', 'mb-3', 'custom-card-bg');
+				container.classList.add('card', 'dpviz-mb-3', 'custom-card-bg');
 
 				const cardBody = document.createElement('div');
 				cardBody.classList.add('card-body');
@@ -807,6 +817,7 @@ document.addEventListener('keydown', function(event) {
 		const savemodal = document.getElementById('saveModal');
 		const nodestmodal = document.getElementById('nodestmodal');
 		const customtimemodal = document.getElementById('customTimeModal');
+		const whatsnewmodal = document.getElementById('whatsNewModal');
     if (recordingModal && recordingModal.style.display !== 'none') {
       closeModal('recordingmodal');
     }
@@ -821,6 +832,10 @@ document.addEventListener('keydown', function(event) {
 		
 		if (customtimemodal && customtimemodal.style.display !== 'none') {
       closeCustomTimeModal();
+    }
+
+		if (whatsnewmodal && whatsnewmodal.style.display !== 'none') {
+      closeWhatsNewModal();
     }
   }
 });
@@ -854,6 +869,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const customTimeModal = document.getElementById("customTimeModal");
     const customTimeHeader = document.getElementById("customTimeModal-header");
     makeDraggable(customTimeModal, customTimeHeader);
+
+    const feedbackOverlay = document.getElementById("feedbackModal");
+    const feedbackModal = feedbackOverlay?.querySelector(".feedback-modal-content");
+    const feedbackHeader = feedbackModal?.querySelector(".feedback-modal-header");
+    makeDraggable(feedbackModal, feedbackHeader);
+
+    const saveOverlay = document.getElementById("saveModal");
+    const saveModal = saveOverlay?.querySelector(".savemodal-content");
+    const saveHeader = saveModal?.querySelector(".dpviz-save-header");
+    makeDraggable(saveModal, saveHeader);
 });
 
 
@@ -1380,6 +1405,117 @@ document.getElementById('feedbackForm').addEventListener('submit', (e) => {
     form.reset();
 });
 
+
+
+function getWhatsNewModalElements() {
+	return {
+		modal: document.getElementById('whatsNewModal'),
+		closeBtn: document.getElementById('closeWhatsNewModal'),
+		closeAction: document.getElementById('closeWhatsNewAction'),
+		hideCheckbox: document.getElementById('hideWhatsNewCheckbox'),
+		togglePreference: document.getElementById('toggleWhatsNewPreference')
+	};
+}
+
+function showWhatsNewModal() {
+	var elements = getWhatsNewModalElements();
+	if (!elements.modal) {
+		return;
+	}
+
+	if (elements.hideCheckbox) {
+		elements.hideCheckbox.checked = !!whatsNewHiddenByServer;
+		syncWhatsNewPreferenceState();
+	}
+
+	elements.modal.classList.remove('is-visible');
+	elements.modal.style.display = 'block';
+	window.requestAnimationFrame(function () {
+		elements.modal.classList.add('is-visible');
+	});
+}
+
+function closeWhatsNewModal() {
+	var elements = getWhatsNewModalElements();
+	if (!elements.modal) {
+		return;
+	}
+
+	const hideValue = (elements.hideCheckbox && elements.hideCheckbox.checked) ? '1' : '0';
+	whatsNewHiddenByServer = (hideValue === '1');
+
+	fetch('ajax.php?module=dpviz&command=save_whatsnew', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+		},
+		body: 'hidewhatsnew=' + encodeURIComponent(hideValue)
+	})
+	.finally(() => {
+		elements.modal.classList.remove('is-visible');
+		window.setTimeout(function () {
+			elements.modal.style.display = 'none';
+		}, 180);
+	});
+}
+
+
+function syncWhatsNewPreferenceState() {
+	var elements = getWhatsNewModalElements();
+	if (elements.togglePreference && elements.hideCheckbox) {
+		elements.togglePreference.setAttribute('aria-checked', elements.hideCheckbox.checked ? 'true' : 'false');
+	}
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+	const whatsNewOpenBtn = document.getElementById("openWhatsNewModal");
+	if (whatsNewOpenBtn) {
+		whatsNewOpenBtn.addEventListener("click", function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			showWhatsNewModal();
+		});
+	}
+
+	var elements = getWhatsNewModalElements();
+	if (elements.closeBtn) {
+		elements.closeBtn.addEventListener('click', closeWhatsNewModal);
+	}
+	if (elements.closeAction) {
+		elements.closeAction.addEventListener('click', closeWhatsNewModal);
+	}
+	if (elements.togglePreference && elements.hideCheckbox) {
+		elements.togglePreference.addEventListener('click', function (e) {
+			if (e.target !== elements.hideCheckbox) {
+				elements.hideCheckbox.checked = !elements.hideCheckbox.checked;
+			}
+			syncWhatsNewPreferenceState();
+		});
+
+		elements.hideCheckbox.addEventListener('change', syncWhatsNewPreferenceState);
+
+		elements.togglePreference.addEventListener('keydown', function (e) {
+			if (e.key === ' ' || e.key === 'Enter') {
+				e.preventDefault();
+				elements.hideCheckbox.checked = !elements.hideCheckbox.checked;
+				syncWhatsNewPreferenceState();
+			}
+		});
+
+		syncWhatsNewPreferenceState();
+	}
+
+	const whatsNewOverlay = document.getElementById("whatsNewModal");
+	const whatsNewPanel = whatsNewOverlay ? whatsNewOverlay.querySelector(".whatsnew-modal-content") : null;
+	const whatsNewHeader = document.getElementById("whatsNewModal-header");
+	makeDraggable(whatsNewPanel, whatsNewHeader);
+
+	if (typeof shouldShowWhatsNew !== 'undefined' && shouldShowWhatsNew) {
+		setTimeout(function () {
+			showWhatsNewModal();
+		}, 350);
+	}
+});
 
 
 function wireGraphvizTooltips(container) {
@@ -2260,4 +2396,3 @@ function openNewDestinationModal() {
             }
         });
 }
-

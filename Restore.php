@@ -7,8 +7,12 @@ class Restore Extends Base\RestoreBase
 	public function runRestore()
 	{
 		$configs = $this->getConfigs();
-		$this->importTables($configs['tables']);
-		$this->importKVStore($configs['kvstore']);
+		if (isset($configs['tables'])) {
+			$this->importTables($configs['tables']);
+		}
+		if (isset($configs['kvstore'])) {
+			$this->importKVStore($configs['kvstore']);
+		}
 	}
 
 	public function processLegacy($pdo, $data, $tables, $unknownTables)

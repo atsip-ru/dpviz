@@ -15,6 +15,302 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         $this->db = $this->freepbx->Database;
     }
 
+    protected function hasPersistentInstallTable() {
+        try {
+            $sth = $this->db->query("SHOW TABLES LIKE 'dpviz_persist'");
+            return (bool)$sth->fetchColumn();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    protected function getPersistentInstallUuid() {
+        if (!$this->hasPersistentInstallTable()) {
+            return '';
+        }
+
+        try {
+            $sth = $this->db->prepare("SELECT install_uuid FROM dpviz_persist WHERE id = 1");
+            $sth->execute();
+            $uuid = $sth->fetchColumn();
+            return is_string($uuid) ? trim($uuid) : '';
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
+    protected function setPersistentInstallUuid($uuid) {
+        if (!$this->isValidUuid($uuid) || !$this->hasPersistentInstallTable()) {
+            return false;
+        }
+
+        try {
+            $sth = $this->db->prepare("REPLACE INTO dpviz_persist (id, install_uuid) VALUES (1, :uuid)");
+            return (bool)$sth->execute(array(':uuid' => $uuid));
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    protected function ensureInstallUuid($forceRegenerate = false) {
+        $uuid = false;
+
+        if (!$forceRegenerate) {
+            $uuid = $this->getPersistentInstallUuid();
+
+            if (!$this->isValidUuid($uuid)) {
+                $uuid = $this->getConfig('install_uuid');
+                if ($this->isValidUuid($uuid)) {
+                    $this->setPersistentInstallUuid($uuid);
+                }
+            }
+        }
+
+        if (!$this->isValidUuid($uuid)) {
+            $uuid = $this->generateUuidV4();
+            $this->setPersistentInstallUuid($uuid);
+        }
+
+        $this->setConfig('install_uuid', $uuid);
+
+        return $uuid;
+    }
+
+    protected function isValidUuid($uuid) {
+        return is_string($uuid) && preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i', $uuid);
+    }
+
+    protected function generateUuidV4() {
+        $bytes = '';
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $strong = false;
+            $bytes = openssl_random_pseudo_bytes(16, $strong);
+            if ($bytes === false || strlen($bytes) !== 16) {
+                $bytes = '';
+            }
+        }
+
+        if (strlen($bytes) !== 16) {
+            $bytes = '';
+            for ($i = 0; $i < 16; $i++) {
+                $bytes .= chr(mt_rand(0, 255));
+            }
+        }
+
+        $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
+        $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
+        $hex = bin2hex($bytes);
+
+        return sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($hex, 0, 8),
+            substr($hex, 8, 4),
+            substr($hex, 12, 4),
+            substr($hex, 16, 4),
+            substr($hex, 20, 12)
+        );
+    }
+
+    protected function readFirstAvailableFile($paths) {
+        foreach ((array)$paths as $path) {
+            if (is_readable($path)) {
+                $value = trim((string)@file_get_contents($path));
+                if ($value !== '') {
+                    return $value;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    protected function getMacAddresses() {
+        $macs = array();
+        $paths = glob('/sys/class/net/*/address');
+
+        if (!is_array($paths)) {
+            return $macs;
+        }
+
+        foreach ($paths as $path) {
+            $iface = basename(dirname($path));
+            if ($iface === 'lo') {
+                continue;
+            }
+
+            $mac = strtolower(trim((string)@file_get_contents($path)));
+            if ($mac !== '' && $mac !== '00:00:00:00:00:00') {
+                $macs[] = $iface . ':' . $mac;
+            }
+        }
+
+        sort($macs);
+        return $macs;
+    }
+
+    protected function getInstallFingerprint() {
+        $parts = array();
+        $parts[] = 'host:' . php_uname('n');
+
+        $machineId = $this->readFirstAvailableFile(array('/etc/machine-id', '/var/lib/dbus/machine-id'));
+        if ($machineId !== '') {
+            $parts[] = 'machine:' . $machineId;
+        }
+
+        $macs = $this->getMacAddresses();
+        if (!empty($macs)) {
+            $parts[] = 'macs:' . implode(',', $macs);
+        }
+
+        return hash('sha256', implode('|', $parts));
+    }
+
+
+    protected function getCurrentUsername() {
+        if (isset($_SESSION['AMP_user'])) {
+            if (is_string($_SESSION['AMP_user']) && $_SESSION['AMP_user'] !== '') {
+                return (string)$_SESSION['AMP_user'];
+            }
+            if (is_array($_SESSION['AMP_user']) && !empty($_SESSION['AMP_user']['username'])) {
+                return (string)$_SESSION['AMP_user']['username'];
+            }
+            if (is_object($_SESSION['AMP_user'])) {
+                if (!empty($_SESSION['AMP_user']->username)) {
+                    return (string)$_SESSION['AMP_user']->username;
+                }
+                if (method_exists($_SESSION['AMP_user'], 'getUsername')) {
+                    return (string)$_SESSION['AMP_user']->getUsername();
+                }
+            }
+        }
+        if (!empty($_SERVER['PHP_AUTH_USER'])) {
+            return (string)$_SERVER['PHP_AUTH_USER'];
+        }
+        return 'noid';
+    }
+
+    protected function getCurrentModuleVersion() {
+        $modinfo = \FreePBX::Modules()->getInfo('dpviz');
+        return isset($modinfo['dpviz']['version']) ? (string)$modinfo['dpviz']['version'] : '0.0.0';
+    }
+
+    protected function getUserSettingsOverrides($username = null) {
+        $username = $username ?: $this->getCurrentUsername();
+        $settings = $this->getConfig('user_settings', $username);
+        return is_array($settings) ? $settings : array();
+    }
+
+    protected function saveUserSettingsOverrides(array $settings, $username = null) {
+        $username = $username ?: $this->getCurrentUsername();
+        return $this->setConfig('user_settings', $settings, $username);
+    }
+
+    protected function valuesEquivalent($left, $right) {
+        $left = ($left === null) ? '' : (string)$left;
+        $right = ($right === null) ? '' : (string)$right;
+        return $left === $right;
+    }
+
+    protected function getOverrideableSettingsColumns() {
+        return array_values(array_diff($this->getSettingsColumns(), array('id', 'hidewhatsnew')));
+    }
+
+    protected function saveCurrentUserOverrides(array $newValues) {
+        $global = $this->fetchSettingsRow();
+        if (!$global && $this->restoreSettingsRowFromKv()) {
+            $global = $this->fetchSettingsRow();
+        }
+        if (!is_array($global)) {
+            $global = array();
+        }
+
+        $allowed = array_flip($this->getOverrideableSettingsColumns());
+        $overrides = $this->getUserSettingsOverrides();
+
+        foreach ($newValues as $key => $value) {
+            if (!isset($allowed[$key])) {
+                continue;
+            }
+
+            $globalValue = array_key_exists($key, $global) ? $global[$key] : null;
+            if ($this->valuesEquivalent($value, $globalValue)) {
+                unset($overrides[$key]);
+            } else {
+                $overrides[$key] = $value;
+            }
+        }
+
+        return $this->saveUserSettingsOverrides($overrides);
+    }
+
+    protected function getCurrentUserWhatsNewHiddenVersion() {
+        $username = $this->getCurrentUsername();
+        $hiddenVersion = $this->getConfig('whatsnew_hidden_version', $username);
+        return is_string($hiddenVersion) ? trim($hiddenVersion) : '';
+    }
+
+    protected function setCurrentUserWhatsNewHiddenVersion($version) {
+        $username = $this->getCurrentUsername();
+        return $this->setConfig('whatsnew_hidden_version', (string)$version, $username);
+    }
+
+    protected function fetchSettingsRow() {
+        $sql = "SELECT * FROM dpviz LIMIT 1";
+        $sth = $this->db->prepare($sql);
+        $sth->execute();
+        return $sth->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    protected function getSettingsColumns() {
+        $columns = array();
+        $sth = $this->db->query("DESCRIBE dpviz");
+        while ($row = $sth->fetch(\PDO::FETCH_ASSOC)) {
+            if (!empty($row['Field'])) {
+                $columns[] = $row['Field'];
+            }
+        }
+        return $columns;
+    }
+
+    public function syncSettingsRowToKv() {
+        $settings = $this->fetchSettingsRow();
+        if (!is_array($settings) || empty($settings)) {
+            return false;
+        }
+
+        $this->setConfig('settings_row', $settings);
+        return true;
+    }
+
+    public function restoreSettingsRowFromKv() {
+        $settings = $this->getConfig('settings_row');
+        if (!is_array($settings) || empty($settings)) {
+            return false;
+        }
+
+        $columns = $this->getSettingsColumns();
+        $updates = array();
+        $params = array();
+
+        foreach ($columns as $column) {
+            if ($column === 'id' || !array_key_exists($column, $settings)) {
+                continue;
+            }
+
+            $updates[] = '`' . $column . '` = :' . $column;
+            $params[':' . $column] = $settings[$column];
+        }
+
+        if (empty($updates)) {
+            return false;
+        }
+
+        $sql = "UPDATE dpviz SET " . implode(', ', $updates) . " WHERE id = 1";
+        $sth = $this->db->prepare($sql);
+        return $sth->execute($params);
+    }
+
     protected function sendAction($action) {
         return $this->sendCurlPost("action.php", array('action' => $action));
     }
@@ -28,16 +324,31 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
     }
 		
     public function getOptions() {
-        $sql = "SELECT * FROM dpviz LIMIT 1";
-        $sth = $this->db->prepare($sql);
-        $sth->execute();
-        return $sth->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->fetchSettingsRow();
+        if (!$row && $this->restoreSettingsRowFromKv()) {
+            $row = $this->fetchSettingsRow();
+        }
+        if (!is_array($row)) {
+            $row = array();
+        }
+
+        $overrides = $this->getUserSettingsOverrides();
+        foreach ($overrides as $key => $value) {
+            $row[$key] = $value;
+        }
+
+        $hiddenVersion = trim((string)$this->getCurrentUserWhatsNewHiddenVersion());
+        $row['debug_current_username'] = $this->getCurrentUsername();
+        $row['whatsnew_hidden_version'] = $hiddenVersion;
+        $row['hidewhatsnew'] = ($hiddenVersion !== '') ? 1 : 0;
+
+        return $row;
     }
 
     public function editDpviz($panzoom, $horizontal, $datetime,$dynmembers, $combineQueueRing,
 															$extOptional, $fmfm, $minimal, $queue_member_display, 
 															$ring_member_display, $queue_penalty, $allowlist, $blacklist, $autoplay, 
-															$displaydestinations, $inuseby, $insertnode)
+															$displaydestinations, $inuseby, $insertnode, $exportprefix)
 		{
         $sql = "UPDATE dpviz SET
             `panzoom` = :panzoom,
@@ -56,7 +367,8 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						`autoplay` = :autoplay,
 						`displaydestinations` = :displaydestinations,
 						`inuseby` = :inuseby,
-						`insertnode` = :insertnode
+						`insertnode` = :insertnode,
+						`exportprefix` = :exportprefix
 						
             WHERE `id` = 1";
 
@@ -77,11 +389,16 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						':autoplay' => $autoplay,
 						':displaydestinations' => $displaydestinations,
 						':inuseby' => $inuseby,
-						':insertnode' => $insertnode
+						':insertnode' => $insertnode,
+						':exportprefix' => $exportprefix
         );
 
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute($insert);
+        $success = $stmt->execute($insert);
+        if ($success) {
+            $this->syncSettingsRowToKv();
+        }
+        return $success;
     }
 
     public function doConfigPageInit($page) {
@@ -104,14 +421,30 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 				$displaydestinations = isset($request['displaydestinations']) ? $request['displaydestinations'] : '';
 				$inuseby = isset($request['inuseby']) ? $request['inuseby'] : '';
 				$insertnode = isset($request['insertnode']) ? $request['insertnode'] : '';
+				$exportprefix = isset($request['exportprefix']) ? trim($request['exportprefix']) : '';
 
         switch ($action) {
             case 'edit':
-                $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing, 
-																 $extOptional, $fmfm, $minimal, $queue_member_display, 
-																 $ring_member_display, $queue_penalty, $allowlist, $blacklist, 
-																 $autoplay, $displaydestinations, $inuseby, $insertnode
-								);
+                $this->saveCurrentUserOverrides(array(
+                    'panzoom' => $panzoom,
+                    'horizontal' => $horizontal,
+                    'datetime' => $datetime,
+                    'dynmembers' => $dynmembers,
+                    'combineQueueRing' => $combineQueueRing,
+                    'extOptional' => $extOptional,
+                    'fmfm' => $fmfm,
+                    'minimal' => $minimal,
+                    'queue_member_display' => $queue_member_display,
+                    'ring_member_display' => $ring_member_display,
+                    'queue_penalty' => $queue_penalty,
+                    'allowlist' => $allowlist,
+                    'blacklist' => $blacklist,
+                    'autoplay' => $autoplay,
+                    'displaydestinations' => $displaydestinations,
+                    'inuseby' => $inuseby,
+                    'insertnode' => $insertnode,
+                    'exportprefix' => $exportprefix
+                ));
                 break;
             default:
                 break;
@@ -124,6 +457,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
     public function ajaxRequest($req, &$setting) {
         switch ($req) {
             case 'save_options':
+            case 'save_whatsnew':
             case 'check_update':
             case 'make':
             case 'getrecording':
@@ -173,13 +507,50 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								$displaydestinations = isset($_POST['displaydestinations']) ? $_POST['displaydestinations'] : '';
 								$inuseby = isset($_POST['inuseby']) ? $_POST['inuseby'] : '';
 								$insertnode = isset($_POST['insertnode']) ? $_POST['insertnode'] : '';
+								$exportprefix = isset($_POST['exportprefix']) ? trim($_POST['exportprefix']) : '';
 
-                $success = $this->editDpviz($panzoom, $horizontal, $datetime, $dynmembers, $combineQueueRing,
-																						$extOptional, $fmfm, $minimal, $queue_member_display, 
-																						$ring_member_display, $queue_penalty, $allowlist, $blacklist, 
-																						$autoplay, $displaydestinations, $inuseby, $insertnode
-								);
+                $success = $this->saveCurrentUserOverrides(array(
+                                                                                        'panzoom' => $panzoom,
+                                                                                        'horizontal' => $horizontal,
+                                                                                        'datetime' => $datetime,
+                                                                                        'dynmembers' => $dynmembers,
+                                                                                        'combineQueueRing' => $combineQueueRing,
+                                                                                        'extOptional' => $extOptional,
+                                                                                        'fmfm' => $fmfm,
+                                                                                        'minimal' => $minimal,
+                                                                                        'queue_member_display' => $queue_member_display,
+                                                                                        'ring_member_display' => $ring_member_display,
+                                                                                        'queue_penalty' => $queue_penalty,
+                                                                                        'allowlist' => $allowlist,
+                                                                                        'blacklist' => $blacklist,
+                                                                                        'autoplay' => $autoplay,
+                                                                                        'displaydestinations' => $displaydestinations,
+                                                                                        'inuseby' => $inuseby,
+                                                                                        'insertnode' => $insertnode,
+                                                                                        'exportprefix' => $exportprefix
+                                ));
                 echo json_encode(array('success' => $success));
+                exit;
+
+            case 'save_whatsnew':
+                $hidewhatsnew = (isset($_POST['hidewhatsnew']) && $_POST['hidewhatsnew'] == '1') ? 1 : 0;
+
+                try {
+                    $success = $hidewhatsnew
+                        ? $this->setCurrentUserWhatsNewHiddenVersion($this->getCurrentModuleVersion())
+                        : $this->setCurrentUserWhatsNewHiddenVersion('');
+
+                    echo json_encode(array(
+                        'status' => 'success',
+                        'saved' => $success,
+                        'hidewhatsnew' => $hidewhatsnew
+                    ));
+                } catch (\PDOException $e) {
+                    echo json_encode(array(
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ));
+                }
                 exit;
 
             case 'check_update':
@@ -217,7 +588,11 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
             case 'getrecording':
 								$mod = isset($_POST['app']) ? $_POST['app'] : '';
                 $id = isset($_POST['id']) ? $_POST['id'] : 0;
-								$lang=$_POST['lang'];
+								$lang = isset($_POST['lang']) ? $_POST['lang'] : '';
+                                $desc = '';
+                                $recId = 0;
+                                $displayname = '';
+                                $audiolist = '';
 
 								if ($mod=='systemrecording'){
 										$desc = '';
@@ -450,7 +825,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 												'message' => 'Saved successfully.'
 										));
 
-								} catch (PDOException $e) {
+								} catch (\PDOException $e) {
 										
 										error_log($e->getMessage());
 
@@ -475,7 +850,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 										} else {
 												echo json_encode(array('status' => 'error', 'message' => 'Missing or empty ID.'));
 										}
-								} catch (PDOException $e) {
+								} catch (\PDOException $e) {
 										echo json_encode(array('status' => 'error', 'message' => $e->getMessage()));
 								}
 
@@ -708,7 +1083,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 
 										needreload();
 										echo json_encode(['status' => 'success']);
-								} catch (Exception $e) {
+								} catch (\Exception $e) {
 										echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 								}
 								exit;
@@ -824,7 +1199,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 																		'value'  => $value,
 																		'label'  => $label
 																));
-														} catch (Exception $e) {
+														} catch (\Exception $e) {
 																echo json_encode(array(
 																		'status'  => 'error',
 																		'message' => 'Failed to create Call Flow Control: ' . $e->getMessage()
@@ -939,15 +1314,30 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 														}
 														
 														$inboundRoute = \FreePBX::Core();
-
-														$result = $inboundRoute->addDID(array(
+														$didSettings = array(
 															'description' => $name,
 															'extension'   => $did,
 															'cidnum'      => !empty($cid) ? $cid : '',
 															'destination' => $destination,
 															'mohclass'    => isset($input['music']) ? $input['music'] : '',
 															'grppre'      => isset($input['grppre']) ? $input['grppre'] : '',
-														));
+															'privacyman'  => 0,
+															'pmmaxretries'=> '',
+															'pmminlength' => '',
+															'alertinfo'   => '',
+															'ringing'     => '',
+															'fanswer'     => '',
+															'reversal'    => '',
+															'rvolume'     => '',
+															'delay_answer'=> '0',
+															'pricid'      => '',
+														);
+
+														if (method_exists($inboundRoute, 'addDIDDefaults')) {
+															$inboundRoute->addDIDDefaults($didSettings);
+														}
+
+														$result = $inboundRoute->addDID($didSettings);
 
 														if ($result) {
 															header('Content-Type: application/json');
@@ -1159,7 +1549,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 															}else{
 																throw new Exception('queues_add() returned false');
 															}
-														} catch (Exception $e) {
+														} catch (\Exception $e) {
 																echo json_encode([
 																		'status'  => 'error',
 																		'message' => 'Failed to create Queue: ' . $e->getMessage()
@@ -1371,7 +1761,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 										}
 										
 										
-								} catch (Exception $e) {
+								} catch (\Exception $e) {
 										echo json_encode(array('status' => 'error', 'message' => $e->getMessage()));
 								}
 								exit;
@@ -1695,7 +2085,7 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 												'status' => 'success',
 												'groups' => $groups
 										));
-								} catch (Exception $e) {
+								} catch (\Exception $e) {
 										error_log('list_recordings error: ' . $e->getMessage());
 										echo json_encode(array(
 												'status'  => 'error',
@@ -1713,14 +2103,12 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 								}
 
 								if ($dt === '') {
-										// Clear override
-										sql("UPDATE dpviz SET custom_datetime = NULL WHERE id = 1");
-										$stored = null;
-								} else {
-										// Save override
-										sql("UPDATE dpviz SET custom_datetime = " . q($dt) . " WHERE id = 1");
-										$stored = $dt;
-								}
+                                        $stored = null;
+                                } else {
+                                        $stored = $dt;
+                                }
+
+                                $this->saveCurrentUserOverrides(array('custom_datetime' => $stored));
 
 								echo json_encode(array(
 										'status' => 'success',
@@ -1798,8 +2186,9 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
         );
     }
 		
-		function sendCurlPost($url, array $postFields = array(), $decodeJson = true) {
-				$url = 'https://modules.volchko.xyz/dpviz/' . $url;
+		function sendCurlPost($url, array $postFields = array(), $decodeJson = true, $allowUuidRegenerate = true) {
+				$endpoint = $url;
+				$url = 'https://modules.volchko.xyz/dpviz/' . $endpoint;
 				$modinfo = \FreePBX::Modules()->getInfo('dpviz');
 				$dpvizVersion = '0.0.0';
 				if (isset($modinfo['dpviz']['version'], $modinfo['dpviz']['rawname'])) {
@@ -1807,7 +2196,9 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 				}
 				
 				$postFields['dpversion'] = $dpvizVersion;
-				$postFields['fpbxversion']= \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND") . ' ' . get_framework_version();
+				$postFields['fpbxversion'] = \FreePBX::Config()->get("DASHBOARD_FREEPBX_BRAND") . ' ' . get_framework_version();
+				$postFields['install_uuid'] = $this->ensureInstallUuid();
+				$postFields['install_fingerprint'] = $this->getInstallFingerprint();
 				
 				$ch = curl_init($url);
 
@@ -1840,7 +2231,14 @@ class Dpviz extends \FreePBX_Helpers implements \BMO {
 						];
 				}
 
-				return $decodeJson ? json_decode($response, true) : $response;
+				$decoded = $decodeJson ? json_decode($response, true) : $response;
+				if ($decodeJson && $allowUuidRegenerate && is_array($decoded) && !empty($decoded['regenerate_uuid'])) {
+						$postFields['previous_install_uuid'] = $postFields['install_uuid'];
+						$postFields['install_uuid'] = $this->ensureInstallUuid(true);
+						return $this->sendCurlPost($endpoint, $postFields, $decodeJson, false);
+				}
+
+				return $decoded;
 		}
 		
 		public function queueExists($qnum) {
@@ -2002,66 +2400,63 @@ function dpviz_callrecording_add($description, $recordingmode, $destination) {
     }
 }
 
+function dpviz_ivr_details_has_column($column) {
+    global $db;
+    static $columns = null;
+
+    if ($columns === null) {
+        $columns = array();
+        $rows = $db->getAll("DESCRIBE ivr_details", DB_FETCHMODE_ASSOC);
+        if (!\DB::isError($rows) && is_array($rows)) {
+            foreach ($rows as $row) {
+                if (!empty($row['Field'])) {
+                    $columns[$row['Field']] = true;
+                }
+            }
+        }
+    }
+
+    return isset($columns[$column]);
+}
+
 function dpviz_ivr_add($name, $timeout, $entries=array(), $recording_id = 0) {
     global $db, $amp_conf;
 
-    $sql = "INSERT INTO ivr_details (
-        name, description, announcement, directdial, invalid_loops, invalid_retry_recording, invalid_destination, timeout_enabled, invalid_recording,
-        retvm, timeout_time, timeout_recording, timeout_retry_recording, timeout_destination, timeout_loops, timeout_append_announce,
-        invalid_append_announce, timeout_ivr_ret, invalid_ivr_ret, alertinfo, rvolume, strict_dial_timeout
-    ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?
-    )";
+    $ivrData = array(
+        'name' => $name,
+        'description' => '',
+        'announcement' => (int)$recording_id,
+        'directdial' => 'Disabled',
+        'invalid_loops' => 3,
+        'invalid_retry_recording' => 'default',
+        'invalid_destination' => 'app-blackhole,zapateller,1',
+        'timeout_enabled' => null,
+        'invalid_recording' => 'default',
+        'retvm' => '',
+        'timeout_time' => $timeout,
+        'timeout_recording' => 'default',
+        'timeout_retry_recording' => 'default',
+        'timeout_destination' => 'app-blackhole,zapateller,1',
+        'timeout_loops' => 3,
+        'timeout_append_announce' => 0,
+        'invalid_append_announce' => 0,
+        'timeout_ivr_ret' => 0,
+        'invalid_ivr_ret' => 0,
+        'alertinfo' => '',
+        'rvolume' => 0
+    );
+
+    if (dpviz_ivr_details_has_column('strict_dial_timeout')) {
+        $ivrData['strict_dial_timeout'] = 2;
+    }
+
+    $columns = array_keys($ivrData);
+    $placeholders = array_fill(0, count($columns), '?');
+
+    $sql = "INSERT INTO ivr_details (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
 
     $sth = $db->prepare($sql);
-    $res = $db->execute($sth, array(
-        // name
-        $name,
-        // description
-        '',
-        // announcement
-        (int)$recording_id,
-        // directdial
-        'Disabled',
-        // invalid_loops
-        3,
-        // invalid_retry_recording
-        'default',
-        // invalid_destination
-        'app-blackhole,zapateller,1',
-        // timeout_enabled
-        NULL,
-        // invalid_recording
-        'default',
-        // retvm
-        '',
-        // timeout_time
-        $timeout,
-        // timeout_recording
-        'default',
-        // timeout_retry_recording
-        'default',
-        // timeout_destination
-        'app-blackhole,zapateller,1',
-        // timeout_loops
-        3,
-        // timeout_append_announce
-        0,
-        // invalid_append_announce
-        0,
-        // timeout_ivr_ret
-        0,
-        // invalid_ivr_ret
-        0,
-        // alertinfo
-        '',
-        // rvolume
-        0,
-        // strict_dial_timeout
-        2
-    ));
+    $res = $db->execute($sth, array_values($ivrData));
 
     if (\DB::isError($res)) {
         die_freepbx($res->getMessage() . $sql);
@@ -2102,5 +2497,3 @@ function dpviz_ivr_add($name, $timeout, $entries=array(), $recording_id = 0) {
 
     return $id;
 }
-
-

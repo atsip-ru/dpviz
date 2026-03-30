@@ -490,13 +490,6 @@ msgstr "Hover:カーソルをパスを移動させることに強調されます
 msgid "Open Destinations: Click a destination to open it in a new tab."
 msgstr "開く目的地：新しいタブで目的地をクリックして開く。"
 
-msgid ""
-"Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
-"details in a new tab. Time Groups"
-msgstr ""
-"開放時間グループ：「一致：（時間グループ）」または「一致しない」と表示されてい"
-"る場合、「新しいタブで詳細を表示」をクリックしてください。時間グループ"
-
 msgid "Pan: Click and drag to move around the view."
 msgstr "パン: ビューを移動させるためにクリックしてドラッグしてください。"
 
@@ -1155,3 +1148,159 @@ msgstr ""
 "ノード間に「+」を表示します。それをクリックすると、現在のデスティネーションに"
 "自動的にリンクされる新しいデスティネーションを作成します。また、「IVRsの追加選"
 "択」と「ダイナミックルートの追加エントリ」を表示します。"
+
+msgid "What's New in %s"
+msgstr "新しい機能について %s"
+
+msgid "Here is a quick overview of the main improvements in this release."
+msgstr "以下は、このリリースの主要な改善点の短い概要です。"
+
+msgid "Interface & Layout"
+msgstr "インターフェース & レイアウト"
+
+msgid ""
+"Improved the toolbar layout so it behaves better on typical desktop screen "
+"sizes."
+msgstr ""
+"ツールバーのレイアウトを改善して、一般的なデスクトップ画面サイズで正しく動作す"
+"るようにしました。"
+
+msgid ""
+"Moved export options into a cleaner download panel with a separate action "
+"button."
+msgstr ""
+"エクスポートオプションをよりクリーンなダウンロードパネルに移動し、別のアクショ"
+"ンボタンに分離しました。"
+
+msgid ""
+"Refined the Navigation & Usage and Settings pages to make them easier to scan "
+"and use."
+msgstr ""
+"ナビゲーション & 利用と設定ページを見やすくし、使いやすくするために改善しまし"
+"た。"
+
+msgid "Workflow & Compatibility"
+msgstr "作業フローと互換性"
+
+msgid ""
+"Unified modal styling and drag behavior so dialogs feel more consistent "
+"throughout the module."
+msgstr ""
+"統一されたモーダルスタイルとドラッグの動作で、ダイアログがモジュール全体でより"
+"一貫しく感じられます。"
+
+msgid ""
+"Added an export filename prefix option to make downloaded files easier to "
+"organize."
+msgstr ""
+"追加されたのは、ダウンロードされたファイルを整理するのを簡単にするためのエクス"
+"ポートファイル名のプレフィックスオプションです。"
+
+msgid "User Preferences"
+msgstr "ユーザー設定"
+
+msgid ""
+"Settings now use the global module values as defaults, while each user can "
+"keep their own overrides."
+msgstr ""
+"設定は現在、グローバルモジュールの値を既定値として使用していますが、各ユーザー"
+"は自分自身のオーバーライドを保持できます。"
+
+msgid ""
+"What's New visibility is now tracked per user, so each person can dismiss it "
+"independently."
+msgstr ""
+"新機能の表示は、現在、各ユーザーに基づいて追跡されています。それぞれの人が独自"
+"にそれを取り消すことができます。"
+
+msgid ""
+"User-specific settings continue to fall back to the module defaults unless "
+"that user changes them."
+msgstr ""
+"ユーザー固有の設定は、そのユーザーが変更しない限り、モジュールの既定値に戻りま"
+"す。"
+
+msgid ""
+"Mouse wheel zoom sensitivity can be adjusted in Settings if you want slower "
+"or faster graph navigation."
+msgstr ""
+"マウスホイールのズームセンシティビティは、グラフのナビゲーションが遅くなりはし"
+"やすくなるように、設定で調整できます。"
+
+msgid "Don't show this again for version %s"
+msgstr "このバージョン% sに対して再表示しないでください。"
+
+msgid "Close"
+msgstr "閉じる"
+
+msgid "What's New"
+msgstr "新着情報"
+
+msgid "Export Filename Prefix"
+msgstr "エクスポートファイル名の接頭辞"
+
+msgid ""
+"Optional text prepended to all exported filenames, for example a site or "
+"customer identifier."
+msgstr ""
+"すべてのエクスポートされたファイル名に予め付けられるオプションのテキストです。"
+"たとえば、サイトまたは顧客識別子。"
+
+msgid "Display & Navigation"
+msgstr "表示 & ナビゲーション"
+
+msgid "Destinations & Nodes"
+msgstr "先頭に戻る：トップに戻る"
+
+msgid "Queues & Ring Groups"
+msgstr "キュー & リンググループ"
+
+msgid "Export & Interaction"
+msgstr "エクスポート & インタラクション"
+
+msgid "Export"
+msgstr "エクスポート"
+
+msgid "Filename"
+msgstr "ファイル名"
+
+msgid "Format"
+msgstr "フォーマット"
+
+msgid "Container not found!"
+msgstr "コンテナが見つかりません！"
+
+msgid "SVG not found!"
+msgstr "SVGが見つかりませんでした!"
+
+msgid "Downloading..."
+msgstr "ダウンロード中..."
+
+msgid ""
+"Quick reference for exploring, testing, and exporting dial plans in DPViz."
+msgstr ""
+"速やかに参照、テスト、およびDPVizでのダイアルプランをエクスポートするためのリ"
+"ファレンス。"
+
+msgid "Navigation Basics"
+msgstr "ナビゲーション基本"
+
+msgid "Tools & Actions"
+msgstr "ツールとアクション"
+
+msgid ""
+"Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
+"details in a new tab."
+msgstr ""
+"Open Time Groups：「(timegroup)」または「No Match」をクリックすると、詳細を新"
+"しいタブで表示できます。"
+
+msgid "Viewing Controls"
+msgstr "表示コントロール"
+
+msgid ""
+"Moved more layout behavior into dpviz-owned styling to improve consistency "
+"across supported PBX platforms."
+msgstr ""
+"サポートされている PBX プラットフォームの一貫性を向上させるために、レイアウト"
+"ビヘイビアをその他のスタイリングに割り当てられている。"

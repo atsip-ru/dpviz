@@ -478,12 +478,6 @@ msgstr "悬停:将鼠标指针悬停在路径上以突出显示。"
 msgid "Open Destinations: Click a destination to open it in a new tab."
 msgstr "打开目的地：单击目的地以在新标签中打开它。"
 
-msgid ""
-"Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
-"details in a new tab. Time Groups"
-msgstr ""
-"打开时间组:单击“匹配：(时间组)”或“无匹配”以在新标签中查看详细信息。时间组"
-
 msgid "Pan: Click and drag to move around the view."
 msgstr "潘：点击并拖动以移动视图。"
 
@@ -1137,3 +1131,135 @@ msgid ""
 msgstr ""
 "显示在节点之间的+。单击它将创建一个新目的地并自动将其链接到当前目的地。同时显"
 "示添加选择（IVR）和添加条目（动态路由）。"
+
+msgid "What's New in %s"
+msgstr "在%s中的新功能"
+
+msgid "Here is a quick overview of the main improvements in this release."
+msgstr "这里是关于这个版本的主要改进的简要概述。"
+
+msgid "Interface & Layout"
+msgstr "界面与布局"
+
+msgid ""
+"Improved the toolbar layout so it behaves better on typical desktop screen "
+"sizes."
+msgstr "改进了工具栏布局，以便在典型桌面屏幕尺寸上更好地表现。"
+
+msgid ""
+"Moved export options into a cleaner download panel with a separate action "
+"button."
+msgstr "移动导出选项到一个更清洁的下载面板，并为其分配一个单独的操作按钮。"
+
+msgid ""
+"Refined the Navigation & Usage and Settings pages to make them easier to scan "
+"and use."
+msgstr "优化了导航与使用和设置页面，使它们更容易扫描和使用。"
+
+msgid "Workflow & Compatibility"
+msgstr "工作流程与兼容性"
+
+msgid ""
+"Unified modal styling and drag behavior so dialogs feel more consistent "
+"throughout the module."
+msgstr "统一对话框样式和拖动行为，使对话框在整个模块中感觉更一致。"
+
+msgid ""
+"Added an export filename prefix option to make downloaded files easier to "
+"organize."
+msgstr "添加了导出文件前缀选项，以便更容易组织下载的文件。"
+
+msgid "User Preferences"
+msgstr "用户设置"
+
+msgid ""
+"Settings now use the global module values as defaults, while each user can "
+"keep their own overrides."
+msgstr "设置现在使用全局模块值作为默认值，同时每个用户可以保留自己的覆盖值。"
+
+msgid ""
+"What's New visibility is now tracked per user, so each person can dismiss it "
+"independently."
+msgstr "新功能可见性现在按用户进行跟踪，因此每个人都可以独立消除它。"
+
+msgid ""
+"User-specific settings continue to fall back to the module defaults unless "
+"that user changes them."
+msgstr "用户特定设置将继续回退到模块默认值，除非该用户更改它们。"
+
+msgid ""
+"Mouse wheel zoom sensitivity can be adjusted in Settings if you want slower "
+"or faster graph navigation."
+msgstr "鼠轮缩放敏感度可以在设置中调整，如果您想要更慢或更快的图形导航。"
+
+msgid "Don't show this again for version %s"
+msgstr "不要再次显示此内容，对于版本%s"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "What's New"
+msgstr "最新功能"
+
+msgid "Export Filename Prefix"
+msgstr "Export文件名前缀"
+
+msgid ""
+"Optional text prepended to all exported filenames, for example a site or "
+"customer identifier."
+msgstr "可选文本，可应用于所有导出文件名前，例如站点或客户标识符。"
+
+msgid "Display & Navigation"
+msgstr "显示与导航"
+
+msgid "Destinations & Nodes"
+msgstr "目的地和节点"
+
+msgid "Queues & Ring Groups"
+msgstr "队列 & 铃声群组"
+
+msgid "Export & Interaction"
+msgstr "导出与交互"
+
+msgid "Export"
+msgstr "导出"
+
+msgid "Filename"
+msgstr "文件名"
+
+msgid "Format"
+msgstr "格式"
+
+msgid "Container not found!"
+msgstr "容器未找到！"
+
+msgid "SVG not found!"
+msgstr "SVG未找到！"
+
+msgid "Downloading..."
+msgstr "正在下载..."
+
+msgid ""
+"Quick reference for exploring, testing, and exporting dial plans in DPViz."
+msgstr "快速参考，用于探索、测试和导出方案的方案查看器。"
+
+msgid "Navigation Basics"
+msgstr "导航基础"
+
+msgid "Tools & Actions"
+msgstr "工具 & 操作"
+
+msgid ""
+"Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
+"details in a new tab."
+msgstr ""
+"打开时间组：单击 \"匹配：(timegroup)\" 或 \"无匹配\" 以在新标签中查看详细信"
+"息。"
+
+msgid "Viewing Controls"
+msgstr "查看控制"
+
+msgid ""
+"Moved more layout behavior into dpviz-owned styling to improve consistency "
+"across supported PBX platforms."
+msgstr "移动更多布局行为到dpviz所有的样式中，以提高在支持的PBX平台上的一致性。"

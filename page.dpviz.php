@@ -7,6 +7,22 @@ if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
 $module = 'dpviz';
 $info = \FreePBX::Modules()->getInfo($module);
 $version = $info[$module]['version'];
+
+$pageResolvedUser = 'unknown';
+if (isset($_SESSION['AMP_user']) && is_object($_SESSION['AMP_user']) && !empty($_SESSION['AMP_user']->username)) {
+	$pageResolvedUser = (string)$_SESSION['AMP_user']->username;
+} elseif (!empty($_SERVER['PHP_AUTH_USER'])) {
+	$pageResolvedUser = (string)$_SERVER['PHP_AUTH_USER'];
+}
+
+$hiddenWhatsNewVersion = '';
+if ($pageResolvedUser !== 'unknown') {
+	$hiddenWhatsNewVersion = trim((string)\FreePBX::Dpviz()->getConfig('whatsnew_hidden_version', $pageResolvedUser));
+} elseif (isset($options['whatsnew_hidden_version'])) {
+	$hiddenWhatsNewVersion = trim((string)$options['whatsnew_hidden_version']);
+}
+
+$hideWhatsNew = ($hiddenWhatsNewVersion !== '' && version_compare($hiddenWhatsNewVersion, $version, '==')) ? 1 : 0;
 ?>
 <link rel="stylesheet" href="modules/dpviz/assets/css/select2.min.css"  />
 <link rel="stylesheet" href="modules/dpviz/assets/css/dpviz.css?load_version=<?php echo $version; ?>" />
@@ -24,6 +40,9 @@ let svgContainer = null;
 let selectedNodeId = null;
 let originalLinks = new Map();
 let highlightedEdges = new Set(); // Track highlighted edges
+var shouldShowWhatsNew = <?php echo $hideWhatsNew ? 'false' : 'true'; ?>;
+var whatsNewVersion = <?php echo json_encode($version); ?>;
+var whatsNewHiddenByServer = <?php echo $hideWhatsNew ? 'true' : 'false'; ?>;
 const translations = {
 	highlight: "<?php echo _('Highlight Paths'); ?>",
 	remove: "<?php echo _('Remove Highlights'); ?>",
@@ -132,20 +151,24 @@ const translations = {
 							<!-- Saved View Modal container -->
 							<div id="saveModal" class="savemodal">
 								<div class="savemodal-content">
-									<span class="saveclose" onclick="closeSaveModal()">✖</span>
+									<div class="modal-header-unified dpviz-save-header">
+										<span class="modal-title-unified"><i class="fa fa-save"></i> <?php echo _('Save View'); ?></span>
+										<button class="saveclose modal-close-btn-unified" type="button" onclick="closeSaveModal()">&times;</button>
+									</div>
 
-									<form id="saveViewForm">
+									<form id="saveViewForm" class="modal-body-unified dpviz-save-body">
 										<label for="description" style="font-weight: bold; display: block; margin-bottom: 5px;"><?php echo _('Description'); ?>:</label>
-										<input type="text" id="savedDescription" name="description" required><br><br>
+										<input type="text" id="savedDescription" name="description" required>
 										<div class="button-group">
-											<button type="button" id="deleteViewBtn">🗑️ <?php echo _('Delete View'); ?></button>
-											<button type="submit" id="saveviewbtn">💾 <?php echo _('Save View'); ?></button>
+											<button type="button" id="deleteViewBtn"><i class="fa fa-trash"></i> <?php echo _('Delete View'); ?></button>
+											<button type="submit" id="saveviewbtn"><i class="fa fa-save"></i> <?php echo _('Save View'); ?></button>
 										</div>
 										<input type="hidden" id="viewId" name="id">
 									</form>
 								</div>
 							</div>
 						
+
 							<!-- Custom Time Modal container -->						
 							<div id="customTimeModal">
 									<div class="modal-header-unified" id="customTimeModal-header">
@@ -200,4 +223,57 @@ const translations = {
 			</div>
 		</div>
 	</div>
+							<!-- What's New Modal -->
+							<div id="whatsNewModal" class="whatsnew-modal">
+								<div class="whatsnew-modal-content">
+									<div class="modal-header-unified dpviz-whatsnew-header" id="whatsNewModal-header">
+										<span class="modal-title-unified"><i class="fa fa-bullhorn"></i> <?php echo sprintf(_("What's New in %s"), $version); ?></span>
+										<button class="modal-close-btn-unified" id="closeWhatsNewModal" type="button">&times;</button>
+									</div>
+
+									<div class="modal-body-unified dpviz-whatsnew-body">
+										<p class="dpviz-whatsnew-intro"><?php echo _('Here is a quick overview of the main improvements in this release.'); ?></p>
+
+										<div class="dpviz-whatsnew-section">
+											<h3><?php echo _('Interface & Layout'); ?></h3>
+											<ul>
+												<li><?php echo _('Improved the toolbar layout so it behaves better on typical desktop screen sizes.'); ?></li>
+												<li><?php echo _('Moved export options into a cleaner download panel with a separate action button.'); ?></li>
+												<li><?php echo _('Refined the Navigation & Usage and Settings pages to make them easier to scan and use.'); ?></li>
+											</ul>
+										</div>
+
+										<div class="dpviz-whatsnew-section">
+											<h3><?php echo _('Workflow & Compatibility'); ?></h3>
+											<ul>
+												<li><?php echo _('Moved more layout behavior into dpviz-owned styling to improve consistency across supported PBX platforms.'); ?></li>
+												<li><?php echo _('Unified modal styling and drag behavior so dialogs feel more consistent throughout the module.'); ?></li>
+												<li><?php echo _('Added an export filename prefix option to make downloaded files easier to organize.'); ?></li>
+											</ul>
+										</div>
+
+										<div class="dpviz-whatsnew-section">
+											<h3><?php echo _('User Preferences'); ?></h3>
+											<ul>
+												<li><?php echo _('Settings now use the global module values as defaults, while each user can keep their own overrides.'); ?></li>
+												<li><?php echo _('What\'s New visibility is now tracked per user, so each person can dismiss it independently.'); ?></li>
+												<li><?php echo _('User-specific settings continue to fall back to the module defaults unless that user changes them.'); ?></li>
+												<li><?php echo _('Mouse wheel zoom sensitivity can be adjusted in Settings if you want slower or faster graph navigation.'); ?></li>
+											</ul>
+										</div>
+
+										<div class="dpviz-whatsnew-footer-clean">
+											<div class="dpviz-whatsnew-left-clean" id="toggleWhatsNewPreference" tabindex="0" role="checkbox" aria-checked="false">
+												<input type="checkbox" id="hideWhatsNewCheckbox" value="1">
+												<span class="dpviz-whatsnew-toggletext-clean"><?php echo sprintf(_("Don't show this again for version %s"), $version); ?></span>
+											</div>
+											<div class="dpviz-whatsnew-right-clean">
+												<button type="button" class="btn btn-default" id="closeWhatsNewAction"><?php echo _('Close'); ?></button>
+											</div>
+										</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
 </div>

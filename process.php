@@ -31,6 +31,27 @@ require_once 'process.inc.php';
 
 //options
 $options=\FreePBX::Dpviz()->getOptions();
+$processResolvedUser = 'unknown';
+if (isset($_SESSION['AMP_user'])) {
+    if (is_string($_SESSION['AMP_user']) && $_SESSION['AMP_user'] !== '') {
+        $processResolvedUser = (string)$_SESSION['AMP_user'];
+    } elseif (is_array($_SESSION['AMP_user']) && !empty($_SESSION['AMP_user']['username'])) {
+        $processResolvedUser = (string)$_SESSION['AMP_user']['username'];
+    } elseif (is_object($_SESSION['AMP_user']) && !empty($_SESSION['AMP_user']->username)) {
+        $processResolvedUser = (string)$_SESSION['AMP_user']->username;
+    }
+} elseif (!empty($_SERVER['PHP_AUTH_USER'])) {
+    $processResolvedUser = (string)$_SERVER['PHP_AUTH_USER'];
+}
+
+if ($processResolvedUser !== 'unknown') {
+    $userSettings = \FreePBX::Dpviz()->getConfig('user_settings', $processResolvedUser);
+    if (is_array($userSettings) && !empty($userSettings)) {
+        $options = array_merge($options, $userSettings);
+    }
+}
+$GLOBALS['options'] = $options;
+
 try{
 	$soundlang = FreePBX::create()->Soundlang;
 	$options['lang'] = $soundlang->getLanguage();
@@ -121,9 +142,13 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 	}
 	updateHeaderSelected();
 
-	function exportImage(scale = 2) {
+	function exportImage(scale = 2, onComplete) {
 			const container = document.querySelector("#vizContainer");
-			if (!container) return alert("Container not found!");
+			if (!container) {
+				alert("Container not found!");
+				if (typeof onComplete === "function") onComplete(false);
+				return;
+			}
 
 			// Clone the container so we can manipulate without affecting the UI
 			const clone = container.cloneNode(true);
@@ -132,7 +157,7 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 			const svg = clone.querySelector("svg");
 			if (svg) svg.style.transform = "none";
 
-			// Put the clone offscreen so it\'s not visible
+			// Put the clone offscreen so it is not visible
 			clone.style.position = "absolute";
 			clone.style.left = "-99999px";
 			document.body.appendChild(clone);
@@ -142,7 +167,7 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 					scale: scale,
 					useCORS: true,
 					allowTaint: true,
-					backgroundColor: "#ffffff"
+					backgroundColor: "#ffffff",
 			}).then(canvas => {
 					const input = document.getElementById("filenameInput");
 					const filename = (input?.value.trim() || "export") + ".png";
@@ -156,22 +181,29 @@ $header = "<div><h2>" . _('Error: Could not find inbound route for') ." ".$ext."
 
 					// Remove clone
 					document.body.removeChild(clone);
+					if (typeof onComplete === "function") onComplete(true);
+			}).catch(error => {
+					console.error("Export failed:", error);
+					if (clone.parentNode) document.body.removeChild(clone);
+					if (typeof onComplete === "function") onComplete(false);
 			});
 	}
 
 
 
 	// Export cleaned SVG
-	function handleSVGExport() {
+	function handleSVGExport(onComplete) {
 			const svgElement = document.querySelector("#vizContainer svg");
 			if (!svgElement) {
 					alert("SVG not found!");
+					if (typeof onComplete === "function") onComplete(false);
 					return;
 			}
 
 			const input = document.getElementById("filenameInput");
 			const filename = (input?.value.trim() || "graph") + ".svg";
 			exportCleanedSVG(svgElement, filename);
+			if (typeof onComplete === "function") onComplete(true);
 	}
 
 	function exportCleanedSVG(svgElement, filename) {
@@ -3598,4 +3630,3 @@ function dpp_load_tables(&$dproute) {
     }
 }
 # END load Custom Destinations
-

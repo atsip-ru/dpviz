@@ -522,13 +522,6 @@ msgstr ""
 "Open Bestemmingen: Klik op een bestemming om het te openen in een nieuw "
 "venster."
 
-msgid ""
-"Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
-"details in a new tab. Time Groups"
-msgstr ""
-"Open tijdgroepen: Klik op \"Overeenkomst: (tijdgroep)\" of \"Geen overeenkomst"
-"\" om de details in een nieuw venster te bekijken. Tijdgroepen"
-
 msgid "Pan: Click and drag to move around the view."
 msgstr "Pan: Klik en sleep om de weergave te verplaatsen."
 
@@ -1161,3 +1154,161 @@ msgstr ""
 "Toont een + tussen knopen. Klik op het + creëert een nieuwe bestemming en "
 "koppelt het automatisch aan bij de huidige bestemming. Toont ook Add Selectie "
 "(IVRs) en Add Invoer (Dynamische Routes)"
+
+msgid "What's New in %s"
+msgstr "Wat is er nieuw in %s"
+
+msgid "Here is a quick overview of the main improvements in this release."
+msgstr ""
+"Hier volgt een snelle overzicht van de belangrijkste verbeteringen in deze "
+"release."
+
+msgid "Interface & Layout"
+msgstr "Interface & Layout"
+
+msgid ""
+"Improved the toolbar layout so it behaves better on typical desktop screen "
+"sizes."
+msgstr ""
+"Verbeterde de toolbar-indeling zodat het beter op gebruikelijke desktop-"
+"schermsizes gedraagt."
+
+msgid ""
+"Moved export options into a cleaner download panel with a separate action "
+"button."
+msgstr ""
+"Verplaatst exportopties naar een schoonere downloadvenster met een aparte "
+"actieknop."
+
+msgid ""
+"Refined the Navigation & Usage and Settings pages to make them easier to scan "
+"and use."
+msgstr ""
+"De Navigatie & Gebruik en Instellingen pagina's zijn aangepast om ze "
+"makkelijker leesbaar en gebruiksvriendelijk te maken."
+
+msgid "Workflow & Compatibility"
+msgstr "Werkstroom & compatibiliteit"
+
+msgid ""
+"Unified modal styling and drag behavior so dialogs feel more consistent "
+"throughout the module."
+msgstr ""
+"Geünieerde modale stijl en trekgedrag zodat dialogen meer consistent blijven "
+"gedurende het module."
+
+msgid ""
+"Added an export filename prefix option to make downloaded files easier to "
+"organize."
+msgstr ""
+"Aangepast: Een optie voor een export bestandsnaam prefix toegevoegd, om "
+"gedownloade bestanden makkelijker te organiseren."
+
+msgid "User Preferences"
+msgstr "Gebruikersinstellingen"
+
+msgid ""
+"Settings now use the global module values as defaults, while each user can "
+"keep their own overrides."
+msgstr ""
+"De instellingen gebruiken nu de standaardwaarden van het globale module, "
+"terwijl elke gebruiker hun eigen overstemmingen kan behouden."
+
+msgid ""
+"What's New visibility is now tracked per user, so each person can dismiss it "
+"independently."
+msgstr ""
+"De zichtbaarheid van \"What's New\" wordt nu getraceerd per gebruiker, zodat "
+"elk persoon het onafhankelijk kan negeren."
+
+msgid ""
+"User-specific settings continue to fall back to the module defaults unless "
+"that user changes them."
+msgstr ""
+"Gebruikerspecifieke instellingen blijven terugvallen op de "
+"standaardinstellingen van het module, tenzij die gebruiker ze wijzigt."
+
+msgid ""
+"Mouse wheel zoom sensitivity can be adjusted in Settings if you want slower "
+"or faster graph navigation."
+msgstr ""
+"De snelheid van de muiswielzoom kan in Instellingen aangepast worden als u de "
+"grafische navigatie trager of sneller wilt maken."
+
+msgid "Don't show this again for version %s"
+msgstr "Toon deze melding niet meer voor versie %s"
+
+msgid "Close"
+msgstr "Sluiten"
+
+msgid "What's New"
+msgstr "Wat's Nieuws"
+
+msgid "Export Filename Prefix"
+msgstr "Export Bestandsnaam Voorschaaf"
+
+msgid ""
+"Optional text prepended to all exported filenames, for example a site or "
+"customer identifier."
+msgstr ""
+"Optioneel tekst voorafgegaan aan alle geëxporteerde bestandsnamen, "
+"bijvoorbeeld een site of klantidentificatie."
+
+msgid "Display & Navigation"
+msgstr "Weergave & navigatie"
+
+msgid "Destinations & Nodes"
+msgstr "Bestemmingen en knooppunten"
+
+msgid "Queues & Ring Groups"
+msgstr "Wachtrijen & Geleide Groepen"
+
+msgid "Export & Interaction"
+msgstr "Export & Interactie"
+
+msgid "Export"
+msgstr "Exporteren"
+
+msgid "Filename"
+msgstr "Naam van bestand"
+
+msgid "Format"
+msgstr "Onderstaande indeling:"
+
+msgid "Container not found!"
+msgstr "Container niet gevonden!"
+
+msgid "SVG not found!"
+msgstr "SVG niet gevonden!"
+
+msgid "Downloading..."
+msgstr "Downloading..."
+
+msgid ""
+"Quick reference for exploring, testing, and exporting dial plans in DPViz."
+msgstr ""
+"Snelle referentie om te verkennen, testen en exporteren aanroepplanningen in "
+"DPViz."
+
+msgid "Navigation Basics"
+msgstr "Navigatie Basics"
+
+msgid "Tools & Actions"
+msgstr "Werkplaats & Acties"
+
+msgid ""
+"Open Time Groups: Click on \"Match: (timegroup)\" or \"No Match\" to view "
+"details in a new tab."
+msgstr ""
+"Open tijdbestemmingen: Klik op \"Overeenkomst: (tijdbestemming)\" of \"Geen "
+"Overeenkomst\" om details in een nieuw venster weer te geven."
+
+msgid "Viewing Controls"
+msgstr "Weergeven Controles"
+
+msgid ""
+"Moved more layout behavior into dpviz-owned styling to improve consistency "
+"across supported PBX platforms."
+msgstr ""
+"Verplaatst meer gedrag van het lay-out naar het door dpviz eigendom van stijl "
+"om de consistentie te verbeteren over de ondersteunde PBX-platforms."

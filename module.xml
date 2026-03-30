@@ -2,7 +2,7 @@
   <rawname>dpviz</rawname>
   <repo>unsupported</repo>
   <name>Dial Plan Vizualizer</name>
-  <version>1.0.32</version>
+  <version>1.0.33</version>
   <publisher>AdamV</publisher>
   <license>GPLv3+</license>
   <licenselink>http://www.gnu.org/licenses/gpl-3.0.txt</licenselink>
@@ -15,6 +15,7 @@
 	
   
 	<changelog>
+		*1.0.33* Improved cross-version interface consistency across supported PBX platforms. Refined toolbar and export workflow. Polished modal styling and new destination forms. Reworked Navigation &amp; Usage and Settings presentation. Added per-user preference handling for settings and What's New visibility.
 		*1.0.32* Create and insert destinations honoring user permissions. Show active and inactive paths for TC and CFC (also ability to simulate). Mouse zoom sensitivity. Fixed ext optional destinations.
 		*1.0.31* Fixed .png exports. #34
 		*1.0.30* Added In Use By.Resolved tampered files error for framework 17 #26 and #15. Corrected Time Conditions calendar matching bug #32

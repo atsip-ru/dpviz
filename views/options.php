@@ -5,11 +5,11 @@ $ver = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['version'] : '0.0
 <!-- Feedback Modal -->
 <div id="feedbackModal" class="feedback-modal">
 	<div class="feedback-modal-content">
-		<div class="feedback-modal-header">
-			<h2><?php echo _('Feedback'); ?></h2>
-			<button class="feedback-close" id="closeFeedbackModal">✖</button>
+		<div class="feedback-modal-header modal-header-unified">
+			<h2 class="modal-title-unified"><i class="fa fa-commenting"></i> <?php echo _('Feedback'); ?></h2>
+			<button class="feedback-close modal-close-btn-unified" id="closeFeedbackModal">&times;</button>
 		</div>
-		<form id="feedbackForm">
+		<form id="feedbackForm" class="modal-body-unified dpviz-feedback-body">
 			<label for="fbMessage" class="label-with-help">
 				<?php echo _('Your Feedback'); ?>:
 				<span class="help-icon" tabindex="0" aria-hidden="true"><i class="fa fa-question-circle fpbx-help-icon" data-for="fbMessage"></i></span>
@@ -24,11 +24,11 @@ $ver = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['version'] : '0.0
 			</label>
 			<input type="email" id="fbEmail" name="email" />
 
-				<div class="feedback-actions">
-					<button class="btn btn-secondary" type="reset"><?php echo _('Reset'); ?></button>
-					<button class="btn btn-default" type="submit"><?php echo _('Submit'); ?></button>
-				</div>
-				<input type="hidden" name="lang" value="<?php echo preg_replace('/\.UTF8$/i', '', setlocale(LC_TIME, 0)); ?>">
+			<div class="feedback-actions">
+				<button class="btn btn-default dpviz-btn-secondary" type="reset"><?php echo _('Reset'); ?></button>
+				<button class="btn btn-default" type="submit"><?php echo _('Submit'); ?></button>
+			</div>
+			<input type="hidden" name="lang" value="<?php echo preg_replace('/\.UTF8$/i', '', setlocale(LC_TIME, 0)); ?>">
 		</form>
 	</div>
 </div>
@@ -42,20 +42,29 @@ $ver = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['version'] : '0.0
 				<div class="element-container">
 					<div class="row">
 						<div class="col-md-12">
-							<div class="row">
-								<div class="col-md-3">
-									<button id="check-update-btn" class="btn btn-default"><?php echo _('Check for Updates'); ?></button>
-										<a href="https://github.com/madgen78/dpviz/" class="emoji" title="GitHub" target="_blank"><i class="fa fa-github"></i></a>
-										<a href="https://buymeacoffee.com/adamvolchko" id="coffee" class="emoji" style="text-decoration:none;" title="<?php echo _('Buy Me a Coffee'); ?>" target="_blank">☕</a>
-										<?php
-											if (version_compare(get_framework_version(), '14.0.0', '>')) {
-													echo '<span id="openFeedbackModal" class="emoji" title="' . _('Give Feedback') . '">💬</span>';
-											}
-										?>
-									
+							<div class="dpviz-settings-actions">
+								<div class="dpviz-settings-actions-row dpviz-settings-actions-row-top">
+									<div class="dpviz-settings-actions-col-left">
+										<button id="openWhatsNewModal" type="button" class="btn btn-default"><?php echo _("What's New"); ?></button>
+										<div class="dpviz-settings-icons">
+											<a href="https://github.com/madgen78/dpviz/" class="emoji" title="GitHub" target="_blank"><i class="fa fa-github"></i></a>
+											<a href="https://buymeacoffee.com/adamvolchko" id="coffee" class="emoji" style="text-decoration:none;" title="<?php echo _('Buy Me a Coffee'); ?>" target="_blank">☕</a>
+											<?php
+												if (version_compare(get_framework_version(), '14.0.0', '>')) {
+												echo '<span id="openFeedbackModal" class="emoji" title="' . _('Give Feedback') . '"><i class="fa fa-commenting"></i></span>';
+												}
+											?>
+										</div>
+									</div>
+									<div class="dpviz-settings-actions-col-right"></div>
 								</div>
-								<div class="col-md-9">
-									<div id="update-result"><div style="margin-top: 10px;"><?php echo _('Current version'); ?>: <?php echo $ver; ?> </div></div>
+								<div class="dpviz-settings-actions-row dpviz-settings-actions-row-bottom">
+									<div class="dpviz-settings-actions-col-left">
+										<button id="check-update-btn" class="btn btn-default"><?php echo _('Check for Updates'); ?></button>
+									</div>
+									<div class="dpviz-settings-actions-col-right">
+										<div id="update-result"><div><?php echo _('Current version'); ?>: <?php echo $ver; ?> </div></div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -583,6 +592,30 @@ $ver = isset($modinfo['dpviz']['version']) ? $modinfo['dpviz']['version'] : '0.0
 					</div>
 				</div>
 				<!--END Mouse Sensitivity-->
+				<!--exportprefix-->
+				<div class="element-container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="form-group">
+									<div class="col-md-3">
+										<label class="control-label" for="exportprefix"><?php echo _("Export Filename Prefix"); ?></label>
+										<i class="fa fa-question-circle fpbx-help-icon" data-for="exportprefix"></i>
+									</div>
+									<div class="col-md-9">
+										<input type="text" class="form-control" id="exportprefix" name="exportprefix" maxlength="60" value="<?php echo htmlspecialchars(isset($options['exportprefix']) ? $options['exportprefix'] : '', ENT_QUOTES); ?>">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<span id="exportprefix-help" class="help-block fpbx-help-block"><?php echo _("Optional text prepended to all exported filenames, for example a site or customer identifier."); ?></span>
+						</div>
+					</div>
+				</div>
+				<!--END exportprefix-->
 					
 				<div class="row">
 					<div class="col-md-12 text-right">
@@ -611,5 +644,86 @@ $(function () {
             $('#insertnodeno').prop('checked', true);
         }
     });
+
+    var $form = $('#dpvizForm');
+    if (!$form.length) {
+        return;
+    }
+
+    var groups = [
+        {
+            id: 'dpvizgeneral',
+            title: '<?php echo addslashes(_("Display & Navigation")); ?>',
+            selectors: [
+                'input[name="autoplay"]',
+                'input[name="datetime"]',
+                'input[name="panzoom"]',
+                'input[name="horizontal"]',
+                'input[name="displaydestinations"]'
+            ]
+        },
+        {
+            id: 'dpviznodes',
+            title: '<?php echo addslashes(_("Destinations & Nodes")); ?>',
+            selectors: [
+                'input[name="insertnode"]',
+                'input[name="inuseby"]',
+                'input[name="combineQueueRing"]',
+                'input[name="allowlist"]',
+                'input[name="blacklist"]',
+                'input[name="fmfm"]',
+                'input[name="extOptional"]',
+                'input[name="minimal"]'
+            ]
+        },
+        {
+            id: 'dpvizmembers',
+            title: '<?php echo addslashes(_("Queues & Ring Groups")); ?>',
+            selectors: [
+                'input[name="queue_member_display"]',
+                'input[name="dynmembers"]',
+                'input[name="queue_penalty"]',
+                'input[name="ring_member_display"]'
+            ]
+        },
+        {
+            id: 'dpvizexport',
+            title: '<?php echo addslashes(_("Export & Interaction")); ?>',
+            selectors: [
+                'input[name="exportprefix"]',
+                '#zoomSensitivity'
+            ]
+        }
+    ];
+
+    var moved = [];
+    var $saveRow = $form.children('.row').last();
+
+    $.each(groups, function (_, group) {
+        var $title = $('<div>', { 'class': 'section-title', 'data-for': group.id });
+        $title.append($('<h3>').html('<i class="fa fa-minus"></i> ' + group.title));
+
+        var $section = $('<div>', { 'class': 'section', 'data-id': group.id });
+
+        $.each(group.selectors, function (_, selector) {
+            var $container = $form.find(selector).first().closest('.element-container');
+            if (!$container.length) {
+                return;
+            }
+
+            var el = $container.get(0);
+            if ($.inArray(el, moved) !== -1) {
+                return;
+            }
+
+            moved.push(el);
+            $section.append($container);
+        });
+
+        if ($section.children().length) {
+            $saveRow.before($title).before($section);
+        }
+    });
+
 });
 </script>
